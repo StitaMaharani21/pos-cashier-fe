@@ -10,4 +10,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    // Lets the dev server be reached through an ngrok tunnel — Vite rejects
+    // unknown Host headers otherwise ("Blocked request. This host is not allowed").
+    allowedHosts: ['.ngrok-free.app', '.ngrok-free.dev', '.ngrok.app', '.ngrok.io'],
+  },
 })
