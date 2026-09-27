@@ -23,9 +23,11 @@ export function VoucherSection() {
       columns={voucherColumns}
       getRowId={(row) => row.id ?? 0}
       emptyMessage="Belum ada voucher."
-      renderForm={({ row, isSubmitting, onSubmit }) => (
-        <VoucherForm row={row} isSubmitting={isSubmitting} onSubmit={onSubmit} />
-      )}
+      presentation="sheet"
+      describeForm={(row) =>
+        row ? "Perbarui kode voucher diskon" : "Kode diskon yang dimasukkan kasir untuk memotong total belanja"
+      }
+      renderForm={(args) => <VoucherForm {...args} />}
     />
   )
 }

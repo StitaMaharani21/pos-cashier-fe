@@ -7,12 +7,12 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-// Icon + badge color per payment method type — shared by the table's
-// "Metode" column and the form's type picker.
-export const TYPE_META: Record<string, { icon: LucideIcon; className: string }> = {
-  qris: { icon: QrCodeIcon, className: "bg-blue-600" },
-  card: { icon: CreditCardIcon, className: "bg-violet-600" },
-  ewallet: { icon: WalletIcon, className: "bg-teal-500" },
-  cash: { icon: BanknoteIcon, className: "bg-amber-500" },
-  transfer: { icon: LandmarkIcon, className: "bg-sky-600" },
+// Icon + soft-tinted tile color per payment method type — the list rows and
+// the detail panel header.
+export const TYPE_META: Record<string, { icon: LucideIcon; tile: string }> = {
+  cash: { icon: BanknoteIcon, tile: "bg-amber-100 text-amber-700" },
+  card: { icon: CreditCardIcon, tile: "bg-violet-100 text-violet-700" },
+  transfer: { icon: LandmarkIcon, tile: "bg-sky-100 text-sky-700" },
+  ewallet: { icon: WalletIcon, tile: "bg-emerald-100 text-emerald-700" },
+  qris: { icon: QrCodeIcon, tile: "bg-blue-100 text-blue-700" },
 }

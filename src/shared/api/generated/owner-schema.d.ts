@@ -1430,6 +1430,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/master/menu-categories/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder menu categories
+         * @description Save a new order after drag & drop. `ids` may be a subset (e.g. one table page): those categories are rearranged within the slots they already occupy, others keep their place. Everything is renumbered 1..n.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Category ids in their new order */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["github_com_deltathrs_pos-kasir-be_internal_master_menu_category_dto.ReorderRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/master/menu-categories/{id}": {
         parameters: {
             query?: never;
@@ -1641,8 +1698,8 @@ export interface paths {
                     "multipart/form-data": {
                         /** @description Category ID */
                         category_id: number;
-                        /** @description Menu code */
-                        code: string;
+                        /** @description Menu code; omit to auto-generate (MNU-001, MNU-002, ...) */
+                        code?: string;
                         /** @description Menu name */
                         name: string;
                         /** @description Description */
@@ -1655,7 +1712,7 @@ export interface paths {
                         is_available?: boolean;
                         /** @description Is featured */
                         is_featured?: boolean;
-                        /** @description none|by_ingredient|by_menu, default none */
+                        /** @description none|by_ingredient|by_menu, default none - by_ingredient requires Pro/Enterprise or Starter+addon INVENTORY (402 otherwise) */
                         stock_deduction_method?: string;
                         /**
                          * Format: binary
@@ -1677,6 +1734,17 @@ export interface paths {
                 };
                 /** @description Bad Request */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+                /** @description Payment Required */
+                402: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1737,6 +1805,63 @@ export interface paths {
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/master/menus/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder menus
+         * @description Save a new order after drag & drop. `ids` may be a subset (e.g. one table page): those menus are rearranged within the slots they already occupy, others keep their place. Everything is renumbered 1..n. The cashier app lists menus in this order too.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Menu ids in their new order */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["github_com_deltathrs_pos-kasir-be_internal_master_menu_dto.ReorderRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
@@ -1861,7 +1986,7 @@ export interface paths {
                         is_available?: boolean;
                         /** @description Is featured */
                         is_featured?: boolean;
-                        /** @description none|by_ingredient|by_menu, default none */
+                        /** @description none|by_ingredient|by_menu, default none - by_ingredient requires Pro/Enterprise or Starter+addon INVENTORY (402 otherwise) */
                         stock_deduction_method?: string;
                         /**
                          * Format: binary
@@ -1883,6 +2008,17 @@ export interface paths {
                 };
                 /** @description Bad Request */
                 400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+                /** @description Payment Required */
+                402: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2273,6 +2409,269 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/master/payment-channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List payment channels
+         * @description Get a paginated list of payment channels, optionally filtered by type (bank/ewallet)
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Page number */
+                    page: number;
+                    /** @description Items per page */
+                    per_page: number;
+                    /** @description bank | ewallet */
+                    type?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["github_com_deltathrs_pos-kasir-be_internal_master_payment_channel_dto.PaginationResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create payment channel
+         * @description Create a new payment channel (a specific bank or e-wallet, e.g. "BCA", "GoPay") used as the second-step picker for card/transfer/ewallet payment methods.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** @description bank | ewallet */
+                        type: string;
+                        /** @description Channel name (e.g. \ */
+                        name: string;
+                        /** @description active | inactive */
+                        status?: string;
+                        /** @description Display order in the dropdown */
+                        sort_order?: number;
+                        /**
+                         * Format: binary
+                         * @description Logo image (jpeg/png/webp, max 2MB)
+                         */
+                        image?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.PaymentChannelResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/master/payment-channels/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get payment channel by ID
+         * @description Get a single payment channel by its ID
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Payment Channel ID */
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.PaymentChannelResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        /**
+         * Update payment channel
+         * @description Update an existing payment channel by ID. Send a new image to replace the current logo, or omit it to keep the existing one.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Payment Channel ID */
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** @description bank | ewallet */
+                        type: string;
+                        /** @description Channel name */
+                        name: string;
+                        /** @description active | inactive */
+                        status?: string;
+                        /** @description Display order in the dropdown */
+                        sort_order?: number;
+                        /**
+                         * Format: binary
+                         * @description New logo image (jpeg/png/webp, max 2MB); omit to keep current image
+                         */
+                        image?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.PaymentChannelResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * Delete payment channel
+         * @description Delete a payment channel by ID
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Payment Channel ID */
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/master/payment-methods": {
         parameters: {
             query?: never;
@@ -2346,6 +2745,12 @@ export interface paths {
                          * @description QRIS image (jpeg/png/webp, max 2MB); only meaningful for type=qris
                          */
                         image?: string;
+                        /** @description type=card only: accepted card types, repeat the field (debit | credit) */
+                        card_types?: string[];
+                        /** @description type=card only: accepted networks, repeat the field (visa | mastercard | gpn | jcb | amex | unionpay) */
+                        card_networks?: string[];
+                        /** @description type=card only: surcharge % of grand total charged on credit-card payments (0-100) */
+                        credit_surcharge_percent?: number;
                     };
                 };
             };
@@ -2451,6 +2856,12 @@ export interface paths {
                          * @description New QRIS image (jpeg/png/webp, max 2MB); omit to keep current image
                          */
                         image?: string;
+                        /** @description type=card only: accepted card types, repeat the field (debit | credit) */
+                        card_types?: string[];
+                        /** @description type=card only: accepted networks, repeat the field (visa | mastercard | gpn | jcb | amex | unionpay) */
+                        card_networks?: string[];
+                        /** @description type=card only: surcharge % of grand total charged on credit-card payments (0-100) */
+                        credit_surcharge_percent?: number;
                     };
                 };
             };
@@ -3775,11 +4186,28 @@ export interface components {
             status?: string;
         };
         "dto.CreateProductDiscountRequest": {
-            end_date: string;
+            /**
+             * @description ActiveDays: hari berlaku, subset dari mon tue wed thu fri sat sun.
+             *     Kosong = setiap hari.
+             */
+            active_days?: string[];
+            /** @description EndDate kosong/null = diskon tidak pernah berakhir. */
+            end_date?: string;
+            end_time?: string;
+            /**
+             * @description MaxDiscount: batas potongan (Rp) per unit menu untuk diskon persen.
+             *     0 = tanpa batas.
+             */
+            max_discount?: number;
             menu_ids: number[];
             minimum_qty?: number;
             name: string;
             start_date: string;
+            /**
+             * @description StartTime/EndTime: jam promo "HH:MM" (zona waktu toko). Keduanya kosong
+             *     = sepanjang hari; EndTime < StartTime = melewati tengah malam.
+             */
+            start_time?: string;
             /** @enum {string} */
             status: "active" | "inactive";
             /** @enum {string} */
@@ -3797,7 +4225,10 @@ export interface components {
         };
         "dto.CreateVoucherRequest": {
             code: string;
-            end_date: string;
+            /** @description EndDate kosong/null = voucher tidak pernah berakhir. */
+            end_date?: string;
+            /** @description MaxDiscount: batas potongan (Rp) untuk voucher persen. 0 = tanpa batas. */
+            max_discount?: number;
             minimum_purchase?: number;
             name: string;
             start_date: string;
@@ -3881,6 +4312,7 @@ export interface components {
         "dto.MenuCategoryResponse": {
             description?: string;
             id?: number;
+            menu_count?: number;
             name?: string;
             sort_order?: number;
             status?: string;
@@ -3917,6 +4349,7 @@ export interface components {
             name?: string;
             preparation_time?: number;
             price?: number;
+            sort_order?: number;
             /**
              * @description StockDeductionMethod: "none"/"by_ingredient"/"by_menu". Sama seperti
              *     StockQty, ini metadata operasional internal - sengaja TIDAK ada di
@@ -3948,7 +4381,18 @@ export interface components {
             sort_order?: number;
             type?: string;
         };
+        "dto.PaymentChannelResponse": {
+            id?: number;
+            logo_url?: string;
+            name?: string;
+            sort_order?: number;
+            status?: string;
+            type?: string;
+        };
         "dto.PaymentMethodResponse": {
+            card_networks?: string[];
+            card_types?: string[];
+            credit_surcharge_percent?: number;
             id?: number;
             image_url?: string;
             name?: string;
@@ -3971,8 +4415,11 @@ export interface components {
             revenue?: number;
         };
         "dto.ProductDiscountMenuResponse": {
+            image_url?: string;
+            menu_code?: string;
             menu_id?: number;
             menu_name?: string;
+            menu_price?: number;
         };
         "dto.ProductDiscountPaginationResponse": {
             data?: components["schemas"]["dto.ProductDiscountResponse"][];
@@ -3982,12 +4429,16 @@ export interface components {
             total_pages?: number;
         };
         "dto.ProductDiscountResponse": {
+            active_days?: string[];
             end_date?: string;
+            end_time?: string;
             id?: number;
+            max_discount?: number;
             menus?: components["schemas"]["dto.ProductDiscountMenuResponse"][];
             minimum_qty?: number;
             name?: string;
             start_date?: string;
+            start_time?: string;
             status?: string;
             type?: string;
             value?: number;
@@ -4050,11 +4501,28 @@ export interface components {
             sort_order?: number;
         };
         "dto.UpdateProductDiscountRequest": {
-            end_date: string;
+            /**
+             * @description ActiveDays: hari berlaku, subset dari mon tue wed thu fri sat sun.
+             *     Kosong = setiap hari.
+             */
+            active_days?: string[];
+            /** @description EndDate kosong/null = diskon tidak pernah berakhir. */
+            end_date?: string;
+            end_time?: string;
+            /**
+             * @description MaxDiscount: batas potongan (Rp) per unit menu untuk diskon persen.
+             *     0 = tanpa batas.
+             */
+            max_discount?: number;
             menu_ids: number[];
             minimum_qty?: number;
             name: string;
             start_date: string;
+            /**
+             * @description StartTime/EndTime: jam promo "HH:MM" (zona waktu toko). Keduanya kosong
+             *     = sepanjang hari; EndTime < StartTime = melewati tengah malam.
+             */
+            start_time?: string;
             /** @enum {string} */
             status: "active" | "inactive";
             /** @enum {string} */
@@ -4074,7 +4542,10 @@ export interface components {
         };
         "dto.UpdateVoucherRequest": {
             code: string;
-            end_date: string;
+            /** @description EndDate kosong/null = voucher tidak pernah berakhir. */
+            end_date?: string;
+            /** @description MaxDiscount: batas potongan (Rp) untuk voucher persen. 0 = tanpa batas. */
+            max_discount?: number;
             minimum_purchase?: number;
             name: string;
             start_date: string;
@@ -4108,6 +4579,7 @@ export interface components {
             code?: string;
             end_date?: string;
             id?: number;
+            max_discount?: number;
             minimum_purchase?: number;
             name?: string;
             start_date?: string;
@@ -4163,6 +4635,9 @@ export interface components {
             total?: number;
             total_pages?: number;
         };
+        "github_com_deltathrs_pos-kasir-be_internal_master_menu_category_dto.ReorderRequest": {
+            ids: number[];
+        };
         "github_com_deltathrs_pos-kasir-be_internal_master_menu_dto.AddonGroupResponse": {
             id?: number;
             is_required?: boolean;
@@ -4181,6 +4656,9 @@ export interface components {
             per_page?: number;
             total?: number;
             total_pages?: number;
+        };
+        "github_com_deltathrs_pos-kasir-be_internal_master_menu_dto.ReorderRequest": {
+            ids: number[];
         };
         "github_com_deltathrs_pos-kasir-be_internal_master_menu_dto.StockMovementPaginationResponse": {
             data?: components["schemas"]["github_com_deltathrs_pos-kasir-be_internal_master_menu_dto.StockMovementResponse"][];
@@ -4208,6 +4686,13 @@ export interface components {
             name?: string;
             stock_from_last_movement?: number;
             stock_in_table?: number;
+        };
+        "github_com_deltathrs_pos-kasir-be_internal_master_payment_channel_dto.PaginationResponse": {
+            data?: components["schemas"]["dto.PaymentChannelResponse"][];
+            page?: number;
+            per_page?: number;
+            total?: number;
+            total_pages?: number;
         };
         "github_com_deltathrs_pos-kasir-be_internal_master_payment_method_dto.PaginationResponse": {
             data?: components["schemas"]["dto.PaymentMethodResponse"][];

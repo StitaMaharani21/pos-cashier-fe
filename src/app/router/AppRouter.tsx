@@ -10,8 +10,7 @@ import { ChangePasswordSection } from "@/modules/owner/change-password/section/C
 import { CashierSection } from "@/modules/owner/cashier/section/CashierSection"
 import { DashboardSection } from "@/modules/owner/dashboard/section/DashboardSection"
 import { IngredientSection } from "@/modules/owner/ingredient/section/IngredientSection"
-import { MenuSection } from "@/modules/owner/menu/section/MenuSection"
-import { MenuCategorySection } from "@/modules/owner/menu-category/section/MenuCategorySection"
+import { MenuCatalogSection } from "@/modules/owner/menu/section/MenuCatalogSection"
 import { OrderTypeSection } from "@/modules/owner/order-type/section/OrderTypeSection"
 import { PaymentMethodSection } from "@/modules/owner/payment-method/section/PaymentMethodSection"
 import { ProductDiscountSection } from "@/modules/owner/product-discount/section/ProductDiscountSection"
@@ -47,11 +46,10 @@ export function AppRouter() {
           }
         >
           <Route index element={guarded("", <DashboardSection />)} />
-          <Route path="menu" element={guarded("menu", <MenuSection />)} />
-          <Route
-            path="menu-category"
-            element={guarded("menu-category", <MenuCategorySection />)}
-          />
+          {/* Categories + menus share one page with tabs; the old
+              category URL lands on its tab. */}
+          <Route path="menu" element={guarded("menu", <MenuCatalogSection />)} />
+          <Route path="menu-category" element={<Navigate to="/app/menu" replace />} />
           <Route path="ingredient" element={guarded("ingredient", <IngredientSection />)} />
           <Route
             path="payment-method"

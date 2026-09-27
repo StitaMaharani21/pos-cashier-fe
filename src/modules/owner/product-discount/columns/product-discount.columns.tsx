@@ -1,14 +1,12 @@
-import { format } from "date-fns"
-
 import type { ProductDiscount } from "@/entities/product-discount/model/product-discount.types"
+import {
+  describeApiPeriod,
+  describeDays,
+  describeHours,
+  describeValue,
+} from "@/modules/owner/discount-form/lib/discount-rules"
 import type { CrudColumn } from "@/shared/api/crud/types"
-import { formatRupiah } from "@/shared/lib/utils"
 import { StatusBadge } from "@/shared/ui/status-badge"
-
-function formatDateRange(start?: string, end?: string): string {
-  if (!start || !end) return "—"
-  return `${format(new Date(start), "d MMM yyyy")} – ${format(new Date(end), "d MMM yyyy")}`
-}
 
 export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
   {
@@ -20,17 +18,30 @@ export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
     key: "value",
     header: "Nilai",
     render: (row) =>
-      row.type === "percent" ? `${row.value ?? 0}%` : formatRupiah(row.value ?? 0),
+      describeValue({
+        type: row.type === "fixed" ? "fixed" : "percent",
+        value: row.value ?? 0,
+        maxDiscount: row.max_discount ?? 0,
+      }),
   },
   {
     key: "minimum_qty",
     header: "Min. Qty",
-    render: (row) => row.minimum_qty ?? 0,
+    render: (row) => ((row.minimum_qty ?? 0) > 1 ? `${row.minimum_qty} item` : "—"),
   },
   {
     key: "period",
     header: "Periode",
-    render: (row) => formatDateRange(row.start_date, row.end_date),
+    render: (row) => (
+      <div className="flex flex-col">
+        <span>{describeApiPeriod(row.start_date, row.end_date)}</span>
+        {(row.active_days?.length || row.start_time) && (
+          <span className="text-xs text-muted-foreground">
+            {describeDays(row.active_days ?? [])} · {describeHours(row.start_time ?? "", row.end_time ?? "")}
+          </span>
+        )}
+      </div>
+    ),
   },
   {
     key: "menus",

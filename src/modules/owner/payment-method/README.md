@@ -1,11 +1,16 @@
 # modules/owner/payment-method
 
-Manage which payment methods cashiers can accept. Backed by `pos-kasir-be`'s `internal/master/payment_method`: `/master/payment-methods` (owner-only). **`POST`/`PUT` are `multipart/form-data`, not JSON** (image upload for the QRIS type) — `shared/api/crud/createCrudService` doesn't fit, so `api/payment-method.service.ts` is hand-written instead, same pattern as `menu`.
+Which payments the store accepts. **One payment method per type**, fixed list of five (`constants/payment-providers.ts` `METHOD_TYPES`): Tunai, Kartu Debit/Kredit, Transfer Bank, E-Wallet, QRIS. Left: the list with an on/off switch each; right: the selected method's settings.
 
-Fields: `name` (required — never typed by the owner: fixed "Tunai"/"QRIS" for cash/qris, otherwise picked from the fixed lists in `constants/payment-providers.ts` — e-wallet providers, banks, or Debit/Kredit for card; no "other" free-text option. Providers already saved for the same type are disabled in the picker. The backend has no provider column, so the chosen provider *is* the `name`), `type` (required, backend-enforced `oneof=cash card transfer qris ewallet`), `status` (free string — no backend enum, this app uses `active`/`inactive`), `image` (optional per the backend; this app requires it in the form specifically when `type = qris`).
+Backed by `pos-kasir-be`:
+- `/master/payment-methods` (`internal/master/payment_method`) — `name`, `type`, `status`, `image` (QRIS), and for `type=card`: `card_types` (debit/credit), `card_networks` (visa, mastercard, gpn, jcb, amex, unionpay) and `credit_surcharge_percent`. **POST/PUT are `multipart/form-data`**, list fields as repeated form fields; PUT replaces every field, so the section always resends the saved values (`methodPayload`). The backend clears card fields for non-card types.
+- `/master/payment-channels` (`internal/master/payment_channel`) — the specific banks (`type=bank`) and e-wallets (`type=ewallet`) the cashier picks as the second step when paying by card/transfer (bank list, shared) or e-wallet. Same multipart shape.
 
-The Figma design's "Tambah Metode Pembayaran" panel only shows Nama Metode + Status — `type` (and the conditional QRIS image field) were added on top of the mock since the backend can't create a working payment method without them.
+Behaviour:
+- **On/off switches save immediately** (list row or "Aktifkan metode ini"). Turning on a type the store has no row for creates it. Inactive methods/channels are rejected at payment by the backend (`PAYMENT_METHOD_INACTIVE` / `PAYMENT_CHANNEL_INACTIVE`).
+- **Settings are a draft** ("Ada perubahan belum disimpan") saved with "Simpan Perubahan": card types/networks/surcharge and the QRIS image update the method; bank/e-wallet checkboxes create missing channels or flip existing ones' status (channels are never deleted — payments reference them). Switching method with unsaved edits asks first.
+- Bank/e-wallet grids = suggested names (`BANK_PROVIDERS`, `EWALLET_PROVIDERS`) plus any channel the store already has.
+- **Credit-card surcharge is real**: at checkout the backend adds `credit_surcharge_percent` of the grand total when the cashier sends `card_type: "credit"` (payment `amount` = grand total + `surcharge_amount`; `Order.GrandTotal` unchanged). A cashier app that doesn't send `card_type` yet charges no surcharge.
+- Legacy: stores may have several rows of one type from the old free-form screen; the oldest is the one managed here (and gets renamed to the canonical name on the next save).
 
-UI is also a deliberate deviation from the rest of `modules/owner/*`: the Figma mock keeps the add/edit form permanently visible beside the table (not a toggleable dialog), so `section/PaymentMethodSection.tsx` is hand-wired (list/create/update/delete `useQuery`/`useMutation` + `CrudTable`) rather than going through `shared/ui/crud/CrudSection`.
-
-Sublayers: `api/` (multipart service), `constants/` (provider lists, `TYPE_META` icon/color per type), `components/` (`PaymentMethodForm.tsx`), `schemas/` (zod), `columns/` (`CrudColumn<PaymentMethod>[]`, type-colored icon per row), `section/` (`PaymentMethodSection.tsx`).
+Sublayers: `api/` (multipart service for methods + channels), `constants/` (method types, card options, provider suggestions, `TYPE_META` icon/tile colour), `components/` (`MethodListItem`, `MethodDetailPanel`, `ConfigPanels` — card / channel / QRIS, `OptionCard`, `method-draft` — draft model & dirty check), `section/` (`PaymentMethodSection.tsx` — queries, immediate toggles, draft save).

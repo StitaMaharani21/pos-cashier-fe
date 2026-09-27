@@ -31,8 +31,8 @@ interface RecipeManagerProps {
   menuId: number
 }
 
-// Self-contained fetch, mirroring MenuSection.tsx's own listAllCategories()
-// helper, rather than importing modules/owner/ingredient's paginated
+// Self-contained one-page fetch (like menu-category.service's
+// listMenuCategories), rather than importing modules/owner/ingredient's paginated
 // service — keeps this component independent of that module.
 async function listAllIngredients(): Promise<Ingredient[]> {
   try {

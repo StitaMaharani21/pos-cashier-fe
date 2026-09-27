@@ -1,14 +1,11 @@
-import { format } from "date-fns"
-
 import type { Voucher } from "@/entities/voucher/model/voucher.types"
+import {
+  describeApiPeriod,
+  describeValue,
+} from "@/modules/owner/discount-form/lib/discount-rules"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { formatRupiah } from "@/shared/lib/utils"
 import { StatusBadge } from "@/shared/ui/status-badge"
-
-function formatDateRange(start?: string, end?: string): string {
-  if (!start || !end) return "—"
-  return `${format(new Date(start), "d MMM yyyy")} – ${format(new Date(end), "d MMM yyyy")}`
-}
 
 export const voucherColumns: CrudColumn<Voucher>[] = [
   {
@@ -27,7 +24,11 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
     key: "value",
     header: "Nilai",
     render: (row) =>
-      row.type === "percent" ? `${row.value ?? 0}%` : formatRupiah(row.value ?? 0),
+      describeValue({
+        type: row.type === "fixed" ? "fixed" : "percent",
+        value: row.value ?? 0,
+        maxDiscount: row.max_discount ?? 0,
+      }),
   },
   {
     key: "minimum_purchase",
@@ -37,7 +38,7 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
   {
     key: "period",
     header: "Periode",
-    render: (row) => formatDateRange(row.start_date, row.end_date),
+    render: (row) => describeApiPeriod(row.start_date, row.end_date),
   },
   {
     key: "status",

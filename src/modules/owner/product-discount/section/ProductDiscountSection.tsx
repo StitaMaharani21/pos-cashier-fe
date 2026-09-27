@@ -25,9 +25,11 @@ export function ProductDiscountSection() {
       columns={productDiscountColumns}
       getRowId={(row) => row.id ?? 0}
       emptyMessage="Belum ada diskon otomatis."
-      renderForm={({ row, isSubmitting, onSubmit }) => (
-        <ProductDiscountForm row={row} isSubmitting={isSubmitting} onSubmit={onSubmit} />
-      )}
+      presentation="sheet"
+      describeForm={(row) =>
+        row ? "Perbarui aturan diskon otomatis" : "Potongan harga yang terpasang otomatis pada menu terpilih"
+      }
+      renderForm={(args) => <ProductDiscountForm {...args} />}
     />
   )
 }

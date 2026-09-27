@@ -1,22 +1,40 @@
 import type {
-  CreatePaymentMethodPayload,
   PaymentMethod,
-  UpdatePaymentMethodPayload,
+  PaymentMethodPayload,
 } from "@/entities/payment-method/model/payment-method.types"
+import type {
+  PaymentChannel,
+  PaymentChannelPayload,
+} from "@/entities/payment-channel/model/payment-channel.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
 
 // Hand-written, not `createCrudService` — POST/PUT here are
-// multipart/form-data (name/type/status/image), unlike the plain-JSON
-// resources that factory targets. See the feature README for why.
-const RESOURCE = "/master/payment-methods"
+// multipart/form-data (optional image/logo), unlike the plain-JSON resources
+// that factory targets. See the feature README.
+const METHODS = "/master/payment-methods"
+const CHANNELS = "/master/payment-channels"
 
-function toFormData(payload: CreatePaymentMethodPayload | UpdatePaymentMethodPayload): FormData {
+function methodFormData(payload: PaymentMethodPayload): FormData {
   const formData = new FormData()
   formData.append("name", payload.name)
   formData.append("type", payload.type)
   if (payload.status) formData.append("status", payload.status)
   if (payload.image) formData.append("image", payload.image)
+  // Repeated fields (card_types=debit&card_types=credit) — gin binds them
+  // into []string. Omitted entirely = empty list.
+  payload.card_types?.forEach((value) => formData.append("card_types", value))
+  payload.card_networks?.forEach((value) => formData.append("card_networks", value))
+  formData.append("credit_surcharge_percent", String(payload.credit_surcharge_percent ?? 0))
+  return formData
+}
+
+function channelFormData(payload: PaymentChannelPayload): FormData {
+  const formData = new FormData()
+  formData.append("type", payload.type)
+  formData.append("name", payload.name)
+  formData.append("status", payload.status)
+  formData.append("sort_order", String(payload.sort_order ?? 0))
   return formData
 }
 
@@ -28,28 +46,17 @@ function toServiceError(error: unknown): CrudServiceError {
   )
 }
 
+// A handful of rows at most — fetch one generous page, no pager UI.
 export async function listPaymentMethods(): Promise<PaymentMethod[]> {
-  try {
-    // No pagination UI for this screen (matches Figma — a handful of rows,
-    // no pager) — fetch a generously large page instead.
-    const response = await apiClient.get<PaginatedResponse<PaymentMethod>>(RESOURCE, {
-      params: { page: 1, per_page: 100 },
-    })
-    return response.data.data
-  } catch (error) {
-    console.error("Failed to list payment methods", error)
-    return []
-  }
+  const response = await apiClient.get<PaginatedResponse<PaymentMethod>>(METHODS, {
+    params: { page: 1, per_page: 100 },
+  })
+  return response.data.data
 }
 
-export async function createPaymentMethod(
-  payload: CreatePaymentMethodPayload
-): Promise<PaymentMethod> {
+export async function createPaymentMethod(payload: PaymentMethodPayload): Promise<PaymentMethod> {
   try {
-    const response = await apiClient.post<SingleResponse<PaymentMethod>>(
-      RESOURCE,
-      toFormData(payload)
-    )
+    const response = await apiClient.post<SingleResponse<PaymentMethod>>(METHODS, methodFormData(payload))
     return response.data.data
   } catch (error) {
     throw toServiceError(error)
@@ -58,12 +65,12 @@ export async function createPaymentMethod(
 
 export async function updatePaymentMethod(
   id: number,
-  payload: UpdatePaymentMethodPayload
+  payload: PaymentMethodPayload
 ): Promise<PaymentMethod> {
   try {
     const response = await apiClient.put<SingleResponse<PaymentMethod>>(
-      `${RESOURCE}/${id}`,
-      toFormData(payload)
+      `${METHODS}/${id}`,
+      methodFormData(payload)
     )
     return response.data.data
   } catch (error) {
@@ -71,9 +78,32 @@ export async function updatePaymentMethod(
   }
 }
 
-export async function deletePaymentMethod(id: number): Promise<void> {
+export async function listPaymentChannels(): Promise<PaymentChannel[]> {
+  const response = await apiClient.get<PaginatedResponse<PaymentChannel>>(CHANNELS, {
+    params: { page: 1, per_page: 100 },
+  })
+  return response.data.data
+}
+
+export async function createPaymentChannel(payload: PaymentChannelPayload): Promise<PaymentChannel> {
   try {
-    await apiClient.delete(`${RESOURCE}/${id}`)
+    const response = await apiClient.post<SingleResponse<PaymentChannel>>(CHANNELS, channelFormData(payload))
+    return response.data.data
+  } catch (error) {
+    throw toServiceError(error)
+  }
+}
+
+export async function updatePaymentChannel(
+  id: number,
+  payload: PaymentChannelPayload
+): Promise<PaymentChannel> {
+  try {
+    const response = await apiClient.put<SingleResponse<PaymentChannel>>(
+      `${CHANNELS}/${id}`,
+      channelFormData(payload)
+    )
+    return response.data.data
   } catch (error) {
     throw toServiceError(error)
   }

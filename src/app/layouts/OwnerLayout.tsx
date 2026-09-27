@@ -31,8 +31,8 @@ const NAV_GROUPS = [
     label: "Master Data",
     icon: FolderIcon,
     items: [
-      { to: "/app/menu", label: "Produk" },
-      { to: "/app/menu-category", label: "Kategori Produk" },
+      // Kategori Menu + Menu are tabs of this one page.
+      { to: "/app/menu", label: "Menu" },
       { to: "/app/ingredient", label: "Bahan Baku" },
       { to: "/app/payment-method", label: "Metode Pembayaran" },
       { to: "/app/order-type", label: "Jenis Order" },

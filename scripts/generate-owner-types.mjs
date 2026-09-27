@@ -38,6 +38,8 @@ const ALLOWED_PATH_PREFIXES = [
   "/master/menus",
   "/master/menu-categories",
   "/master/payment-methods",
+  // Banks / e-wallets offered under the transfer/card/ewallet methods.
+  "/master/payment-channels",
   "/master/tables",
   "/master/business-settings",
   "/master/order-types",

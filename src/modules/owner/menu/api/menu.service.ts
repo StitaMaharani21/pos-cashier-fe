@@ -32,6 +32,8 @@ export interface ListMenusParams {
   perPage: number
   search?: string
   categoryId?: number
+  // The "Status" filter: Tersedia (true) / Tidak tersedia (false).
+  available?: boolean
 }
 
 export interface ListMenusResult {
@@ -43,7 +45,8 @@ export interface ListMenusResult {
 function toFormData(payload: CreateMenuFormPayload | UpdateMenuFormPayload): FormData {
   const formData = new FormData()
   formData.append("category_id", String(payload.category_id))
-  formData.append("code", payload.code)
+  // Empty on create → the backend generates MNU-001, MNU-002, ...
+  if (payload.code) formData.append("code", payload.code)
   formData.append("name", payload.name)
   if (payload.description) formData.append("description", payload.description)
   formData.append("price", String(payload.price))
@@ -65,30 +68,65 @@ function toServiceError(error: unknown): CrudServiceError {
   )
 }
 
+// Throws on failure (the section shows an error state) — listed in the
+// backend's `urutan` order, the same order the cashier app uses.
 export async function listMenus({
   page,
   perPage,
   search,
   categoryId,
+  available,
 }: ListMenusParams): Promise<ListMenusResult> {
-  try {
-    const response = await apiClient.get<PaginatedResponse<Menu>>(RESOURCE, {
-      params: {
-        page,
-        per_page: perPage,
-        search: search || undefined,
-        category_id: categoryId || undefined,
-      },
-    })
-    return {
-      items: response.data.data,
-      total: response.data.total,
-      totalPages: response.data.total_pages,
-    }
-  } catch (error) {
-    console.error("Failed to list menus", error)
-    return { items: [], total: 0, totalPages: 0 }
+  const response = await apiClient.get<PaginatedResponse<Menu>>(RESOURCE, {
+    params: {
+      page,
+      per_page: perPage,
+      search: search || undefined,
+      category_id: categoryId || undefined,
+      available,
+    },
+  })
+  return {
+    items: response.data.data,
+    total: response.data.total,
+    totalPages: response.data.total_pages,
   }
+}
+
+// `ids` in their new order — may be just the page on screen; the backend
+// rearranges them within the slots they occupy (PUT /master/menus/reorder).
+export async function reorderMenus(ids: number[]): Promise<void> {
+  try {
+    await apiClient.put(`${RESOURCE}/reorder`, { ids })
+  } catch (error) {
+    throw toServiceError(error)
+  }
+}
+
+// Single-column update — doesn't touch anything else on the menu.
+export async function setMenuAvailability(id: number, isAvailable: boolean): Promise<void> {
+  try {
+    await apiClient.patch(`${RESOURCE}/${id}/availability`, { is_available: isAvailable })
+  } catch (error) {
+    throw toServiceError(error)
+  }
+}
+
+// The star in the list. There's no dedicated endpoint, so this resends the
+// row's own fields through the regular PUT (no image = keep the current
+// one; no stock_qty = stock untouched) with is_featured flipped.
+export async function setMenuFeatured(menu: Menu, isFeatured: boolean): Promise<Menu> {
+  return updateMenu(menu.id ?? 0, {
+    category_id: menu.category_id ?? 0,
+    code: menu.code ?? "",
+    name: menu.name ?? "",
+    description: menu.description ?? "",
+    price: menu.price ?? 0,
+    preparation_time: menu.preparation_time,
+    is_available: menu.is_available ?? false,
+    is_featured: isFeatured,
+    stock_deduction_method: menu.stock_deduction_method ?? "none",
+  } as UpdateMenuFormPayload)
 }
 
 // stock_qty lives on a separate endpoint (`dto.UpsertStockRequest` only has
