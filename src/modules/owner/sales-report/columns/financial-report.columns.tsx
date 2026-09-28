@@ -1,5 +1,4 @@
 import { format } from "date-fns"
-import { EyeIcon } from "lucide-react"
 
 import type { FinancialReportTransaction } from "@/entities/order/model/order-analytics.types"
 import type { CrudColumn } from "@/shared/api/crud/types"
@@ -53,11 +52,13 @@ export const financialReportColumns: CrudColumn<FinancialReportTransaction>[] = 
   {
     key: "item_count",
     header: "Jumlah Item",
+    align: "right",
     render: (row) => <span className="tabular-nums">{row.item_count ?? 0} Item</span>,
   },
   {
     key: "discount_amount",
     header: "Diskon",
+    align: "right",
     render: (row) =>
       row.discount_amount ? (
         <span className="tabular-nums text-destructive">
@@ -70,24 +71,11 @@ export const financialReportColumns: CrudColumn<FinancialReportTransaction>[] = 
   {
     key: "total_paid",
     header: "Total Bayar",
+    align: "right",
     render: (row) => (
       <span className="font-semibold tabular-nums text-foreground">
         {formatRupiah(row.total_paid ?? 0)}
       </span>
-    ),
-  },
-  {
-    key: "actions",
-    header: "Aksi",
-    render: () => (
-      <button
-        type="button"
-        disabled
-        className="flex size-7 items-center justify-center rounded-md text-muted-foreground disabled:opacity-50"
-        aria-label="Lihat detail"
-      >
-        <EyeIcon className="size-4" />
-      </button>
     ),
   },
 ]

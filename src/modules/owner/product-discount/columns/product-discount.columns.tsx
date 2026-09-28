@@ -1,3 +1,5 @@
+import { BadgePercentIcon } from "lucide-react"
+
 import type { ProductDiscount } from "@/entities/product-discount/model/product-discount.types"
 import {
   describeApiPeriod,
@@ -7,12 +9,19 @@ import {
 } from "@/modules/owner/discount-form/lib/discount-rules"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { StatusBadge } from "@/shared/ui/status-badge"
+import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 
 export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
   {
     key: "name",
-    header: "Nama Diskon",
-    render: (row) => <span className="font-semibold text-foreground">{row.name}</span>,
+    header: "Diskon",
+    render: (row) => (
+      <TitleCell
+        leading={<IconTile icon={BadgePercentIcon} />}
+        title={row.name}
+        subtitle={`${row.menus?.length ?? 0} menu`}
+      />
+    ),
   },
   {
     key: "value",
@@ -27,6 +36,7 @@ export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
   {
     key: "minimum_qty",
     header: "Min. Qty",
+    align: "right",
     render: (row) => ((row.minimum_qty ?? 0) > 1 ? `${row.minimum_qty} item` : "—"),
   },
   {
@@ -56,6 +66,7 @@ export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
   {
     key: "status",
     header: "Status",
+    className: "w-32",
     render: (row) => <StatusBadge active={row.status === "active"} />,
   },
 ]

@@ -1,21 +1,30 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { PlusIcon, UsersIcon } from "lucide-react"
 import { toast } from "sonner"
 
-import type { Cashier } from "@/entities/cashier/model/cashier.types"
+import type { Cashier, CreateCashierPayload } from "@/entities/cashier/model/cashier.types"
 import {
   createCashier,
+  deleteCashierPhoto,
   getCashierLimit,
   listCashiers,
   updateCashierStatus,
+  uploadCashierPhoto,
 } from "@/modules/owner/cashier/api/cashier.service"
 import { CashierForm } from "@/modules/owner/cashier/components/CashierForm"
 import { CashierLimitCard } from "@/modules/owner/cashier/components/CashierLimitCard"
+import { CashierPhotoDialog } from "@/modules/owner/cashier/components/CashierPhotoDialog"
 import { makeCashierColumns } from "@/modules/owner/cashier/columns/cashier.columns"
 import { CrudServiceError } from "@/shared/api/crud/types"
+import { STATUS_FILTER_OPTIONS, useClientTable } from "@/shared/hooks/useClientTable"
 import { Button } from "@/shared/ui/button"
 import { CrudDialogFrame } from "@/shared/ui/crud/CrudDialogFrame"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
+import { FilterSelect } from "@/shared/ui/filter-select"
+import { PageHeader } from "@/shared/ui/page-header"
+import { TablePagination } from "@/shared/ui/table-pagination"
+import { TableToolbar } from "@/shared/ui/table-toolbar"
 
 function errorMessage(error: unknown): string {
   if (error instanceof CrudServiceError) return error.message
@@ -29,6 +38,7 @@ function errorMessage(error: unknown): string {
 export function CashierSection() {
   const queryClient = useQueryClient()
   const [createOpen, setCreateOpen] = useState(false)
+  const [photoCashier, setPhotoCashier] = useState<Cashier | null>(null)
 
   const { data: cashiers = [], isLoading } = useQuery({
     queryKey: ["cashiers", "list"],
@@ -44,11 +54,35 @@ export function CashierSection() {
     queryClient.invalidateQueries({ queryKey: ["cashiers"] })
   }
 
+  // The create endpoint is JSON-only: the photo goes up right after the
+  // account exists. A failed photo upload doesn't undo the account — the
+  // owner can retry from the row's "Foto".
   const createMutation = useMutation({
-    mutationFn: createCashier,
-    onSuccess: () => {
-      toast.success("Kasir ditambahkan")
+    mutationFn: async ({ payload, photo }: { payload: CreateCashierPayload; photo: File | null }) => {
+      const cashier = await createCashier(payload)
+      if (!photo) return { photoError: null }
+      try {
+        await uploadCashierPhoto(cashier.id, photo)
+        return { photoError: null }
+      } catch (error) {
+        return { photoError: errorMessage(error) }
+      }
+    },
+    onSuccess: ({ photoError }) => {
+      if (photoError) toast.warning(`Kasir ditambahkan, tapi foto gagal diunggah: ${photoError}`)
+      else toast.success("Kasir ditambahkan")
       setCreateOpen(false)
+      invalidate()
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  })
+
+  const photoMutation = useMutation({
+    mutationFn: ({ id, file }: { id: number; file: File | null }) =>
+      file ? uploadCashierPhoto(id, file) : deleteCashierPhoto(id),
+    onSuccess: (_, { file }) => {
+      toast.success(file ? "Foto kasir diperbarui" : "Foto kasir dihapus")
+      setPhotoCashier(null)
       invalidate()
     },
     onError: (error) => toast.error(errorMessage(error)),
@@ -65,9 +99,15 @@ export function CashierSection() {
   })
 
   const atQuota = limit != null && limit.used >= limit.limit
+  const table = useClientTable({
+    rows: cashiers,
+    searchText: (row) => `${row.name} ${row.username} ${row.phone_no}`,
+    filterValue: (row) => row.status,
+  })
 
   const columns = makeCashierColumns({
     isToggling: statusMutation.isPending,
+    onOpenPhoto: setPhotoCashier,
     onToggleStatus: (row: Cashier) =>
       statusMutation.mutate({
         id: row.id,
@@ -76,30 +116,70 @@ export function CashierSection() {
   })
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
+      <PageHeader title="Pengguna" description={`${cashiers.length} akun kasir terdaftar`} />
+
       <CashierLimitCard />
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Kasir</h2>
-        <Button onClick={() => setCreateOpen(true)} disabled={atQuota}>
-          Tambah Kasir
-        </Button>
-      </div>
+      <TableToolbar
+        search={table.search}
+        onSearchChange={table.setSearch}
+        searchPlaceholder="Cari nama, username, atau no. HP..."
+        filtering={table.filtering}
+        onReset={table.reset}
+        action={
+          <Button
+            className="h-10"
+            onClick={() => setCreateOpen(true)}
+            disabled={atQuota}
+            title={atQuota ? "Kuota kasir paket ini sudah penuh" : undefined}
+          >
+            <PlusIcon />
+            Tambah Kasir
+          </Button>
+        }
+      >
+        <FilterSelect label="Status" value={table.filter} options={STATUS_FILTER_OPTIONS} onChange={table.setFilter} />
+      </TableToolbar>
 
       <CrudTable
         columns={columns}
-        rows={cashiers}
+        rows={table.pageRows}
         getRowId={(row) => row.id}
         isLoading={isLoading}
-        emptyMessage="Belum ada kasir."
+        empty={
+          table.filtering
+            ? { title: "Tidak ada kasir yang cocok", hint: "Ubah kata kunci atau filter." }
+            : { icon: UsersIcon, title: "Belum ada kasir", hint: "Tambahkan akun kasir untuk login di aplikasi kasir dengan PIN." }
+        }
+        footer={
+          !isLoading &&
+          table.total > 0 && (
+            <TablePagination
+              page={table.page}
+              totalPages={table.totalPages}
+              total={table.total}
+              perPage={table.perPage}
+              noun="kasir"
+              onPageChange={table.setPage}
+            />
+          )
+        }
       />
 
       <CrudDialogFrame open={createOpen} onOpenChange={setCreateOpen} title="Tambah Kasir">
         <CashierForm
           isSubmitting={createMutation.isPending}
-          onSubmit={(payload) => createMutation.mutate(payload)}
+          onSubmit={(payload, photo) => createMutation.mutate({ payload, photo })}
         />
       </CrudDialogFrame>
+
+      <CashierPhotoDialog
+        cashier={photoCashier}
+        onOpenChange={(open) => !open && setPhotoCashier(null)}
+        isSaving={photoMutation.isPending}
+        onSave={(cashier, file) => photoMutation.mutate({ id: cashier.id, file })}
+      />
     </div>
   )
 }

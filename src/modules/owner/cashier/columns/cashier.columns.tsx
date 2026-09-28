@@ -1,29 +1,37 @@
+import { CameraIcon } from "lucide-react"
+
 import type { Cashier } from "@/entities/cashier/model/cashier.types"
 import type { CrudColumn } from "@/shared/api/crud/types"
-import { Button } from "@/shared/ui/button"
-import { StatusBadge } from "@/shared/ui/status-badge"
+import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
+import { Switch } from "@/shared/ui/switch"
+import { TitleCell } from "@/shared/ui/table-cells"
+import { UserAvatar } from "@/shared/ui/user-avatar"
 
 interface MakeCashierColumnsArgs {
   onToggleStatus: (row: Cashier) => void
   isToggling: boolean
+  onOpenPhoto: (row: Cashier) => void
 }
 
-// A function (not a static array) because the status-toggle button needs
-// the mutation callback from the section that owns it — CrudColumn's
-// `render` has no other way to reach outside the row.
+// A function (not a static array) because the status switch and the photo
+// action need the section's callbacks — CrudColumn's `render` has no other
+// way to reach outside the row.
 export function makeCashierColumns({
   onToggleStatus,
   isToggling,
+  onOpenPhoto,
 }: MakeCashierColumnsArgs): CrudColumn<Cashier>[] {
   return [
     {
       key: "name",
-      header: "Nama",
-      render: (row) => <span className="font-semibold text-foreground">{row.name}</span>,
-    },
-    {
-      key: "username",
-      header: "Username",
+      header: "Kasir",
+      render: (row) => (
+        <TitleCell
+          leading={<UserAvatar name={row.name} src={row.photo} />}
+          title={row.name}
+          subtitle={`@${row.username}`}
+        />
+      ),
     },
     {
       key: "phone_no",
@@ -33,24 +41,33 @@ export function makeCashierColumns({
     {
       key: "status",
       header: "Status",
-      render: (row) => <StatusBadge active={row.status === "active"} />,
+      className: "w-40",
+      render: (row) => {
+        const active = row.status === "active"
+        return (
+          <label className="inline-flex items-center gap-2.5">
+            <Switch
+              checked={active}
+              disabled={isToggling}
+              onCheckedChange={() => onToggleStatus(row)}
+              aria-label={`${active ? "Nonaktifkan" : "Aktifkan"} ${row.name}`}
+              className="data-[state=checked]:bg-emerald-500"
+            />
+            <span className={active ? "text-sm font-semibold text-emerald-600" : "text-sm text-muted-foreground"}>
+              {active ? "Aktif" : "Nonaktif"}
+            </span>
+          </label>
+        )
+      },
     },
     {
       key: "actions",
       header: "Aksi",
+      className: "w-24",
       render: (row) => (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={isToggling}
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggleStatus(row)
-          }}
-        >
-          {row.status === "active" ? "Nonaktifkan" : "Aktifkan"}
-        </Button>
+        <RowActions>
+          <RowActionButton icon={CameraIcon} label={`Foto ${row.name}`} onClick={() => onOpenPhoto(row)} />
+        </RowActions>
       ),
     },
   ]

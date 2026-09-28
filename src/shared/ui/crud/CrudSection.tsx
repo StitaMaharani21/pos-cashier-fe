@@ -1,14 +1,23 @@
 import { Fragment, useState, type ReactNode } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import type { Module } from "@/shared/access/types"
 import { useCapabilities } from "@/shared/access/useCapabilities"
 import { CrudServiceError, type CrudColumn, type CrudService } from "@/shared/api/crud/types"
+import { STATUS_FILTER_OPTIONS, useClientTable } from "@/shared/hooks/useClientTable"
 import { Button } from "@/shared/ui/button"
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { CrudDialogFrame } from "@/shared/ui/crud/CrudDialogFrame"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
+import { FilterSelect } from "@/shared/ui/filter-select"
+import { PageHeader } from "@/shared/ui/page-header"
+import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
+import { TablePagination } from "@/shared/ui/table-pagination"
+import type { TableEmptyState } from "@/shared/ui/table-states"
+import { TableToolbar } from "@/shared/ui/table-toolbar"
 
 interface RenderFormArgs<T, TCreate, TUpdate> {
   row: T | null
@@ -29,8 +38,18 @@ interface CrudSectionProps<T, TCreate, TUpdate> {
   service: CrudService<T, TCreate, TUpdate>
   columns: CrudColumn<T>[]
   getRowId: (row: T) => string | number
+  // Row name for the action buttons' labels and the delete confirmation.
+  getRowLabel: (row: T) => string
   renderForm: (args: RenderFormArgs<T, TCreate, TUpdate>) => ReactNode
-  emptyMessage?: string
+  // Page subtitle from the total, e.g. (n) => `${n} voucher terdaftar`.
+  describeCount: (total: number) => string
+  // Search box (client-side) — the text a row is matched against.
+  searchText?: (row: T) => string
+  searchPlaceholder?: string
+  // "Status: Semua / Aktif / Nonaktif" filter — the row's status value.
+  statusOf?: (row: T) => string | undefined
+  empty?: TableEmptyState
+  minWidth?: string
   // Forwarded to `service.list()` on every fetch — required for backend
   // resources whose list endpoint mandates `page`/`per_page` (e.g.
   // `/master/menu-categories`), which would otherwise 400 with no params.
@@ -42,22 +61,29 @@ interface CrudSectionProps<T, TCreate, TUpdate> {
   // "sheet": the form opens in a right-hand drawer (the form owns its
   // scrolling body and footer — see renderForm's onCancel/onDelete).
   presentation?: "dialog" | "sheet"
-  // Sheet subtitle, per mode.
+  // Form subtitle, per mode.
   describeForm?: (row: T | null) => string
 }
 
 // The orchestrator every owner master-data feature's `section/*.tsx` wires
-// up: list + create/edit dialog + delete, all against a CrudService. Mirrors
-// oasis-college-web's CrudSection — agnostic to what's behind the service
-// (there it was Supabase, here it's the Go API via createCrudService).
+// up: the standard list page (PageHeader, TableToolbar, CrudTable with an
+// "Aksi" column, TablePagination — see shared/ui/README.md "Tabel") plus
+// create/edit form and delete confirmation, all against a CrudService. The
+// whole list is fetched once; search, filter and paging are client-side.
 export function CrudSection<T, TCreate, TUpdate>({
   title,
   queryKey,
   service,
   columns,
   getRowId,
+  getRowLabel,
   renderForm,
-  emptyMessage,
+  describeCount,
+  searchText,
+  searchPlaceholder = "Cari...",
+  statusOf,
+  empty,
+  minWidth,
   listParams,
   module,
   presentation = "dialog",
@@ -73,6 +99,7 @@ export function CrudSection<T, TCreate, TUpdate>({
     row: null,
     session: 0,
   })
+  const [deleting, setDeleting] = useState<T | null>(null)
   // Each open is a fresh form (keyed by session), and the row is kept while
   // the drawer animates closed so its content doesn't flip to "Tambah".
   const openForm = (row: T | null) => setDialogState((state) => ({ open: true, row, session: state.session + 1 }))
@@ -81,6 +108,8 @@ export function CrudSection<T, TCreate, TUpdate>({
     queryKey: [queryKey, listParams],
     queryFn: () => service.list(listParams),
   })
+
+  const table = useClientTable({ rows, searchText: searchText ?? (() => ""), filterValue: statusOf })
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: [queryKey] })
   const closeDialog = () => setDialogState((state) => ({ ...state, open: false }))
@@ -111,6 +140,7 @@ export function CrudSection<T, TCreate, TUpdate>({
     onSuccess: () => {
       toast.success(`${title} dihapus`)
       closeDialog()
+      setDeleting(null)
       invalidate()
     },
     onError: (error) => toast.error(errorMessage(error)),
@@ -137,24 +167,83 @@ export function CrudSection<T, TCreate, TUpdate>({
     isDeleting: removeMutation.isPending,
   })
 
+  const tableColumns: CrudColumn<T>[] =
+    canEdit || canDelete
+      ? [
+          ...columns,
+          {
+            key: "actions",
+            header: "Aksi",
+            className: "w-28",
+            render: (row) => (
+              <RowActions>
+                {canEdit && (
+                  <RowActionButton icon={PencilIcon} label={`Edit ${getRowLabel(row)}`} onClick={() => openForm(row)} />
+                )}
+                {canDelete && (
+                  <RowActionButton
+                    icon={Trash2Icon}
+                    tone="danger"
+                    label={`Hapus ${getRowLabel(row)}`}
+                    onClick={() => setDeleting(row)}
+                  />
+                )}
+              </RowActions>
+            ),
+          },
+        ]
+      : columns
+
+  const noun = title.toLowerCase()
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        {canCreate && (
-          <Button onClick={() => openForm(null)}>
-            Tambah {title}
-          </Button>
+    <div className="flex flex-col gap-6">
+      <PageHeader title={title} description={describeCount(rows.length)} />
+
+      <TableToolbar
+        search={searchText ? table.search : undefined}
+        onSearchChange={searchText ? table.setSearch : undefined}
+        searchPlaceholder={searchPlaceholder}
+        filtering={table.filtering}
+        onReset={table.reset}
+        action={
+          canCreate && (
+            <Button className="h-10" onClick={() => openForm(null)}>
+              <PlusIcon />
+              Tambah {title}
+            </Button>
+          )
+        }
+      >
+        {statusOf && (
+          <FilterSelect label="Status" value={table.filter} options={STATUS_FILTER_OPTIONS} onChange={table.setFilter} />
         )}
-      </div>
+      </TableToolbar>
 
       <CrudTable
-        columns={columns}
-        rows={rows}
+        columns={tableColumns}
+        rows={table.pageRows}
         getRowId={getRowId}
         isLoading={isLoading}
-        emptyMessage={emptyMessage}
-        onRowClick={canEdit ? (row) => openForm(row) : undefined}
+        minWidth={minWidth}
+        empty={
+          table.filtering
+            ? { title: `Tidak ada ${noun} yang cocok`, hint: "Ubah kata kunci atau filter." }
+            : empty ?? { title: `Belum ada ${noun}` }
+        }
+        footer={
+          !isLoading &&
+          table.total > 0 && (
+            <TablePagination
+              page={table.page}
+              totalPages={table.totalPages}
+              total={table.total}
+              perPage={table.perPage}
+              noun={noun}
+              onPageChange={table.setPage}
+            />
+          )
+        }
       />
 
       {presentation === "sheet" ? (
@@ -173,23 +262,19 @@ export function CrudSection<T, TCreate, TUpdate>({
           onOpenChange={(open) => setDialogState((state) => ({ ...state, open }))}
           title={formTitle}
           description={describeForm?.(dialogState.row)}
-          footer={
-            dialogState.row &&
-            canDelete && (
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={removeMutation.isPending}
-                onClick={() => removeMutation.mutate(getRowId(dialogState.row!))}
-              >
-                Hapus
-              </Button>
-            )
-          }
         >
           <Fragment key={dialogState.session}>{form}</Fragment>
         </CrudDialogFrame>
       )}
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={`Hapus ${noun}?`}
+        description={deleting ? `"${getRowLabel(deleting)}" akan dihapus permanen.` : undefined}
+        isPending={removeMutation.isPending}
+        onConfirm={() => deleting && removeMutation.mutate(getRowId(deleting))}
+      />
     </div>
   )
 }

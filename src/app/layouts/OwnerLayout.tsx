@@ -309,7 +309,9 @@ export function OwnerLayout() {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      {/* min-w-0: a wide table scrolls inside its card instead of pushing
+          the whole page sideways. */}
+      <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 border-b bg-card/95 px-12 py-3.5 backdrop-blur-sm">
           <OwnerHeader />
         </header>

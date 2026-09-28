@@ -22,6 +22,8 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
   {
     key: "qty",
     header: "Jumlah",
+    align: "right",
+    className: "tabular-nums",
     render: (row) => (
       <span className={cn("font-semibold", row.qty < 0 ? "text-destructive" : "text-emerald-600")}>
         {row.qty > 0 ? `+${row.qty}` : row.qty}
@@ -31,6 +33,8 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
   {
     key: "stock_change",
     header: "Stok Sebelum → Sesudah",
+    align: "right",
+    className: "tabular-nums text-muted-foreground",
     render: (row) => `${row.stockBefore} → ${row.stockAfter}`,
   },
   {
@@ -41,6 +45,7 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
   {
     key: "notes",
     header: "Keterangan",
+    className: "max-w-64 truncate",
     render: (row) => row.notes || "—",
   },
   {

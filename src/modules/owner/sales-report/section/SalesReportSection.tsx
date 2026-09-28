@@ -2,8 +2,6 @@ import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
   CupSodaIcon,
   ReceiptIcon,
   TrendingUpIcon,
@@ -20,9 +18,12 @@ import { SalesReportFilterBar } from "@/modules/owner/sales-report/components/Sa
 import { presetToRange, type DatePreset } from "@/modules/owner/sales-report/lib/date-presets"
 import { useFinancialReport } from "@/modules/owner/sales-report/sales-report.queries"
 import { formatRupiah } from "@/shared/lib/utils"
+import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
+import { PageHeader } from "@/shared/ui/page-header"
+import { TablePagination } from "@/shared/ui/table-pagination"
 
-const PER_PAGE = 6
+const PER_PAGE = TABLE_PER_PAGE
 
 export function SalesReportSection() {
   const [preset, setPreset] = useState<DatePreset>("today")
@@ -63,7 +64,7 @@ export function SalesReportSection() {
       ? { start: new Date(customStart), end: new Date(new Date(customEnd).getTime() + 86_400_000) }
       : presetToRange(preset === "custom" ? "today" : preset)
 
-  const { data: report, isLoading, isError } = useFinancialReport({
+  const { data: report, isLoading, isError, refetch } = useFinancialReport({
     startDate: range.start.toISOString(),
     endDate: range.end.toISOString(),
     cashierId,
@@ -77,8 +78,6 @@ export function SalesReportSection() {
   const total = report?.total ?? 0
   const totalPages = report?.total_pages ?? 0
   const pageSummary = report?.page_summary
-  const rangeStart = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const rangeEnd = Math.min(page * PER_PAGE, total)
 
   const totalOrders = summary.data?.total_orders ?? 0
   const totalRevenue = summary.data?.total_revenue ?? 0
@@ -92,13 +91,8 @@ export function SalesReportSection() {
     : null
 
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Laporan Penjualan</h1>
-        <p className="text-sm text-muted-foreground">
-          Ringkasan transaksi penjualan toko &amp; analitik omset harian
-        </p>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader title="Laporan Penjualan" description="Ringkasan transaksi penjualan toko & analitik omset harian" />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
@@ -223,64 +217,41 @@ export function SalesReportSection() {
         onSearchChange={setSearch}
       />
 
-      <div className="rounded-[18px] border bg-card p-2">
-        <CrudTable
-          columns={financialReportColumns}
-          rows={rows}
-          getRowId={(row) => row.order_id ?? 0}
-          isLoading={isLoading}
-          emptyMessage={
-            isError
-              ? "Gagal memuat data. Fitur ini mungkin memerlukan upgrade paket."
-              : "Belum ada transaksi pada rentang tanggal ini."
-          }
-        />
-
-        {total > 0 && (
-          <>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t px-4 py-3">
-              <span className="text-sm font-semibold text-foreground">Total Halaman Ini</span>
-              <div className="flex items-center gap-4 text-sm">
-                <span className="text-muted-foreground">{pageSummary?.item_count ?? 0} Item</span>
-                {!!pageSummary?.discount_amount && (
-                  <span className="text-destructive">
-                    - {formatRupiah(pageSummary.discount_amount)}
-                  </span>
-                )}
-                <span className="font-bold text-foreground">
-                  {formatRupiah(pageSummary?.total_paid ?? 0)}
-                </span>
+      <CrudTable
+        columns={financialReportColumns}
+        rows={rows}
+        getRowId={(row) => row.order_id ?? 0}
+        isLoading={isLoading}
+        isError={isError}
+        errorHint="Laporan transaksi mungkin memerlukan paket Pro atau addon Laporan."
+        onRetry={() => refetch()}
+        minWidth="min-w-[960px]"
+        empty={{ icon: ReceiptIcon, title: "Belum ada transaksi", hint: "Tidak ada transaksi pada rentang tanggal dan filter ini." }}
+        footer={
+          total > 0 && (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-muted/40 px-6 py-3">
+                <span className="text-sm font-semibold text-foreground">Total Halaman Ini</span>
+                <div className="flex items-center gap-6 text-sm tabular-nums">
+                  <span className="text-muted-foreground">{pageSummary?.item_count ?? 0} Item</span>
+                  {!!pageSummary?.discount_amount && (
+                    <span className="text-destructive">- {formatRupiah(pageSummary.discount_amount)}</span>
+                  )}
+                  <span className="font-bold text-foreground">{formatRupiah(pageSummary?.total_paid ?? 0)}</span>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-muted-foreground">
-                Menampilkan {rangeStart}–{rangeEnd} dari {total} transaksi
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((value) => Math.max(1, value - 1))}
-                  className="flex size-7 items-center justify-center rounded-md border text-muted-foreground disabled:opacity-40"
-                  aria-label="Sebelumnya"
-                >
-                  <ChevronLeftIcon className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-                  className="flex size-7 items-center justify-center rounded-md border text-muted-foreground disabled:opacity-40"
-                  aria-label="Berikutnya"
-                >
-                  <ChevronRightIcon className="size-3.5" />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+              <TablePagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                perPage={PER_PAGE}
+                noun="transaksi"
+                onPageChange={setPage}
+              />
+            </>
+          )
+        }
+      />
     </div>
   )
 }

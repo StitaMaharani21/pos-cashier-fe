@@ -126,7 +126,9 @@ export function useLowStockMenus() {
   return useQuery({
     queryKey: ["dashboard", "low-stock"],
     queryFn: async () => {
-      // LowStockCard renders its own "requires Pro" message on 403.
+      // Every plan (per-menu stock is a Starter feature too). A 403 would
+      // only mean a role without access — LowStockCard shows its own
+      // message, so no global toast.
       const res = await apiClient.get<SingleResponse<LowStockMenu[]>>(
         "/master/menus/low-stock",
         { skipForbiddenToast: true }

@@ -8,4 +8,6 @@ The drawer (`components/ProductDiscountForm.tsx`) is built from `modules/owner/d
 
 `components/MenuPickerDialog.tsx` is "+ Pilih Menu": every menu in one request (`listMenus`, per_page 500, filtered client-side), search by name/code, category chips with counts in the category drag order, "Pilih semua di kategori ini", rows grouped by category with the price after the **draft** discount (preview only — `discount-form/lib/discount-rules.discountAmount` mirrors `pricing.DiscountAmountFor`), and an "Ada diskon lain" badge when the menu's current `discount` comes from another rule (the cashier takes the largest cut). The selection is local until "Terapkan".
 
+List page: the shared table pattern (`shared/ui/README.md` "Tabel") via `CrudSection` — client-side search on name + menu names, "Status" filter, 10 per page, and an "Aksi" column (Edit opens the drawer, Hapus asks for confirmation). Rows themselves aren't clickable.
+
 Sublayers: `components/` (drawer form + menu picker), `schemas/` (zod, on top of `discount-form/schemas`), `columns/` (`CrudColumn<ProductDiscount>[]`), `section/` (`ProductDiscountSection.tsx`).

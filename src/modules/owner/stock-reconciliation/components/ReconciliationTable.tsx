@@ -1,14 +1,7 @@
 import { CheckCircle2Icon } from "lucide-react"
 
-import { cn } from "@/shared/lib/utils"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/ui/table"
+import type { CrudColumn } from "@/shared/api/crud/types"
+import { CrudTable } from "@/shared/ui/crud/CrudTable"
 
 // Structural, not the generated response type directly — ingredient/menu
 // reconciliation items only differ by their id field name (ingredient_id vs
@@ -25,63 +18,63 @@ interface ReconciliationTableProps {
   unit?: string
 }
 
-// An empty result here is the healthy case — unlike every other table in
-// this app, so this gets its own celebratory empty state instead of the
-// usual neutral "belum ada data" message.
-export function ReconciliationTable({ rows, isLoading, unit }: ReconciliationTableProps) {
-  if (!isLoading && rows.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed py-10 text-center">
-        <CheckCircle2Icon className="size-6 text-emerald-600" />
-        <p className="text-sm font-medium text-foreground">Tidak ada selisih</p>
-        <p className="text-xs text-muted-foreground">
-          Stok di tabel sudah sesuai dengan riwayat pergerakan terakhir.
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Nama</TableHead>
-          <TableHead>Stok di Tabel</TableHead>
-          <TableHead>Stok dari Movement Terakhir</TableHead>
-          <TableHead>Selisih</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {isLoading ? (
-          <TableRow>
-            <TableCell colSpan={4} className="text-center text-muted-foreground">
-              Memuat...
-            </TableCell>
-          </TableRow>
+function columns(unit?: string): CrudColumn<ReconciliationRow>[] {
+  const withUnit = (value: number) => (unit ? `${value} ${unit}` : String(value))
+  return [
+    {
+      key: "name",
+      header: "Nama",
+      render: (row) => <span className="font-bold text-foreground">{row.name}</span>,
+    },
+    {
+      key: "stock_in_table",
+      header: "Stok di Tabel",
+      align: "right",
+      className: "tabular-nums",
+      render: (row) => withUnit(row.stock_in_table ?? 0),
+    },
+    {
+      key: "stock_from_last_movement",
+      header: "Stok dari Pergerakan Terakhir",
+      align: "right",
+      className: "tabular-nums",
+      render: (row) => withUnit(row.stock_from_last_movement ?? 0),
+    },
+    {
+      key: "diff",
+      header: "Selisih",
+      align: "right",
+      className: "w-36",
+      render: (row) => {
+        const diff = (row.stock_in_table ?? 0) - (row.stock_from_last_movement ?? 0)
+        return diff === 0 ? (
+          <span className="text-muted-foreground">0</span>
         ) : (
-          rows.map((row, index) => {
-            const inTable = row.stock_in_table ?? 0
-            const lastMovement = row.stock_from_last_movement ?? 0
-            const diff = inTable - lastMovement
-            return (
-              <TableRow key={index}>
-                <TableCell className="font-semibold text-foreground">{row.name}</TableCell>
-                <TableCell>
-                  {inTable} {unit}
-                </TableCell>
-                <TableCell>
-                  {lastMovement} {unit}
-                </TableCell>
-                <TableCell>
-                  <span className={cn("font-semibold", diff !== 0 && "text-destructive")}>
-                    {diff > 0 ? `+${diff}` : diff} {unit}
-                  </span>
-                </TableCell>
-              </TableRow>
-            )
-          })
-        )}
-      </TableBody>
-    </Table>
+          <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-bold text-destructive tabular-nums">
+            {diff > 0 ? `+${withUnit(diff)}` : withUnit(diff)}
+          </span>
+        )
+      },
+    },
+  ]
+}
+
+// An empty result here is the healthy case — unlike every other table in
+// this app, so its empty state is the green "Tidak ada selisih".
+export function ReconciliationTable({ rows, isLoading, unit }: ReconciliationTableProps) {
+  return (
+    <CrudTable
+      columns={columns(unit)}
+      rows={rows}
+      getRowId={(row) => row.name ?? ""}
+      isLoading={isLoading}
+      minWidth="min-w-[640px]"
+      empty={{
+        icon: CheckCircle2Icon,
+        tone: "success",
+        title: "Tidak ada selisih",
+        hint: "Stok di tabel sudah sesuai dengan riwayat pergerakan terakhir.",
+      }}
+    />
   )
 }

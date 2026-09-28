@@ -1,3 +1,6 @@
+import { useState } from "react"
+
+import type { CreateCashierPayload } from "@/entities/cashier/model/cashier.types"
 import { cashierSchema, type CashierFormValues } from "@/modules/owner/cashier/schemas/cashier.schema"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { Button } from "@/shared/ui/button"
@@ -9,11 +12,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/shared/ui/form"
+import { AvatarPicker } from "@/shared/ui/avatar-picker"
 import { Input } from "@/shared/ui/input"
 
 interface CashierFormProps {
   isSubmitting: boolean
-  onSubmit: (values: { name: string; username: string; pin: string; phone_no: string }) => void
+  // photo is optional and uploaded after the account exists.
+  onSubmit: (payload: CreateCashierPayload, photo: File | null) => void
 }
 
 export function CashierForm({ isSubmitting, onSubmit }: CashierFormProps) {
@@ -21,19 +26,29 @@ export function CashierForm({ isSubmitting, onSubmit }: CashierFormProps) {
     schema: cashierSchema,
     defaultValues: { name: "", username: "", pin: "", phoneNo: "" },
   })
+  const [photo, setPhoto] = useState<File | null>(null)
+  const name = form.watch("name")
 
   function handleSubmit(values: CashierFormValues) {
-    onSubmit({
-      name: values.name,
-      username: values.username,
-      pin: values.pin,
-      phone_no: values.phoneNo ?? "",
-    })
+    onSubmit(
+      {
+        name: values.name,
+        username: values.username,
+        pin: values.pin,
+        phone_no: values.phoneNo ?? "",
+      },
+      photo
+    )
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-medium">Foto Profil</span>
+          <AvatarPicker name={name} onChange={setPhoto} />
+        </div>
+
         <FormField
           control={form.control}
           name="name"

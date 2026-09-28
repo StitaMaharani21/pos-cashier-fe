@@ -1,3 +1,5 @@
+import { TicketIcon } from "lucide-react"
+
 import type { Voucher } from "@/entities/voucher/model/voucher.types"
 import {
   describeApiPeriod,
@@ -6,18 +8,18 @@ import {
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { formatRupiah } from "@/shared/lib/utils"
 import { StatusBadge } from "@/shared/ui/status-badge"
+import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 
 export const voucherColumns: CrudColumn<Voucher>[] = [
   {
     key: "name",
-    header: "Nama Voucher",
-    render: (row) => <span className="font-semibold text-foreground">{row.name}</span>,
-  },
-  {
-    key: "code",
-    header: "Kode",
+    header: "Voucher",
     render: (row) => (
-      <span className="rounded-md bg-muted px-2 py-1 font-mono text-xs">{row.code}</span>
+      <TitleCell
+        leading={<IconTile icon={TicketIcon} />}
+        title={row.name}
+        subtitle={<span className="font-mono tracking-wide">{row.code}</span>}
+      />
     ),
   },
   {
@@ -33,6 +35,8 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
   {
     key: "minimum_purchase",
     header: "Min. Belanja",
+    align: "right",
+    className: "tabular-nums",
     render: (row) => (row.minimum_purchase ? formatRupiah(row.minimum_purchase) : "—"),
   },
   {
@@ -43,6 +47,7 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
   {
     key: "status",
     header: "Status",
+    className: "w-32",
     render: (row) => <StatusBadge active={row.status === "active"} />,
   },
 ]

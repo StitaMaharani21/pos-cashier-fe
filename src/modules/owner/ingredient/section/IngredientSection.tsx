@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ChevronLeftIcon, ChevronRightIcon, PlusIcon, SearchIcon } from "lucide-react"
+import { PackageIcon, PlusIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import type {
@@ -16,13 +16,18 @@ import {
 import { AdjustIngredientStockDialog } from "@/modules/owner/ingredient/components/AdjustIngredientStockDialog"
 import { IngredientForm } from "@/modules/owner/ingredient/components/IngredientForm"
 import { ingredientColumns } from "@/modules/owner/ingredient/columns/ingredient.columns"
+import { useCapabilities } from "@/shared/access/useCapabilities"
 import { CrudServiceError } from "@/shared/api/crud/types"
+import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { Button } from "@/shared/ui/button"
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { CrudDialogFrame } from "@/shared/ui/crud/CrudDialogFrame"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
-import { Input } from "@/shared/ui/input"
+import { PageHeader } from "@/shared/ui/page-header"
+import { TablePagination } from "@/shared/ui/table-pagination"
+import { TableToolbar } from "@/shared/ui/table-toolbar"
 
-const PER_PAGE = 10
+const PER_PAGE = TABLE_PER_PAGE
 
 export function IngredientSection() {
   const queryClient = useQueryClient()
@@ -34,6 +39,8 @@ export function IngredientSection() {
     row: null,
   })
   const [stockDialogRow, setStockDialogRow] = useState<Ingredient | null>(null)
+  const [deleting, setDeleting] = useState<Ingredient | null>(null)
+  const { can } = useCapabilities()
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 400)
@@ -45,7 +52,7 @@ export function IngredientSection() {
   }, [debouncedSearch])
 
   const listQueryKey = ["ingredients", page, debouncedSearch]
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: listQueryKey,
     queryFn: () => listIngredients({ page, perPage: PER_PAGE, search: debouncedSearch }),
   })
@@ -82,7 +89,7 @@ export function IngredientSection() {
     mutationFn: (id: number) => ingredientService.remove(id),
     onSuccess: () => {
       toast.success("Bahan baku dihapus")
-      closeDialog()
+      setDeleting(null)
       invalidate()
     },
     onError: (error) => toast.error(errorMessage(error)),
@@ -101,90 +108,63 @@ export function IngredientSection() {
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending
 
-  const columns = ingredientColumns({ onAdjustStock: (row) => setStockDialogRow(row) })
-
-  const rangeStart = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const rangeEnd = Math.min(page * PER_PAGE, total)
+  const columns = ingredientColumns({
+    onAdjustStock: (row) => setStockDialogRow(row),
+    onEdit: can("inventory", "edit") ? (row) => setDialogState({ open: true, row }) : undefined,
+    onDelete: can("inventory", "delete") ? setDeleting : undefined,
+  })
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Bahan Baku</h1>
-          <p className="text-sm text-muted-foreground">{total} bahan baku</p>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader title="Bahan Baku" description={`${total} bahan baku terdaftar`} />
 
-      <div className="flex flex-wrap items-center gap-2.5">
-        <div className="relative flex-1 min-w-[220px]">
-          <SearchIcon className="absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Cari bahan baku..."
-            className="pl-9"
-          />
-        </div>
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari bahan baku..."
+        filtering={search.trim() !== ""}
+        onReset={() => setSearch("")}
+        action={
+          can("inventory", "create") && (
+            <Button className="h-10" onClick={() => setDialogState({ open: true, row: null })}>
+              <PlusIcon />
+              Tambah Bahan Baku
+            </Button>
+          )
+        }
+      />
 
-        <Button onClick={() => setDialogState({ open: true, row: null })}>
-          <PlusIcon />
-          Tambah Bahan Baku
-        </Button>
-      </div>
-
-      <div className="rounded-[18px] border bg-card p-2">
-        <CrudTable
-          columns={columns}
-          rows={ingredients}
-          getRowId={(row) => row.id ?? 0}
-          isLoading={isLoading}
-          emptyMessage="Belum ada bahan baku."
-          onRowClick={(row) => setDialogState({ open: true, row })}
-        />
-
-        <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-sm text-muted-foreground">
-            Menampilkan {rangeStart}–{rangeEnd} dari {total} bahan baku
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={page <= 1}
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
-              className="flex size-7 items-center justify-center rounded-md border text-muted-foreground disabled:opacity-40"
-              aria-label="Sebelumnya"
-            >
-              <ChevronLeftIcon className="size-3.5" />
-            </button>
-            <button
-              type="button"
-              disabled={page >= totalPages}
-              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-              className="flex size-7 items-center justify-center rounded-md border text-muted-foreground disabled:opacity-40"
-              aria-label="Berikutnya"
-            >
-              <ChevronRightIcon className="size-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <CrudTable
+        columns={columns}
+        rows={ingredients}
+        getRowId={(row) => row.id ?? 0}
+        isLoading={isLoading}
+        isError={isError}
+        onRetry={() => refetch()}
+        empty={
+          debouncedSearch
+            ? { title: "Tidak ada bahan baku yang cocok", hint: "Ubah kata kunci pencarian." }
+            : { icon: PackageIcon, title: "Belum ada bahan baku", hint: "Tambahkan bahan baku untuk resep dan pelacakan stok." }
+        }
+        footer={
+          !isLoading &&
+          total > 0 && (
+            <TablePagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              perPage={PER_PAGE}
+              noun="bahan baku"
+              onPageChange={setPage}
+            />
+          )
+        }
+      />
 
       <CrudDialogFrame
         open={dialogState.open}
         onOpenChange={(open) => setDialogState((state) => ({ ...state, open }))}
         title={dialogState.row ? "Edit Bahan Baku" : "Tambah Bahan Baku"}
-        footer={
-          dialogState.row && (
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={removeMutation.isPending}
-              onClick={() => removeMutation.mutate(dialogState.row!.id ?? 0)}
-            >
-              Hapus
-            </Button>
-          )
-        }
       >
         <IngredientForm
           row={dialogState.row}
@@ -201,6 +181,15 @@ export function IngredientSection() {
           }}
         />
       </CrudDialogFrame>
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title="Hapus bahan baku?"
+        description={deleting ? `"${deleting.name}" akan dihapus permanen.` : undefined}
+        isPending={removeMutation.isPending}
+        onConfirm={() => deleting && removeMutation.mutate(deleting.id ?? 0)}
+      />
 
       <AdjustIngredientStockDialog
         row={stockDialogRow}

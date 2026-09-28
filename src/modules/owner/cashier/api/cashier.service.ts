@@ -59,6 +59,28 @@ export async function createCashier(payload: CreateCashierPayload): Promise<Cash
   }
 }
 
+// Multipart, field "photo" — the create endpoint is JSON-only, so a photo
+// picked in the create form is sent right after (see CashierSection).
+export async function uploadCashierPhoto(id: number, photo: File): Promise<Cashier> {
+  try {
+    const formData = new FormData()
+    formData.append("photo", photo)
+    const response = await apiClient.put<SingleResponse<Cashier>>(`${RESOURCE}/${id}/photo`, formData)
+    return response.data.data
+  } catch (error) {
+    throw toCrudServiceError(error)
+  }
+}
+
+export async function deleteCashierPhoto(id: number): Promise<Cashier> {
+  try {
+    const response = await apiClient.delete<SingleResponse<Cashier>>(`${RESOURCE}/${id}/photo`)
+    return response.data.data
+  } catch (error) {
+    throw toCrudServiceError(error)
+  }
+}
+
 export async function updateCashierStatus(
   id: number,
   payload: UpdateCashierStatusPayload

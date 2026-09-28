@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { HistoryIcon } from "lucide-react"
 
 import type {
   IngredientStockMovement,
@@ -21,9 +21,12 @@ import {
   normalizeIngredientMovement,
   normalizeMenuMovement,
 } from "@/modules/owner/stock-history/lib/normalize"
+import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
+import { PageHeader } from "@/shared/ui/page-header"
+import { TablePagination } from "@/shared/ui/table-pagination"
 
-const PER_PAGE = 20
+const PER_PAGE = TABLE_PER_PAGE
 
 export function StockHistorySection() {
   const [sourceType, setSourceType] = useState<StockHistorySourceType>("ingredient")
@@ -39,7 +42,7 @@ export function StockHistorySection() {
     queryFn: listAllMenusForPicker,
   })
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["stock-movements", sourceType, selectedId, page],
     queryFn: () =>
       sourceType === "ingredient"
@@ -67,17 +70,12 @@ export function StockHistorySection() {
     setPage(1)
   }
 
-  const rangeStart = total === 0 ? 0 : (page - 1) * PER_PAGE + 1
-  const rangeEnd = Math.min(page * PER_PAGE, total)
-
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Riwayat Stok</h1>
-        <p className="text-sm text-muted-foreground">
-          Pergerakan stok per bahan baku atau menu — penjualan otomatis maupun penyesuaian manual.
-        </p>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Riwayat Stok"
+        description="Pergerakan stok per bahan baku atau menu — penjualan otomatis maupun penyesuaian manual."
+      />
 
       <StockHistoryFilters
         sourceType={sourceType}
@@ -87,47 +85,33 @@ export function StockHistorySection() {
         onSelectedIdChange={handleSelectedIdChange}
       />
 
-      <div className="rounded-[18px] border bg-card p-2">
-        <CrudTable
-          columns={stockMovementColumns}
-          rows={rows}
-          getRowId={(row) => row.id}
-          isLoading={selectedId != null && isLoading}
-          emptyMessage={
-            selectedId == null
-              ? "Pilih bahan baku atau menu untuk melihat riwayat stoknya."
-              : "Belum ada pergerakan stok untuk item ini."
-          }
-        />
-
-        {selectedId != null && total > 0 && (
-          <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-sm text-muted-foreground">
-              Menampilkan {rangeStart}–{rangeEnd} dari {total} pergerakan
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((value) => Math.max(1, value - 1))}
-                className="flex size-7 items-center justify-center rounded-md border text-muted-foreground disabled:opacity-40"
-                aria-label="Sebelumnya"
-              >
-                <ChevronLeftIcon className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-                className="flex size-7 items-center justify-center rounded-md border text-muted-foreground disabled:opacity-40"
-                aria-label="Berikutnya"
-              >
-                <ChevronRightIcon className="size-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <CrudTable
+        columns={stockMovementColumns}
+        rows={rows}
+        getRowId={(row) => row.id}
+        isLoading={selectedId != null && isLoading}
+        isError={isError}
+        onRetry={() => refetch()}
+        minWidth="min-w-[900px]"
+        empty={
+          selectedId == null
+            ? { icon: HistoryIcon, title: "Pilih item terlebih dahulu", hint: "Pilih bahan baku atau menu untuk melihat riwayat stoknya." }
+            : { icon: HistoryIcon, title: "Belum ada pergerakan stok", hint: "Belum ada penjualan atau penyesuaian untuk item ini." }
+        }
+        footer={
+          selectedId != null &&
+          total > 0 && (
+            <TablePagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              perPage={PER_PAGE}
+              noun="pergerakan"
+              onPageChange={setPage}
+            />
+          )
+        }
+      />
     </div>
   )
 }

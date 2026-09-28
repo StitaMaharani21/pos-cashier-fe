@@ -10,4 +10,6 @@ A voucher already redeemed in an order can't be deleted (backend returns `409 VO
 
 Applying a voucher to a cart (`POST/DELETE /carts/{id}/voucher`) is a separate cashier-facing flow and lives outside this module.
 
+List page: the shared table pattern (`shared/ui/README.md` "Tabel") via `CrudSection` — client-side search on name + code, "Status" filter, 10 per page, and an "Aksi" column (Edit opens the drawer, Hapus asks for confirmation). Rows themselves aren't clickable.
+
 Sublayers: `components/` (drawer form), `schemas/` (zod, on top of `discount-form/schemas`), `columns/` (`CrudColumn<Voucher>[]`), `section/` (`VoucherSection.tsx`).

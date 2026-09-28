@@ -1,3 +1,5 @@
+import { TicketIcon } from "lucide-react"
+
 import type {
   CreateVoucherPayload,
   UpdateVoucherPayload,
@@ -22,7 +24,16 @@ export function VoucherSection() {
       listParams={{ page: 1, per_page: 100 }}
       columns={voucherColumns}
       getRowId={(row) => row.id ?? 0}
-      emptyMessage="Belum ada voucher."
+      getRowLabel={(row) => row.name ?? "voucher"}
+      describeCount={(total) => `${total} voucher terdaftar`}
+      searchText={(row) => `${row.name ?? ""} ${row.code ?? ""}`}
+      searchPlaceholder="Cari nama atau kode voucher..."
+      statusOf={(row) => row.status}
+      empty={{
+        icon: TicketIcon,
+        title: "Belum ada voucher",
+        hint: "Buat kode diskon yang bisa dimasukkan kasir saat transaksi.",
+      }}
       presentation="sheet"
       describeForm={(row) =>
         row ? "Perbarui kode voucher diskon" : "Kode diskon yang dimasukkan kasir untuk memotong total belanja"

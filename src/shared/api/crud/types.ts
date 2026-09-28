@@ -31,6 +31,10 @@ export interface CrudColumn<T> {
   key: string
   header: string
   render?: (row: T) => ReactNode
+  // Numbers/money "right", switches "center"; the "Aksi" column is always right.
+  align?: "left" | "center" | "right"
+  // Width / wrapping for both the header and the cells (e.g. "w-32", "whitespace-normal").
+  className?: string
 }
 
 export interface CrudService<T, TCreate = Partial<T>, TUpdate = Partial<T>> {

@@ -1,3 +1,5 @@
+import { BadgePercentIcon } from "lucide-react"
+
 import type {
   CreateProductDiscountPayload,
   ProductDiscount,
@@ -24,7 +26,17 @@ export function ProductDiscountSection() {
       listParams={{ page: 1, per_page: 100 }}
       columns={productDiscountColumns}
       getRowId={(row) => row.id ?? 0}
-      emptyMessage="Belum ada diskon otomatis."
+      getRowLabel={(row) => row.name ?? "diskon"}
+      describeCount={(total) => `${total} diskon otomatis terdaftar`}
+      searchText={(row) => `${row.name ?? ""} ${row.menus?.map((menu) => menu.menu_name).join(" ") ?? ""}`}
+      searchPlaceholder="Cari nama diskon atau menu..."
+      statusOf={(row) => row.status}
+      minWidth="min-w-[860px]"
+      empty={{
+        icon: BadgePercentIcon,
+        title: "Belum ada diskon otomatis",
+        hint: "Diskon otomatis langsung terpasang saat menu terpilih masuk keranjang.",
+      }}
       presentation="sheet"
       describeForm={(row) =>
         row ? "Perbarui aturan diskon otomatis" : "Potongan harga yang terpasang otomatis pada menu terpilih"

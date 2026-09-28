@@ -14,4 +14,6 @@ Stock is allowed to go negative by design (the payment deduction logic never blo
 
 For this ingredient's movement history or a store-wide drift check, see `modules/owner/stock-history` and `modules/owner/stock-reconciliation` — both call the audit-trail/reconciliation endpoints this module doesn't surface itself.
 
+List page: the shared table pattern (`shared/ui/README.md` "Tabel") with server-side search and paging (10 per page). "Aksi": Sesuaikan stok, Edit, Hapus (with confirmation). A stock at or below its minimum shows a "Menipis" badge.
+
 Sublayers: `api/` (service + pagination + stock-adjustment call), `components/` (form + adjust-stock dialog), `schemas/` (zod), `columns/` (`CrudColumn<Ingredient>[]`), `section/` (`IngredientSection.tsx`).

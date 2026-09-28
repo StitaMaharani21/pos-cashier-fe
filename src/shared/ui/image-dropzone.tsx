@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState, type DragEvent } from "react"
 import { ImageUpIcon, UploadCloudIcon } from "lucide-react"
 
+import { ACCEPTED_IMAGE_TYPES, imageFileError } from "@/shared/lib/image-file"
 import { cn } from "@/shared/lib/utils"
-
-const ACCEPTED = ["image/jpeg", "image/png", "image/webp"]
-const MAX_BYTES = 2 * 1024 * 1024
 
 interface ImageDropzoneProps {
   // Current image (edit mode) — shown until a new file is picked.
@@ -36,15 +34,9 @@ export function ImageDropzone({
 
   function accept(file: File | undefined) {
     if (!file) return
-    if (!ACCEPTED.includes(file.type)) {
-      setLocalError("Format harus PNG, JPG, atau WEBP")
-      return
-    }
-    if (file.size > MAX_BYTES) {
-      setLocalError("Ukuran foto maksimal 2MB")
-      return
-    }
-    setLocalError(null)
+    const invalid = imageFileError(file)
+    setLocalError(invalid)
+    if (invalid) return
     if (preview) URL.revokeObjectURL(preview)
     setPreview(URL.createObjectURL(file))
     onChange(file)
@@ -98,7 +90,7 @@ export function ImageDropzone({
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED.join(",")}
+        accept={ACCEPTED_IMAGE_TYPES.join(",")}
         className="hidden"
         onChange={(event) => {
           accept(event.target.files?.[0])

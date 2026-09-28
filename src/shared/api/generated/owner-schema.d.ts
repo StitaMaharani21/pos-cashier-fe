@@ -275,6 +275,121 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/users/cashier/{id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upload Cashier Profile Photo
+         * @description Owner-only. Replace a cashier's profile photo (multipart field "photo", jpeg/png/webp, max 2MB). Returns the updated cashier.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Cashier user ID */
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /**
+                         * Format: binary
+                         * @description Profile photo (jpeg/png/webp, max 2MB)
+                         */
+                        photo: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * Remove Cashier Profile Photo
+         * @description Owner-only. Clear a cashier's profile photo. Returns the updated cashier.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Cashier user ID */
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/users/cashier/{id}/status": {
         parameters: {
             query?: never;
@@ -1771,7 +1886,7 @@ export interface paths {
         };
         /**
          * List low-stock menus
-         * @description Get menus whose tracked stock has reached or fallen below their low_stock_threshold - powers the dashboard's low-stock notification. Requires the Pro plan.
+         * @description Get menus whose tracked stock has reached or fallen below their low_stock_threshold - powers the dashboard's low-stock notification. Available on every plan.
          */
         get: {
             parameters: {
@@ -4564,6 +4679,8 @@ export interface components {
             id?: number;
             name?: string;
             phone_no?: string;
+            /** @description Photo: URL publik foto profil (R2), "" = belum ada foto. */
+            photo?: string;
             role?: string;
             status?: string;
             username?: string;

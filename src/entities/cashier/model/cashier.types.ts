@@ -17,6 +17,9 @@ export interface Cashier {
   name: string
   username: string
   phone_no: string
+  // Profile photo URL (R2); "" = no photo. Set via PUT/DELETE
+  // /auth/users/cashier/{id}/photo, not the create body.
+  photo: string
   role: "owner" | "cashier"
   status: "active" | "inactive"
   created_at: string

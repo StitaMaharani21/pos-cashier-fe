@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ClockIcon, EyeIcon, PencilIcon, PlusIcon, SearchIcon, StarIcon, StarOffIcon } from "lucide-react"
+import { ClockIcon, EyeIcon, PencilIcon, PlusIcon, StarIcon, StarOffIcon, UtensilsCrossedIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import type { Menu } from "@/entities/menu/model/menu.types"
@@ -22,17 +22,24 @@ import { listMenuCategories } from "@/modules/owner/menu-category/api/menu-categ
 import { MENU_CATEGORIES_KEY } from "@/modules/owner/menu-category/constants/query-keys"
 import { useCapabilities } from "@/shared/access/useCapabilities"
 import { CrudServiceError } from "@/shared/api/crud/types"
+import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { useRowReorder } from "@/shared/hooks/useRowReorder"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { DragHandle } from "@/shared/ui/drag-handle"
 import { FilterSelect } from "@/shared/ui/filter-select"
-import { Input } from "@/shared/ui/input"
+import { PageHeader } from "@/shared/ui/page-header"
+import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 import { Switch } from "@/shared/ui/switch"
+import { Table, TableBody, TableCard, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
+import { TitleCell } from "@/shared/ui/table-cells"
 import { TablePagination } from "@/shared/ui/table-pagination"
+import { TableEmptyRow, TableErrorRow, TableSkeletonRows } from "@/shared/ui/table-states"
+import { TableToolbar } from "@/shared/ui/table-toolbar"
 
-const PER_PAGE = 10
+const PER_PAGE = TABLE_PER_PAGE
+const COLUMNS = 9
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
   { value: "available", label: "Tersedia" },
@@ -185,22 +192,27 @@ export function MenuSection() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Menu</h1>
-        <p className="text-sm text-muted-foreground">{total} menu terdaftar</p>
-      </div>
+      <PageHeader title="Menu" description={`${total} menu terdaftar`} />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative w-full max-w-md min-w-[220px] flex-1">
-          <SearchIcon className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Cari menu..."
-            aria-label="Cari menu"
-            className="h-10 bg-card pl-10"
-          />
-        </div>
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari menu..."
+        filtering={filtering}
+        onReset={() => {
+          setSearch("")
+          setStatus("all")
+          setCategoryId("all")
+        }}
+        action={
+          can("menu", "create") && (
+            <Button className="h-10" onClick={() => openForm(null)}>
+              <PlusIcon />
+              Tambah Menu
+            </Button>
+          )
+        }
+      >
         <FilterSelect label="Status" value={status} options={STATUS_OPTIONS} onChange={setStatus} />
         <FilterSelect
           label="Kategori"
@@ -211,171 +223,140 @@ export function MenuSection() {
           ]}
           onChange={setCategoryId}
         />
-        {filtering && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setSearch("")
-              setStatus("all")
-              setCategoryId("all")
-            }}
-          >
-            Reset filter
-          </Button>
-        )}
-        {can("menu", "create") && (
-          <Button className="ml-auto h-10" onClick={() => openForm(null)}>
-            <PlusIcon />
-            Tambah Menu
-          </Button>
-        )}
-      </div>
+      </TableToolbar>
 
-      <div className="overflow-hidden rounded-2xl border bg-card">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-sm">
-            <thead className="border-b bg-muted/40 text-left text-xs font-bold tracking-wide text-muted-foreground uppercase">
-              <tr>
-                <th scope="col" className="w-16 px-6 py-4">Urut</th>
-                <th scope="col" className="px-3 py-4">Menu</th>
-                <th scope="col" className="px-3 py-4">Kategori</th>
-                <th scope="col" className="px-3 py-4">Harga</th>
-                <th scope="col" className="px-3 py-4">Stok</th>
-                <th scope="col" className="px-3 py-4">Estimasi</th>
-                <th scope="col" className="px-3 py-4 text-center">Tersedia</th>
-                <th scope="col" className="px-3 py-4 text-center">Unggulan</th>
-                <th scope="col" className="w-28 px-6 py-4 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isPending &&
-                Array.from({ length: 5 }, (_, index) => (
-                  <tr key={index} className="border-b last:border-0">
-                    <td colSpan={9} className="px-6 py-4">
-                      <div className="h-10 animate-pulse rounded-lg bg-muted" />
-                    </td>
-                  </tr>
-                ))}
-              {isError && (
-                <tr>
-                  <td colSpan={9} className="px-6 py-10 text-center text-muted-foreground">
-                    Gagal memuat menu.{" "}
-                    <button type="button" className="font-semibold text-primary hover:underline" onClick={() => refetch()}>
-                      Coba lagi
-                    </button>
-                  </td>
-                </tr>
-              )}
-              {!isPending && !isError && menus.length === 0 && (
-                <tr>
-                  <td colSpan={9} className="px-6 py-10 text-center text-muted-foreground">
-                    {filtering ? "Tidak ada menu yang cocok." : "Belum ada menu."}
-                  </td>
-                </tr>
-              )}
-              {reorder.orderedRows.map((row) => {
-                const id = row.id ?? 0
-                const discounted = row.discount && row.final_price !== row.price
-                return (
-                  <tr
-                    key={id}
-                    {...reorder.rowProps(id)}
-                    className="border-b transition-colors last:border-0 hover:bg-muted/30 data-[dragging]:bg-primary/5 data-[dragging]:opacity-60"
-                  >
-                    <td className="px-6 py-3">
-                      <DragHandle label={row.name ?? "menu"} {...reorder.handleProps(id)} />
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex items-center gap-3">
-                        {row.image_url ? (
+      <TableCard
+        footer={
+          !isPending &&
+          total > 0 && (
+            <TablePagination
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              perPage={PER_PAGE}
+              noun="menu"
+              onPageChange={setPage}
+            />
+          )
+        }
+      >
+        <Table className="min-w-[980px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16">Urut</TableHead>
+              <TableHead>Menu</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead className="text-right">Harga</TableHead>
+              <TableHead className="text-right">Stok</TableHead>
+              <TableHead>Estimasi</TableHead>
+              <TableHead className="text-center">Tersedia</TableHead>
+              <TableHead className="text-center">Unggulan</TableHead>
+              <TableHead className="w-28 text-right">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isPending && <TableSkeletonRows colSpan={COLUMNS} />}
+            {isError && <TableErrorRow colSpan={COLUMNS} title="Gagal memuat menu" onRetry={() => refetch()} />}
+            {!isPending && !isError && menus.length === 0 && (
+              <TableEmptyRow
+                colSpan={COLUMNS}
+                {...(filtering
+                  ? { title: "Tidak ada menu yang cocok", hint: "Ubah kata kunci atau filter." }
+                  : {
+                      icon: UtensilsCrossedIcon,
+                      title: "Belum ada menu",
+                      hint: "Tambahkan menu yang dijual di aplikasi kasir.",
+                    })}
+              />
+            )}
+            {reorder.orderedRows.map((row) => {
+              const id = row.id ?? 0
+              const discounted = row.discount && row.final_price !== row.price
+              return (
+                <TableRow
+                  key={id}
+                  {...reorder.rowProps(id)}
+                  className="data-[dragging]:bg-primary/5 data-[dragging]:opacity-60"
+                >
+                  <TableCell>
+                    <DragHandle label={row.name ?? "menu"} {...reorder.handleProps(id)} />
+                  </TableCell>
+                  <TableCell>
+                    <TitleCell
+                      leading={
+                        row.image_url ? (
                           <img src={row.image_url} alt="" className="size-11 shrink-0 rounded-lg object-cover" />
                         ) : (
                           <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
                             {initials(row.name ?? "")}
                           </span>
-                        )}
-                        <span className="min-w-0">
-                          <span className="block truncate font-bold text-foreground">{row.name}</span>
-                          <span className="block text-xs text-muted-foreground">{row.code}</span>
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-3">
-                      <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-foreground">
-                        {row.category_name || "—"}
+                        )
+                      }
+                      title={row.name}
+                      subtitle={row.code}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground">
+                      {row.category_name || "—"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-bold tabular-nums">
+                    {formatRupiah(discounted ? (row.final_price ?? 0) : (row.price ?? 0))}
+                    {discounted && (
+                      <span className="block text-xs font-normal text-muted-foreground line-through">
+                        {formatRupiah(row.price ?? 0)}
                       </span>
-                    </td>
-                    <td className="px-3 py-3 font-bold whitespace-nowrap text-foreground">
-                      {formatRupiah(discounted ? (row.final_price ?? 0) : (row.price ?? 0))}
-                      {discounted && (
-                        <span className="block text-xs font-normal text-muted-foreground line-through">
-                          {formatRupiah(row.price ?? 0)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3 font-semibold whitespace-nowrap text-foreground">{stockLabel(row)}</td>
-                    <td className="px-3 py-3 whitespace-nowrap text-muted-foreground">
-                      {row.preparation_time ? (
-                        <span className="inline-flex items-center gap-1.5">
-                          <ClockIcon className="size-4" />
-                          {row.preparation_time} menit
-                        </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right font-semibold tabular-nums">{stockLabel(row)}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {row.preparation_time ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <ClockIcon className="size-4" />
+                        {row.preparation_time} menit
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Switch
+                      checked={row.is_available ?? false}
+                      disabled={!canEdit || (availabilityMutation.isPending && availabilityMutation.variables?.id === id)}
+                      onCheckedChange={(value) => availabilityMutation.mutate({ id, value })}
+                      aria-label={`${row.name} tersedia`}
+                      className="data-[state=checked]:bg-emerald-500"
+                    />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <button
+                      type="button"
+                      disabled={!canEdit || (featuredMutation.isPending && featuredMutation.variables?.menu.id === id)}
+                      onClick={() => featuredMutation.mutate({ menu: row, value: !row.is_featured })}
+                      aria-pressed={row.is_featured ?? false}
+                      aria-label={row.is_featured ? `Hapus ${row.name} dari unggulan` : `Jadikan ${row.name} unggulan`}
+                      className="inline-flex size-8 items-center justify-center rounded-md hover:bg-muted disabled:opacity-50"
+                    >
+                      {row.is_featured ? (
+                        <StarIcon className="size-5 fill-amber-400 text-amber-500" />
                       ) : (
-                        "—"
+                        <StarOffIcon className="size-5 text-muted-foreground/50" />
                       )}
-                    </td>
-                    <td className="px-3 py-3 text-center">
-                      <Switch
-                        checked={row.is_available ?? false}
-                        disabled={!canEdit || (availabilityMutation.isPending && availabilityMutation.variables?.id === id)}
-                        onCheckedChange={(value) => availabilityMutation.mutate({ id, value })}
-                        aria-label={`${row.name} tersedia`}
-                        className="data-[state=checked]:bg-emerald-500"
-                      />
-                    </td>
-                    <td className="px-3 py-3 text-center">
-                      <button
-                        type="button"
-                        disabled={!canEdit || (featuredMutation.isPending && featuredMutation.variables?.menu.id === id)}
-                        onClick={() => featuredMutation.mutate({ menu: row, value: !row.is_featured })}
-                        aria-pressed={row.is_featured ?? false}
-                        aria-label={row.is_featured ? `Hapus ${row.name} dari unggulan` : `Jadikan ${row.name} unggulan`}
-                        className="inline-flex size-8 items-center justify-center rounded-md hover:bg-muted disabled:opacity-50"
-                      >
-                        {row.is_featured ? (
-                          <StarIcon className="size-5 fill-amber-400 text-amber-500" />
-                        ) : (
-                          <StarOffIcon className="size-5 text-muted-foreground/50" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="px-6 py-3">
-                      <div className="flex justify-end gap-2">
-                        {canEdit && (
-                          <Button variant="outline" size="icon" aria-label={`Edit ${row.name}`} onClick={() => openForm(row)}>
-                            <PencilIcon />
-                          </Button>
-                        )}
-                        <Button variant="outline" size="icon" aria-label={`Lihat ${row.name}`} onClick={() => setPreviewing(row)}>
-                          <EyeIcon />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <TablePagination
-          page={page}
-          totalPages={totalPages}
-          total={total}
-          perPage={PER_PAGE}
-          noun="menu"
-          onPageChange={setPage}
-        />
-      </div>
+                    </button>
+                  </TableCell>
+                  <TableCell>
+                    <RowActions>
+                      {canEdit && <RowActionButton icon={PencilIcon} label={`Edit ${row.name}`} onClick={() => openForm(row)} />}
+                      <RowActionButton icon={EyeIcon} label={`Lihat ${row.name}`} onClick={() => setPreviewing(row)} />
+                    </RowActions>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </TableCard>
 
       <MenuPreviewSheet
         menu={previewing}
