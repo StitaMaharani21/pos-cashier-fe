@@ -1,5 +1,7 @@
 # modules/owner/cashier
 
+`/app/users` ("Pengguna") is `section/UsersSection.tsx`: tabs "Akun Kasir" (this module's `CashierSection`) and "Perangkat Kasir" (`?tab=devices`, `modules/owner/device` — the QR-paired devices a cashier may log in from).
+
 Owner-managed cashier accounts. Backed by `pos-kasir-be`'s `internal/auth` cashier-management routes (owner-only): `POST /auth/users/cashier` (create), `GET /auth/users/cashier` (list, paginated), `GET /auth/users/cashier/limit` (plan/addon quota), `PATCH /auth/users/cashier/{id}/status` (activate/deactivate), `PUT /auth/users/cashier/{id}/photo` (multipart field `photo`, jpeg/png/webp ≤ 2MB, stored on R2) and `DELETE /auth/users/cashier/{id}/photo` (remove).
 
 There's no full "edit" (no `PUT`), so `shared/api/crud/createCrudService`/`CrudSection` don't apply — hand-written functions in `api/cashier.service.ts` (same reasoning as `business-settings/api/business-settings.service.ts` for its singleton GET+PUT), wired directly with react-query in `section/CashierSection.tsx`, reusing `CrudTable`/`CrudDialogFrame` on their own instead of `CrudSection`.

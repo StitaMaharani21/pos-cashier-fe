@@ -461,6 +461,187 @@ export interface paths {
         };
         trace?: never;
     };
+    "/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Daftar device POS milik toko ini */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.DeviceResponse"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Klaim pairing code (dipanggil device setelah memindai QR) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Request Body */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.ClaimDeviceRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.ClaimDeviceResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/pairing-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Terbitkan pairing code (QR) untuk device POS baru */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Request Body */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["dto.GeneratePairingCodeRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["dto.PairingCodeResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Cabut akses device POS (mis. hilang/dijual) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Device ID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            [key: string]: string;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/master/business-settings": {
         parameters: {
             query?: never;
@@ -4281,6 +4462,13 @@ export interface components {
             current_password: string;
             new_password: string;
         };
+        "dto.ClaimDeviceRequest": {
+            device_name?: string;
+            pairing_token: string;
+        };
+        "dto.ClaimDeviceResponse": {
+            device_token?: string;
+        };
         "dto.CreateCashierRequest": {
             name: string;
             phone_no?: string;
@@ -4381,6 +4569,19 @@ export interface components {
             total_revenue?: number;
             total_revenue_change_percent?: number;
         };
+        "dto.DeviceResponse": {
+            bound_at?: string;
+            created_at?: string;
+            device_id?: string;
+            last_seen_at?: string;
+            name?: string;
+            /**
+             * @description PairingExpiresAt hanya untuk PENDING - lewat dari ini QR-nya basi
+             *     (FE menampilkannya sebagai "Kedaluwarsa").
+             */
+            pairing_expires_at?: string;
+            status?: string;
+        };
         "dto.FinancialReportListResponse": {
             data?: components["schemas"]["dto.FinancialReportTransactionResponse"][];
             page?: number;
@@ -4405,6 +4606,9 @@ export interface components {
             payment_method_name?: string;
             table_number?: string;
             total_paid?: number;
+        };
+        "dto.GeneratePairingCodeRequest": {
+            name?: string;
         };
         "dto.IngredientResponse": {
             id?: number;
@@ -4495,6 +4699,16 @@ export interface components {
             id?: number;
             sort_order?: number;
             type?: string;
+        };
+        "dto.PairingCodeResponse": {
+            /**
+             * @description DeviceID baris PENDING yang baru dibuat - FE memantau device ini di
+             *     GET /devices sampai statusnya BOUND (QR sudah dipindai & diklaim).
+             */
+            device_id?: string;
+            /** @description RFC3339 */
+            expires_at?: string;
+            pairing_token?: string;
         };
         "dto.PaymentChannelResponse": {
             id?: number;

@@ -99,7 +99,7 @@ One gap: `POST /auth/login/password`'s success response isn't typed in the backe
 
 ## Routing
 
-`app/router/AppRouter.tsx`: `/` (public landing page, `modules/public/landing` — always the landing page, even for a logged-in owner), `/daftar` (public store registration, `modules/public/store-registration` — redirects a logged-in owner to `/app`), `/login` (public) and `/app/*` (wrapped in `RequireAuth`, which checks `shared/auth`'s session and requires `role === "owner"`). Unknown paths redirect to `/`.
+`app/router/AppRouter.tsx`: `/` (public landing page, `modules/public/landing` — always the landing page, even for a logged-in owner), `/daftar` (public store registration, `modules/public/store-registration` — redirects a logged-in owner to `/app`), `/status-pendaftaran` (public, where a registered owner checks whether an admin approved the store yet), `/login` (public) and `/app/*` (wrapped in `RequireAuth`, which checks `shared/auth`'s session and requires `role === "owner"`). `RequireAuth` also validates the persisted session against the server before rendering the console (it waits for `GET /me/capabilities`; a 401 or a `404 unknown_store` logs the session out — see `shared/api/client.ts`), so a stale localStorage session can't open the dashboard. Unknown paths redirect to `/`.
 
 ## File naming conventions
 

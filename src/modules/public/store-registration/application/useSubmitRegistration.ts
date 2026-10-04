@@ -1,10 +1,26 @@
 import { useMutation } from "@tanstack/react-query"
 
-import { submitStoreRegistration } from "@/modules/public/store-registration/infrastructure/store-registration.api"
+import {
+  checkRegistrationStatus,
+  submitStoreRegistration,
+} from "@/modules/public/store-registration/infrastructure/store-registration.api"
 import { ApiError } from "@/shared/api/client"
 
 export function useSubmitRegistration() {
   return useMutation({ mutationFn: submitStoreRegistration })
+}
+
+// A mutation (not a query) on purpose: it's an explicit, credentialed lookup
+// the visitor triggers — nothing to cache or refetch in the background, and
+// the password never lands in a query key.
+export function useCheckRegistrationStatus() {
+  return useMutation({ mutationFn: checkRegistrationStatus })
+}
+
+// Unknown email and wrong password both come back as 401 INVALID_CREDENTIALS
+// (deliberately indistinguishable server-side).
+export function isStatusCheckRejected(error: unknown): boolean {
+  return error instanceof ApiError && error.code === "INVALID_CREDENTIALS"
 }
 
 export type RegistrationConflict = "email_active" | "email_pending"

@@ -46,6 +46,9 @@ const ALLOWED_PATH_PREFIXES = [
   "/master/ingredients",
   "/master/recipes",
   "/master/discounts",
+  // Cashier device pairing (QR) — owner issues/lists/revokes. /devices/claim
+  // comes along with the prefix but is only called by the cashier app.
+  "/devices",
   // Owner dashboard analytics widgets — deliberately narrow (exact paths,
   // not broad "/orders"/"/refunds"/"/shifts" prefixes) so this app's types
   // stay scoped to read-only dashboard data, not the cart/checkout/status
@@ -53,8 +56,16 @@ const ALLOWED_PATH_PREFIXES = [
   // separate cashier mobile app).
   "/orders/daily-transaction-limit",
   "/orders/dashboard-summary",
-  "/orders/financial-report",
   "/orders/order-composition",
+  // Laporan Keuangan (financial-report module, all 12 endpoints). Kept as
+  // hand-written types in financial-report.types.ts for now — swap for
+  // generated ones once codegen is re-run against pos-kasir-be's swagger.
+  "/reports/sales",
+  // Laporan Kas (cash-report module, 2 endpoints). Same "hand-written ahead
+  // of codegen" treatment as "/reports/sales" above — built in parallel
+  // with the backend, swap for generated types once its swagger includes
+  // these paths and codegen is re-run.
+  "/reports/cash",
   "/orders/payment-method-value-breakdown",
   "/orders/popular-menu",
   "/orders/sales-trend",

@@ -40,4 +40,6 @@ Every list in the owner dashboard follows one pattern. The Menu / Kategori Menu 
   - At most 3 per row.
 - Deleting always goes through `confirm-dialog`'s `ConfirmDialog`.
 
+**Two screens on one page:** `page-tabs`' `PageTabs` (underlined tabs with count badges, state in `?tab=`) — Menu (Kategori | Menu), Pengguna (Akun Kasir | Perangkat Kasir).
+
 **Paging:** 10 rows per page (`TABLE_PER_PAGE` in `hooks/useClientTable`), for both client-side and server-side paging.

@@ -19,12 +19,16 @@ import {
   RegistrationHeader,
 } from "@/modules/public/store-registration/presentation/components/RegistrationChrome"
 import { RegistrationForm } from "@/modules/public/store-registration/presentation/components/RegistrationForm"
+import { RegistrationPaymentDialog } from "@/modules/public/store-registration/presentation/components/RegistrationPaymentDialog"
 import { RegistrationSuccess } from "@/modules/public/store-registration/presentation/components/RegistrationSuccess"
 import {
   DEFAULT_REGISTRATION_PLAN,
+  PURCHASE_MODE_PARAM,
   REGISTRATION_PLANS,
   findRegistrationPlan,
+  purchaseModeFromParam,
   type RegistrationPlanId,
+  type RegistrationPurchaseMode,
 } from "@/modules/public/store-registration/presentation/registration-plans"
 import { waLink } from "@/modules/public/shared/contact"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
@@ -40,6 +44,17 @@ export function StoreRegistrationPage() {
   const [submitted, setSubmitted] = useState<{ email: string; storeName: string } | null>(null)
   const mutation = useSubmitRegistration()
 
+  // "Beli langsung": after the registration is queued the QRIS dialog opens.
+  // The email + password are the backend's proof of ownership for the payment
+  // (no account exists yet); they live only in this component's state.
+  const [searchParams] = useSearchParams()
+  const [purchaseMode, setPurchaseMode] = useState<RegistrationPurchaseMode>(() =>
+    purchaseModeFromParam(searchParams.get(PURCHASE_MODE_PARAM))
+  )
+  const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null)
+  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [paid, setPaid] = useState(false)
+
   const form = useCrudForm<StoreRegistrationFormValues>({
     schema: storeRegistrationSchema,
     defaultValues: EMPTY_REGISTRATION_FORM,
@@ -48,7 +63,6 @@ export function StoreRegistrationPage() {
   // ?paket=<id> comes from the landing's plan buttons. A plan that isn't
   // selectable yet falls back to the default (Starter) with a notice —
   // the backend provisions every registration on Starter regardless.
-  const [searchParams] = useSearchParams()
   const requested = findRegistrationPlan(searchParams.get("paket"))
   const [planId, setPlanId] = useState<RegistrationPlanId>(
     requested?.available ? requested.id : DEFAULT_REGISTRATION_PLAN
@@ -65,6 +79,10 @@ export function StoreRegistrationPage() {
       onSuccess: () => {
         setSubmitted({ email: payload.owner_email, storeName: payload.store_name })
         window.scrollTo({ top: 0, behavior: "smooth" })
+        if (purchaseMode === "paid") {
+          setCredentials({ email: payload.owner_email, password: payload.password })
+          setPaymentOpen(true)
+        }
       },
       onError: (error) => {
         const conflict = registrationConflict(error)
@@ -127,7 +145,13 @@ export function StoreRegistrationPage() {
             <div className="order-1 lg:order-none lg:col-span-7">
               <div className="rounded-2xl bg-neela-surface-container-lowest p-4 shadow-md sm:p-8">
                 {submitted ? (
-                  <RegistrationSuccess email={submitted.email} storeName={submitted.storeName} />
+                  <RegistrationSuccess
+                    email={submitted.email}
+                    storeName={submitted.storeName}
+                    purchase={
+                      credentials ? { planName: plan.name, paid, onPay: () => setPaymentOpen(true) } : undefined
+                    }
+                  />
                 ) : (
                   <>
                     <div className="mb-6">
@@ -143,6 +167,9 @@ export function StoreRegistrationPage() {
                       form={form}
                       isSubmitting={mutation.isPending}
                       onSubmit={handleSubmit}
+                      purchaseMode={purchaseMode}
+                      onPurchaseModeChange={setPurchaseMode}
+                      plan={plan}
                     />
                   </>
                 )}
@@ -180,6 +207,15 @@ export function StoreRegistrationPage() {
       </main>
 
       <RegistrationFooter />
+
+      {credentials && (
+        <RegistrationPaymentDialog
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          credentials={credentials}
+          onPaid={() => setPaid(true)}
+        />
+      )}
     </div>
   )
 }

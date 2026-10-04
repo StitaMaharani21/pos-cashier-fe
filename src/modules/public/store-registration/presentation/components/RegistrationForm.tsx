@@ -2,16 +2,25 @@ import { ArrowRight, AtSign, CircleCheck, IdCard, LoaderCircle, Lock, Mail, MapP
 import { Link } from "react-router-dom"
 import type { UseFormReturn } from "react-hook-form"
 
+import { REGISTRATION_STATUS_PATH } from "@/modules/public/shared/contact"
 import {
   passwordStrength,
   type StoreRegistrationFormValues,
 } from "@/modules/public/store-registration/domain/store-registration.schema"
 import { PasswordField, TextField } from "@/modules/public/store-registration/presentation/components/FormFields"
+import { PurchaseModeField } from "@/modules/public/store-registration/presentation/components/PurchaseModeField"
+import type {
+  RegistrationPlan,
+  RegistrationPurchaseMode,
+} from "@/modules/public/store-registration/presentation/registration-plans"
 
 interface RegistrationFormProps {
   form: UseFormReturn<StoreRegistrationFormValues>
   isSubmitting: boolean
   onSubmit: (values: StoreRegistrationFormValues) => void
+  purchaseMode: RegistrationPurchaseMode
+  onPurchaseModeChange: (mode: RegistrationPurchaseMode) => void
+  plan: RegistrationPlan
 }
 
 function GroupTitle({ icon: Icon, children }: { icon: typeof Store; children: React.ReactNode }) {
@@ -26,7 +35,15 @@ function GroupTitle({ icon: Icon, children }: { icon: typeof Store; children: Re
 // Field set = pos-kasir-be's dto.SubmitRegistrationRequest. The Stitch
 // design's "Kategori Bisnis" and "Kota Operasional" aren't stored by the
 // backend, so they're replaced by the store address + phone it does require.
-export function RegistrationForm({ form, isSubmitting, onSubmit }: RegistrationFormProps) {
+export function RegistrationForm({
+  form,
+  isSubmitting,
+  onSubmit,
+  purchaseMode,
+  onPurchaseModeChange,
+  plan,
+}: RegistrationFormProps) {
+  const paying = purchaseMode === "paid"
   const { register, handleSubmit, watch, formState } = form
   const errors = formState.errors
   const password = watch("password")
@@ -165,6 +182,16 @@ export function RegistrationForm({ form, isSubmitting, onSubmit }: RegistrationF
         {errors.consent && <p className="mt-1 text-[11px] text-neela-error">{errors.consent.message}</p>}
       </div>
 
+      <div className="rounded-xl bg-neela-surface-container-low/60 p-4">
+        <PurchaseModeField
+          mode={purchaseMode}
+          onChange={onPurchaseModeChange}
+          price={plan.price}
+          planName={plan.name}
+          disabled={isSubmitting}
+        />
+      </div>
+
       <div>
         <button
           type="submit"
@@ -178,14 +205,18 @@ export function RegistrationForm({ form, isSubmitting, onSubmit }: RegistrationF
             </>
           ) : (
             <>
-              <span>Kirim Pendaftaran</span>
+              <span>{paying ? "Daftar & Bayar Sekarang" : "Kirim Pendaftaran"}</span>
               <ArrowRight className="size-5" />
             </>
           )}
         </button>
         <div className="mt-2 flex items-center justify-center gap-1 text-neela-on-surface-variant">
           <CircleCheck className="size-4 text-neela-tertiary" />
-          <p className="text-neela-body-sm">Tanpa kartu kredit. Bebas batalkan kapan saja.</p>
+          <p className="text-neela-body-sm">
+            {paying
+              ? "Bayar lewat QRIS, tanpa kartu kredit. Pendaftaran tetap ditinjau tim sebelum toko aktif."
+              : "Tanpa kartu kredit. Bebas batalkan kapan saja."}
+          </p>
         </div>
       </div>
 
@@ -193,6 +224,13 @@ export function RegistrationForm({ form, isSubmitting, onSubmit }: RegistrationF
         <span className="text-neela-body-md text-neela-on-surface-variant">Sudah memiliki akun toko? </span>
         <Link to="/login" className="text-neela-label-md font-semibold text-neela-primary hover:underline">
           Masuk ke Portal
+        </Link>
+        <span className="text-neela-body-md text-neela-on-surface-variant"> · Sudah mendaftar? </span>
+        <Link
+          to={REGISTRATION_STATUS_PATH}
+          className="text-neela-label-md font-semibold text-neela-primary hover:underline"
+        >
+          Cek Status
         </Link>
       </div>
     </form>

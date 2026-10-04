@@ -9,13 +9,13 @@ import {
 } from "lucide-react"
 
 import { CashCountDialog } from "@/modules/owner/dashboard/components/CashCountDialog"
-import { KpiCard } from "@/modules/owner/dashboard/components/KpiCard"
 import {
   useCashSummary,
   useDashboardSummary,
   useRefundSummaryToday,
 } from "@/modules/owner/dashboard/dashboard.queries"
 import { formatRupiah } from "@/shared/lib/utils"
+import { KpiCard } from "@/shared/ui/kpi-card"
 
 function DeltaFooter({ percent, label }: { percent: number; label: string }) {
   const positive = percent >= 0

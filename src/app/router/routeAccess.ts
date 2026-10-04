@@ -20,11 +20,15 @@ export const routeAccess: Record<string, AccessRule> = {
   users: { feature: "pos", module: "user" },
   voucher: { feature: "discount", module: "discount" },
   "discount-auto": { feature: "discount", module: "discount" },
-  "sales-report": { feature: "reports", module: "report" },
+  "financial-report": { feature: "reports", module: "report" },
   "cash-report": { feature: "reports", module: "report" },
   "stock-history": { feature: "inventory_full", module: "inventory" },
   "stock-reconciliation": { feature: "inventory_full", module: "inventory" },
   profile: {},
+  // Deliberately ungated — every owner, on any plan, needs to be able to
+  // see this page to find out what to upgrade to. Gating it would lock an
+  // owner out of the one page that explains how to unlock everything else.
+  billing: {},
   // Header avatar menu only (not in the sidebar) — any logged-in owner.
   "change-password": {},
   "business-settings": { feature: "pos", module: "settings" },

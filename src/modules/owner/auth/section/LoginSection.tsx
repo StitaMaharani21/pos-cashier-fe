@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import type { LoginRequest, LoginResponse } from "@/entities/auth/model/auth.types"
@@ -57,6 +57,14 @@ export function LoginSection() {
             isSubmitting={mutation.isPending}
           />
         </div>
+
+        {/* A newly registered store can't log in until Neela approves it. */}
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Baru mendaftar?{" "}
+          <Link to="/status-pendaftaran" className="font-medium text-primary hover:underline">
+            Cek status pendaftaran
+          </Link>
+        </p>
       </div>
     </div>
   )

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 import {
   Dialog,
   DialogContent,
@@ -28,24 +30,33 @@ export function UpsellModal() {
           <DialogTitle>{copy?.title ?? feature}</DialogTitle>
           <DialogDescription>{copy?.description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <button
-            type="button"
-            onClick={close}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            Nanti
-          </button>
-          {link && (
-            <a
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        <DialogFooter className="sm:flex-col sm:items-stretch sm:gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={close}
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
-              {hintCopy[hint].cta}
-            </a>
-          )}
+              Nanti
+            </button>
+            {link && (
+              <a
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                {hintCopy[hint].cta}
+              </a>
+            )}
+          </div>
+          <Link
+            to="/app/billing"
+            onClick={close}
+            className="text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Lihat semua paket & addon
+          </Link>
         </DialogFooter>
       </DialogContent>
     </Dialog>

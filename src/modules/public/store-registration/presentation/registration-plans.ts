@@ -108,6 +108,19 @@ export const REGISTRATION_PLANS: RegistrationPlan[] = [
 
 export const DEFAULT_REGISTRATION_PLAN: RegistrationPlanId = "starter"
 
+// How the visitor starts: "trial" = register for free (the original flow);
+// "paid" = register and pay Starter for 1 month by QRIS right away
+// (?mode=beli on the landing's "Beli Starter 1 Bulan" button). Paying is only
+// offered on Starter — the one plan the backend sells at registration.
+export type RegistrationPurchaseMode = "trial" | "paid"
+
+export const PURCHASE_MODE_PARAM = "mode"
+export const PAID_MODE_PARAM_VALUE = "beli"
+
+export function purchaseModeFromParam(value: string | null): RegistrationPurchaseMode {
+  return value === PAID_MODE_PARAM_VALUE ? "paid" : "trial"
+}
+
 export function findRegistrationPlan(id: string | null): RegistrationPlan | undefined {
   return REGISTRATION_PLANS.find((plan) => plan.id === id)
 }

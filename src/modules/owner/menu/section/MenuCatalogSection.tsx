@@ -7,7 +7,7 @@ import { MenuSection } from "@/modules/owner/menu/section/MenuSection"
 import { listMenuCategories } from "@/modules/owner/menu-category/api/menu-category.service"
 import { MENU_CATEGORIES_KEY } from "@/modules/owner/menu-category/constants/query-keys"
 import { MenuCategorySection } from "@/modules/owner/menu-category/section/MenuCategorySection"
-import { cn } from "@/shared/lib/utils"
+import { PageTabs, type PageTab } from "@/shared/ui/page-tabs"
 
 type Tab = "kategori" | "menu"
 
@@ -26,45 +26,19 @@ export function MenuCatalogSection() {
     queryFn: () => listMenus({ page: 1, perPage: 1 }).then((result) => result.total),
   })
 
-  const tabs: { id: Tab; label: string; count?: number }[] = [
+  const tabs: PageTab<Tab>[] = [
     { id: "kategori", label: "Kategori Menu", count: categories?.length },
     { id: "menu", label: "Menu", count: menuTotal },
   ]
 
   return (
     <div className="flex flex-col gap-6">
-      <div role="tablist" aria-label="Menu" className="-mb-2 flex gap-2 border-b">
-        {tabs.map((item) => {
-          const active = item.id === tab
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setSearchParams(item.id === "kategori" ? {} : { tab: item.id }, { replace: true })}
-              className={cn(
-                "-mb-px flex items-center gap-2 border-b-2 px-3 pt-1 pb-3 text-sm font-semibold transition-colors",
-                active
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {item.label}
-              {item.count !== undefined && (
-                <span
-                  className={cn(
-                    "rounded-full px-2 py-0.5 text-xs font-bold",
-                    active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {item.count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <PageTabs
+        label="Menu"
+        tabs={tabs}
+        active={tab}
+        onChange={(id) => setSearchParams(id === "kategori" ? {} : { tab: id }, { replace: true })}
+      />
 
       <div role="tabpanel">{tab === "kategori" ? <MenuCategorySection /> : <MenuSection />}</div>
     </div>

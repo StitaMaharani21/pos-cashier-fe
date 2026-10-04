@@ -9,6 +9,13 @@ export function waLink(message: string): string {
   return `https://wa.me/${SALES_WA}?text=${encodeURIComponent(message)}`
 }
 
+// Shared by PricingSection's PlanCtaLink (public landing) and the owner
+// console's billing/PlanComparisonGrid — one message template so the two
+// surfaces never silently diverge.
+export function ownerPlanInquiryMessage(planName: string): string {
+  return `Halo Neela POS, saya pemilik toko dan ingin tanya soal paket ${planName}`
+}
+
 export const SUPPORT_HOURS = "07.00–24.00 WIB"
 
 // Brand name only — the legal entity (CV vs PT) and the official address
@@ -17,3 +24,7 @@ export const COPYRIGHT_HOLDER = "NeelaPOS"
 
 // Public self-service store registration page (modules/public/store-registration).
 export const REGISTER_PATH = "/daftar"
+
+// Where an owner who registered (but has no account until approval) checks
+// whether the request was approved.
+export const REGISTRATION_STATUS_PATH = "/status-pendaftaran"

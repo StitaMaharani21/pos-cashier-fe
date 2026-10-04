@@ -1,10 +1,10 @@
-import { KpiCardsGrid } from "@/modules/owner/dashboard/components/KpiCardsGrid"
 import { LowStockCard } from "@/modules/owner/dashboard/components/LowStockCard"
 import { OrderCompositionCard } from "@/modules/owner/dashboard/components/OrderCompositionCard"
 import { PaymentMethodDonutCard } from "@/modules/owner/dashboard/components/PaymentMethodDonutCard"
 import { PopularMenuTable } from "@/modules/owner/dashboard/components/PopularMenuTable"
 import { SalesTrendCard } from "@/modules/owner/dashboard/components/SalesTrendCard"
 import { TransactionLimitCard } from "@/modules/owner/dashboard/components/TransactionLimitCard"
+import { KpiCardsGrid } from "@/shared/ui/kpi-cards-grid"
 
 export function DashboardSection() {
   return (

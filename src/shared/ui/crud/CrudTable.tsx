@@ -19,6 +19,11 @@ interface CrudTableProps<T> {
   footer?: ReactNode
   // Horizontal scroll kicks in below this width, e.g. "min-w-[760px]".
   minWidth?: string
+  // Opt-in row click (e.g. cash-report's ShiftSummaryTab drill-down Sheet).
+  // Rows stay non-clickable by default per the README's "actions live in
+  // an Aksi column" convention — only tables that pass this get the
+  // pointer cursor/hover affordance and onClick.
+  onRowClick?: (row: T) => void
 }
 
 const ALIGN = { left: "text-left", center: "text-center", right: "text-right" } as const
@@ -37,6 +42,7 @@ export function CrudTable<T>({
   empty = { title: "Belum ada data" },
   footer,
   minWidth = "min-w-[720px]",
+  onRowClick,
 }: CrudTableProps<T>) {
   const alignOf = (column: CrudColumn<T>) => ALIGN[column.align ?? (column.key === "actions" ? "right" : "left")]
 
@@ -61,7 +67,11 @@ export function CrudTable<T>({
             <TableEmptyRow colSpan={columns.length} {...empty} />
           ) : (
             rows.map((row) => (
-              <TableRow key={getRowId(row)}>
+              <TableRow
+                key={getRowId(row)}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                className={cn(onRowClick && "cursor-pointer")}
+              >
                 {columns.map((column) => (
                   <TableCell key={column.key} className={cn(alignOf(column), column.className)}>
                     {column.render ? column.render(row) : String((row as Record<string, unknown>)[column.key] ?? "")}

@@ -9,7 +9,7 @@ import {
   type BillingCycle,
   type Plan,
 } from "@/modules/public/landing/presentation/landing.content"
-import { REGISTER_PATH, waLink } from "@/modules/public/shared/contact"
+import { ownerPlanInquiryMessage, REGISTER_PATH, waLink } from "@/modules/public/shared/contact"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 import { cn } from "@/shared/lib/utils"
 
@@ -38,7 +38,7 @@ function PlanCtaLink({ plan, isOwner, className, children }: PlanCtaLinkProps) {
     )
   }
   const message = isOwner
-    ? `Halo Neela POS, saya pemilik toko dan ingin tanya soal paket ${plan.name}`
+    ? ownerPlanInquiryMessage(plan.name)
     : `Halo Neela POS, saya ingin konsultasi paket ${plan.name}`
   return (
     <a href={waLink(message)} target="_blank" rel="noopener noreferrer" className={className}>
@@ -141,9 +141,22 @@ function PlanCard({ plan, cycle, isOwner }: { plan: Plan; cycle: BillingCycle; i
         )}
       </div>
 
-      <PlanCtaLink plan={plan} isOwner={isOwner} className={ctaClassName}>
-        {isOwner && plan.ownerCta ? plan.ownerCta : plan.cta}
-      </PlanCtaLink>
+      <div className="flex flex-col gap-3">
+        <PlanCtaLink plan={plan} isOwner={isOwner} className={ctaClassName}>
+          {isOwner && plan.ownerCta ? plan.ownerCta : plan.cta}
+        </PlanCtaLink>
+        {/* Starter can also be bought outright (1 month, QRIS) instead of
+            the free trial — same registration page, payment dialog opens
+            right after the form is submitted. */}
+        {plan.id === "starter" && !isOwner && (
+          <Link
+            to={`${REGISTER_PATH}?paket=${plan.id}&mode=beli`}
+            className="w-full rounded-xl border-2 border-neela-primary-container px-4 py-3 text-center text-neela-label-md font-bold text-neela-primary transition-all hover:bg-neela-primary-fixed/40 active:scale-[0.98]"
+          >
+            Beli Starter 1 Bulan
+          </Link>
+        )}
+      </div>
     </div>
   )
 }

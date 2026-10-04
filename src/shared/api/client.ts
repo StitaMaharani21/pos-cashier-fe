@@ -80,6 +80,17 @@ apiClient.interceptors.response.use(
       useAuthStore.getState().logout()
     }
 
+    // The outer dispatcher (pos-kasir-be cmd/main.go) answers a request whose
+    // X-Store-Code matches no store with a bare 404 {"error":"unknown_store"}
+    // — not a 401. That means the persisted session points at a store that
+    // doesn't exist (any more), so it's as dead as an expired token.
+    if (
+      error.response?.status === 404 &&
+      (error.response.data as { error?: string } | undefined)?.error === "unknown_store"
+    ) {
+      useAuthStore.getState().logout()
+    }
+
     if (error.response?.status === 402 && error.response.data?.code === "FEATURE_NOT_IN_PLAN") {
       const body = error.response.data as FeatureNotInPlanPayload
       // The store's plan/addon cache in the frontend may be stale (e.g. an
