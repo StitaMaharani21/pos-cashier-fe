@@ -21,7 +21,7 @@ export function PlanComparisonGrid({ caps }: { caps: Capabilities }) {
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-bold text-foreground">Perbandingan Paket</h2>
-        <p className="text-sm text-muted-foreground">Harga ditampilkan bulanan.</p>
+        <p className="text-sm text-muted-foreground">Harga per toko per bulan, belum termasuk PPN (jika berlaku).</p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {PLANS.map((plan) => {
@@ -43,7 +43,10 @@ export function PlanComparisonGrid({ caps }: { caps: Capabilities }) {
               </div>
 
               <div>
-                <span className="text-2xl font-extrabold text-foreground">{plan.price.monthly}</span>
+                <span className="text-2xl font-extrabold text-foreground">
+                  {plan.pricePrefix}
+                  {plan.price.monthly}
+                </span>
                 <span className="text-sm text-muted-foreground">/bulan</span>
                 <p className="mt-0.5 text-xs text-muted-foreground">{plan.subtext.monthly}</p>
               </div>

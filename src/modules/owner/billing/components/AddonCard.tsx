@@ -54,6 +54,10 @@ export function AddonCard({ addon, caps }: AddonCardProps) {
         {addon.description && (
           <p className="mt-1 text-sm text-muted-foreground">{addon.description}</p>
         )}
+        {/* These 3 add-ons have no published price yet — sales quotes them. */}
+        {!isActive && (
+          <p className="mt-1 text-xs text-muted-foreground">Harga: hubungi tim Neela</p>
+        )}
       </div>
       {!isActive && href && ctaLabel && (
         <a

@@ -15,7 +15,14 @@ import {
 } from "lucide-react"
 
 import { REGISTER_PATH, SUPPORT_HOURS } from "@/modules/public/shared/contact"
-import { MONTHLY_PRICE, STARTER_SOFT_DAILY_LIMIT } from "@/modules/public/shared/pricing"
+import {
+  ANNUAL_BILLING_ENABLED,
+  ANNUAL_PRICE,
+  EXTRA_PRICING,
+  MONTHLY_PRICE,
+  PRICE_PREFIX,
+  STARTER_SOFT_DAILY_LIMIT,
+} from "@/modules/public/shared/pricing"
 
 // All landing copy in one place — per the "Konten Landing Page — Neela POS"
 // brief, laid over the Stitch design's section order, then tightened to
@@ -197,6 +204,8 @@ export interface Plan {
   name: string
   description: string
   badge?: string
+  // "Mulai " for a price that is only a starting point (Enterprise quote).
+  pricePrefix?: string
   price: Record<BillingCycle, string>
   subtext: Record<BillingCycle, string>
   // "Semua fitur X, plus:" line above the list.
@@ -212,32 +221,33 @@ export interface Plan {
   ownerCta?: string
 }
 
-// Annual = monthly −20% (the toggle's "Hemat 20%"), same figures as the
-// Stitch design.
+// Annual = pay 10 months, use 12 (price list). The annual price is a yearly
+// total, so PricingSection swaps the "/ outlet / bln" unit for "/ tahun".
+// Feature lists follow the "Price List POS Kasir — Asta Studio" comparison table.
 export const PLANS: Plan[] = [
   {
     id: "starter",
     name: "Starter",
     badge: "14 HARI COBA GRATIS",
     description: "Untuk kedai kecil, booth, atau stand.",
-    price: { monthly: MONTHLY_PRICE.starter, annual: "Rp79.000" },
+    pricePrefix: PRICE_PREFIX.starter,
+    price: { monthly: MONTHLY_PRICE.starter, annual: ANNUAL_PRICE.starter },
     subtext: {
       monthly: "Gratis 14 hari, lalu bulanan flat",
-      annual: "Ditagih tahunan · hemat Rp240.000",
+      annual: "Bayar 10 bulan, pakai 12 bulan",
     },
     features: [
       "1 outlet, 2 perangkat (1 kasir + 1 admin)",
       "Kasir offline-first penuh",
-      "Menu & varian produk",
-      "Nomor antrian (tanpa QR meja)",
-      "Voucher & diskon otomatis",
-      "Stok dasar & notifikasi stok menipis",
-      "Shift & manajemen kas",
-      "Laporan omset harian & bulanan",
-      "Struk Bluetooth thermal",
+      "Order, keranjang & bayar tunai/digital",
+      "Menu, kategori & metode pembayaran",
+      "Dashboard kasir, shift & manajemen kas",
+      "KPI dashboard dasar",
+      "Cetak struk (Bluetooth thermal)",
+      "Nomor antrian sederhana",
       "Support WhatsApp",
     ],
-    note: `Limit lunak ±${STARTER_SOFT_DAILY_LIMIT} transaksi/hari. Checkout tak pernah diblokir — notifikasi upgrade jika lewat 3 hari berturut.`,
+    note: `Limit lunak ±${STARTER_SOFT_DAILY_LIMIT} transaksi/hari. Checkout tak pernah diblokir — pembatasan baru berlaku jika limit terlampaui 3 hari berturut-turut. Opsional: overage ${EXTRA_PRICING.overage.price}${EXTRA_PRICING.overage.unit}, ditagih akhir bulan.`,
     cta: "Mulai Uji Coba Gratis",
     ctaAction: "register",
     ownerCta: "Tanya Paket Starter",
@@ -247,24 +257,27 @@ export const PLANS: Plan[] = [
     name: "Pro Dine-In",
     badge: "PALING POPULER UNTUK KAFE DINE-IN",
     description: "Untuk kafe dan resto dine-in yang ramai.",
-    price: { monthly: MONTHLY_PRICE.pro, annual: "Rp144.000" },
+    pricePrefix: PRICE_PREFIX.pro,
+    price: { monthly: MONTHLY_PRICE.pro, annual: ANNUAL_PRICE.pro },
     subtext: {
       monthly: "Fitur kasir resto lengkap",
-      annual: "Ditagih tahunan · hemat Rp432.000",
+      annual: "Bayar 10 bulan, pakai 12 bulan",
     },
     includesPrevious: "Semua fitur Starter, plus:",
     features: [
+      "Sampai 3 outlet, 4 perangkat",
       "Transaksi unlimited",
-      "Hingga 3 perangkat kasir & waiter",
-      "Self-order via QR meja",
+      "Halaman menu publik: self-order QR meja & antrian digital",
       "Manajemen & status meja",
       "Split bill & pindah meja",
-      "Stok penuh: opname, supplier & pembelian",
-      "Laporan penjualan, kas & laba rugi (HPP otomatis)",
+      "Voucher & diskon otomatis per produk",
+      "Inventory penuh: stok in/out, opname, supplier & pembelian",
+      "Notifikasi stok hampir habis",
+      "Laporan penjualan, kas & untung rugi (HPP otomatis)",
       "Analisa menu terlaris & margin",
       "Integrasi QRIS & e-wallet",
-      "Support prioritas (< 3 menit)",
     ],
+    note: `Perangkat tambahan ${EXTRA_PRICING.extraDevice.price}${EXTRA_PRICING.extraDevice.unit}.`,
     cta: "Pilih Paket Pro Dine-In",
     ctaAction: "register",
     ownerCta: "Upgrade ke Pro Dine-In",
@@ -274,25 +287,32 @@ export const PLANS: Plan[] = [
     name: "Enterprise",
     badge: "MULTI-CABANG",
     description: "Untuk franchise dan multi-outlet.",
-    price: { monthly: MONTHLY_PRICE.enterprise, annual: "Rp232.000" },
+    pricePrefix: PRICE_PREFIX.enterprise,
+    price: { monthly: MONTHLY_PRICE.enterprise, annual: ANNUAL_PRICE.enterprise },
     subtext: {
-      monthly: "+ Rp150.000/bln per outlet tambahan",
-      annual: "+ Rp150.000/bln per outlet tambahan",
+      monthly: "Custom quote sesuai jumlah cabang",
+      annual: "Bayar 10 bulan, pakai 12 bulan · custom quote",
     },
     includesPrevious: "Semua fitur Pro, plus:",
     features: [
-      "Dashboard multi-outlet terpusat",
+      "Outlet unlimited, device sesuai kesepakatan",
+      "Dashboard konsolidasi lintas cabang",
       "Transfer stok antar cabang",
       "Role supervisor & otorisasi void",
-      "Hak akses per modul",
+      "Hak akses granular per modul",
       "Integrasi akuntansi via REST API",
       "Backup otomatis terjadwal",
-      "Account manager & pelatihan onsite",
+      "Support prioritas & onboarding khusus",
     ],
     cta: "Konsultasi Tim Enterprise",
     ctaAction: "sales",
   },
 ]
+
+// Shown under the plan cards. Terms come from the price list's "Ketentuan".
+export const PRICING_TERMS = ANNUAL_BILLING_ENABLED
+  ? "Harga per toko, belum termasuk PPN (jika berlaku). Tagihan tahunan = bayar 10 bulan untuk pemakaian 12 bulan."
+  : "Harga per toko, belum termasuk PPN (jika berlaku)."
 
 // The brief's fallback for the unconfirmed 30-day refund guarantee.
 export const PRICING_FOOTNOTE = "Batalkan kapan saja. Tanpa kontrak."

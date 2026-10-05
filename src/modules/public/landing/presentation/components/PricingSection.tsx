@@ -6,10 +6,12 @@ import { SectionHeading } from "@/modules/public/landing/presentation/components
 import {
   PLANS,
   PRICING_FOOTNOTE,
+  PRICING_TERMS,
   type BillingCycle,
   type Plan,
 } from "@/modules/public/landing/presentation/landing.content"
 import { ownerPlanInquiryMessage, REGISTER_PATH, waLink } from "@/modules/public/shared/contact"
+import { ANNUAL_BILLING_ENABLED } from "@/modules/public/shared/pricing"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 import { cn } from "@/shared/lib/utils"
 
@@ -101,9 +103,16 @@ function PlanCard({ plan, cycle, isOwner }: { plan: Plan; cycle: BillingCycle; i
         <div>
           <div className="flex items-baseline gap-1">
             <span className="text-neela-headline-xl-mobile font-bold text-neela-on-surface md:text-neela-headline-xl">
+              {plan.pricePrefix && (
+                <span className="mr-1 text-neela-body-md font-medium text-neela-on-surface-variant">
+                  {plan.pricePrefix.trim()}
+                </span>
+              )}
               {plan.price[cycle]}
             </span>
-            <span className="text-neela-body-sm text-neela-on-surface-variant">/ outlet / bln</span>
+            <span className="text-neela-body-sm text-neela-on-surface-variant">
+              {cycle === "annual" ? "/ tahun" : "/ outlet / bln"}
+            </span>
           </div>
           <p className="mt-1 text-neela-body-sm text-neela-outline">{plan.subtext[cycle]}</p>
         </div>
@@ -175,33 +184,35 @@ export function PricingSection() {
           description="Coba gratis 14 hari di paket Starter."
         />
 
-        <div
-          role="radiogroup"
-          aria-label="Siklus tagihan"
-          className="flex items-center gap-3 rounded-full bg-neela-surface-container-high p-1.5"
-        >
-          <button
-            type="button"
-            role="radio"
-            aria-checked={cycle === "monthly"}
-            onClick={() => setCycle("monthly")}
-            className={cn(TOGGLE_BASE, cycle === "monthly" ? TOGGLE_ACTIVE : TOGGLE_IDLE)}
+        {ANNUAL_BILLING_ENABLED && (
+          <div
+            role="radiogroup"
+            aria-label="Siklus tagihan"
+            className="flex items-center gap-3 rounded-full bg-neela-surface-container-high p-1.5"
           >
-            Tagihan Bulanan
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={cycle === "annual"}
-            onClick={() => setCycle("annual")}
-            className={cn(TOGGLE_BASE, cycle === "annual" ? TOGGLE_ACTIVE : TOGGLE_IDLE)}
-          >
-            <span>Tagihan Tahunan</span>
-            <span className="rounded-full bg-neela-tertiary px-2 py-0.5 text-[11px] font-bold text-neela-on-tertiary">
-              Hemat 20%
-            </span>
-          </button>
-        </div>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={cycle === "monthly"}
+              onClick={() => setCycle("monthly")}
+              className={cn(TOGGLE_BASE, cycle === "monthly" ? TOGGLE_ACTIVE : TOGGLE_IDLE)}
+            >
+              Tagihan Bulanan
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={cycle === "annual"}
+              onClick={() => setCycle("annual")}
+              className={cn(TOGGLE_BASE, cycle === "annual" ? TOGGLE_ACTIVE : TOGGLE_IDLE)}
+            >
+              <span>Tagihan Tahunan</span>
+              <span className="rounded-full bg-neela-tertiary px-2 py-0.5 text-[11px] font-bold text-neela-on-tertiary">
+                Bayar 10 bulan, pakai 12
+              </span>
+            </button>
+          </div>
+        )}
 
         <div className="grid w-full grid-cols-1 items-stretch gap-8 lg:grid-cols-3">
           {PLANS.map((plan) => (
@@ -209,9 +220,12 @@ export function PricingSection() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 text-neela-body-sm text-neela-on-surface-variant">
-          <ShieldCheck className="size-5 shrink-0 text-neela-tertiary" />
-          <span>{PRICING_FOOTNOTE}</span>
+        <div className="flex flex-col items-center gap-2 text-center text-neela-body-sm text-neela-on-surface-variant">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-5 shrink-0 text-neela-tertiary" />
+            <span>{PRICING_FOOTNOTE}</span>
+          </div>
+          <p>{PRICING_TERMS}</p>
         </div>
       </div>
     </section>
