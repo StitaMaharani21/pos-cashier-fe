@@ -63,6 +63,11 @@ interface CrudSectionProps<T, TCreate, TUpdate> {
   presentation?: "dialog" | "sheet"
   // Form subtitle, per mode.
   describeForm?: (row: T | null) => string
+  // Feature-specific buttons (RowActionButton) placed before Edit / Hapus in
+  // each row's "Aksi" column. Keep the row at three buttons or fewer.
+  extraRowActions?: (row: T) => ReactNode
+  // Extra UI that lives next to the table (e.g. a dialog the row actions open).
+  children?: ReactNode
 }
 
 // The orchestrator every owner master-data feature's `section/*.tsx` wires
@@ -88,6 +93,8 @@ export function CrudSection<T, TCreate, TUpdate>({
   module,
   presentation = "dialog",
   describeForm,
+  extraRowActions,
+  children,
 }: CrudSectionProps<T, TCreate, TUpdate>) {
   const queryClient = useQueryClient()
   const { can } = useCapabilities()
@@ -168,15 +175,16 @@ export function CrudSection<T, TCreate, TUpdate>({
   })
 
   const tableColumns: CrudColumn<T>[] =
-    canEdit || canDelete
+    canEdit || canDelete || extraRowActions
       ? [
           ...columns,
           {
             key: "actions",
             header: "Aksi",
-            className: "w-28",
+            className: extraRowActions ? "w-40" : "w-28",
             render: (row) => (
               <RowActions>
+                {extraRowActions?.(row)}
                 {canEdit && (
                   <RowActionButton icon={PencilIcon} label={`Edit ${getRowLabel(row)}`} onClick={() => openForm(row)} />
                 )}
@@ -275,6 +283,8 @@ export function CrudSection<T, TCreate, TUpdate>({
         isPending={removeMutation.isPending}
         onConfirm={() => deleting && removeMutation.mutate(getRowId(deleting))}
       />
+
+      {children}
     </div>
   )
 }

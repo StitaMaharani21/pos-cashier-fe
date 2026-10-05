@@ -20,12 +20,15 @@ import { ProductDiscountSection } from "@/modules/owner/product-discount/section
 import { ProfileSection } from "@/modules/owner/profile/section/ProfileSection"
 import { StockHistorySection } from "@/modules/owner/stock-history/section/StockHistorySection"
 import { StockReconciliationSection } from "@/modules/owner/stock-reconciliation/section/StockReconciliationSection"
+import { TableSection } from "@/modules/owner/table/section/TableSection"
 import { VoucherSection } from "@/modules/owner/voucher/section/VoucherSection"
 import { LandingPage } from "@/modules/public/landing/presentation/LandingPage"
+import { SelfOrderPage } from "@/modules/public/self-order/presentation/SelfOrderPage"
 import { REGISTER_PATH, REGISTRATION_STATUS_PATH } from "@/modules/public/shared/contact"
 import { RegistrationStatusPage } from "@/modules/public/store-registration/presentation/RegistrationStatusPage"
 import { StoreRegistrationPage } from "@/modules/public/store-registration/presentation/StoreRegistrationPage"
 import { RequireAccess } from "@/shared/access/RequireAccess"
+import { SELF_ORDER_ROUTE } from "@/shared/lib/self-order-url"
 
 // Two trees: the public pages ("/" landing, "/daftar" store registration,
 // "/status-pendaftaran" approval status — modules/public) and the owner console ("/login" + "/app/*", modules/owner).
@@ -40,6 +43,8 @@ export function AppRouter() {
         <Route path={REGISTER_PATH} element={<StoreRegistrationPage />} />
         <Route path={REGISTRATION_STATUS_PATH} element={<RegistrationStatusPage />} />
         <Route path="/login" element={<LoginSection />} />
+        {/* Customer self-order — what a table's QR opens. No login. */}
+        <Route path={SELF_ORDER_ROUTE} element={<SelfOrderPage />} />
 
         <Route
           path="/app"
@@ -61,7 +66,7 @@ export function AppRouter() {
             element={guarded("payment-method", <PaymentMethodSection />)}
           />
           <Route path="order-type" element={guarded("order-type", <OrderTypeSection />)} />
-          <Route path="table" element={guarded("table", <PlaceholderScreen title="Table" />)} />
+          <Route path="table" element={guarded("table", <TableSection />)} />
           {/* Accounts (Akun Kasir) + devices (Perangkat Kasir) share one page
               with tabs — same pattern as /app/menu. */}
           <Route path="users" element={guarded("users", <UsersSection />)} />
@@ -105,18 +110,4 @@ export function AppRouter() {
 // keyed by the same path string passed to <Route path="...">.
 function guarded(path: keyof typeof routeAccess, element: ReactElement) {
   return <RequireAccess {...routeAccess[path]}>{element}</RequireAccess>
-}
-
-// Temporary stand-in for screens whose `section/*.tsx` isn't built yet
-// (everything except modules/owner/auth) — replace route-by-route as each
-// feature's CrudSection wiring lands.
-function PlaceholderScreen({ title }: { title: string }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold">{title}</h1>
-      <p className="mt-2 text-muted-foreground">
-        Not built yet — see this feature's README for the plan.
-      </p>
-    </div>
-  )
 }

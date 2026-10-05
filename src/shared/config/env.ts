@@ -12,7 +12,13 @@ if (!apiBaseUrl) {
 // Falls back to VITE_API_BASE_URL, resolved against this page's origin.
 const cashierApiUrl = (import.meta.env.VITE_CASHIER_API_URL as string | undefined)?.trim() || undefined
 
+// Public origin of this web app as customers reach it, written into the table
+// QR (Meja → QR). Defaults to the page's own origin; set it when the owner
+// console is opened on an address a customer's phone can't reach (localhost).
+const publicAppUrl = (import.meta.env.VITE_PUBLIC_APP_URL as string | undefined)?.trim() || undefined
+
 export const env = {
   apiBaseUrl,
   cashierApiUrl,
+  publicAppUrl,
 } as const
