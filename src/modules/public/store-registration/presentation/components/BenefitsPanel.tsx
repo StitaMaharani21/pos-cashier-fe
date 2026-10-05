@@ -23,13 +23,16 @@ interface BenefitsPanelProps {
   // yet (e.g. the landing's "Pilih Paket Pro Dine-In") and was put on the
   // default plan instead.
   requestedPlan?: RegistrationPlan
+  // The registration was already submitted for `plan`; switching it now would
+  // not change what was filed or paid.
+  locked?: boolean
 }
 
 // Left column of the Stitch design, driven by REGISTRATION_PLANS. The
 // customer review card is dropped (no real customers yet), and the "Paket
 // Pro Gratis — Akses Penuh" framing is replaced by the plan the backend
 // actually provisions.
-export function BenefitsPanel({ plan, onPlanChange, requestedPlan }: BenefitsPanelProps) {
+export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: BenefitsPanelProps) {
   return (
     // order-2 below lg: on phones the form comes first, benefits after it.
     <div className="order-2 flex flex-col gap-6 lg:order-none lg:col-span-5">
@@ -47,7 +50,7 @@ export function BenefitsPanel({ plan, onPlanChange, requestedPlan }: BenefitsPan
                 type="button"
                 role="radio"
                 aria-checked={selected}
-                disabled={!option.available}
+                disabled={!option.available || (locked && !selected)}
                 onClick={() => onPlanChange(option.id)}
                 className={cn(
                   "flex h-full flex-col gap-1 rounded-xl border-2 p-3 text-left transition-all",

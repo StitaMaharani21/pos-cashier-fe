@@ -30,12 +30,19 @@ export interface CheckRegistrationStatusPayload {
   password: string
 }
 
-// "Beli langsung" — paying for Starter (1 month) while registering, before the
+// The plans the backend sells while registering (dto.CreateRegistrationPaymentRequest
+// `plan`, oneof=starter pro). Enterprise goes through sales.
+export type PurchasablePlanCode = "starter" | "pro"
+
+// "Beli langsung" — paying for a plan (1 month) while registering, before the
 // account exists. POST /internal/store-registrations/payment and
 // /payment/status (dto.CreateRegistrationPaymentRequest /
 // RegistrationPaymentStatusRequest). Same proof of ownership as the status
-// check: the email + password chosen at registration.
-export type CreateRegistrationPaymentPayload = CheckRegistrationStatusPayload
+// check: the email + password chosen at registration. The store is created on
+// the plan that was paid for; the amount comes from the backend's catalogue.
+export interface CreateRegistrationPaymentPayload extends CheckRegistrationStatusPayload {
+  plan: PurchasablePlanCode
+}
 
 export interface RegistrationPaymentStatusPayload extends CheckRegistrationStatusPayload {
   payment_id: number

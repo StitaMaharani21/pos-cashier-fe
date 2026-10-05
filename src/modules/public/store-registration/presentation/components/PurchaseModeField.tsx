@@ -11,17 +11,29 @@ interface PurchaseModeFieldProps {
   price: string
   planName: string
   disabled?: boolean
+  // False for a plan with no free trial (Pro): the trial option is shown but
+  // can't be picked, and the paid option is the only choice.
+  trialAvailable?: boolean
 }
 
 // "Cara memulai": register for free (trial) or buy 1 month right away.
 // Radiogroup rather than a checkbox so both options state what they cost.
-export function PurchaseModeField({ mode, onChange, price, planName, disabled }: PurchaseModeFieldProps) {
+export function PurchaseModeField({
+  mode,
+  onChange,
+  price,
+  planName,
+  disabled,
+  trialAvailable = true,
+}: PurchaseModeFieldProps) {
   const options: { id: RegistrationPurchaseMode; icon: LucideIcon; title: string; body: string }[] = [
     {
       id: "trial",
       icon: Gift,
       title: "Coba Gratis",
-      body: "Daftar dulu tanpa pembayaran. Toko aktif setelah disetujui tim.",
+      body: trialAvailable
+        ? "Daftar dulu tanpa pembayaran. Toko aktif setelah disetujui tim."
+        : `Tidak tersedia untuk ${planName}. Coba gratis hanya di paket Starter.`,
     },
     {
       id: "paid",
@@ -37,16 +49,18 @@ export function PurchaseModeField({ mode, onChange, price, planName, disabled }:
       <div role="radiogroup" aria-label="Cara memulai" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {options.map(({ id, icon: Icon, title, body }) => {
           const selected = id === mode
+          const unavailable = id === "trial" && !trialAvailable
           return (
             <button
               key={id}
               type="button"
               role="radio"
               aria-checked={selected}
-              disabled={disabled}
+              disabled={disabled || unavailable}
               onClick={() => onChange(id)}
               className={cn(
                 "flex h-full flex-col gap-1 rounded-xl border-2 p-3 text-left transition-all disabled:cursor-not-allowed disabled:opacity-70",
+                unavailable && "border-dashed",
                 selected
                   ? "border-neela-primary-container bg-neela-primary-fixed/40"
                   : "border-neela-surface-container-high bg-neela-surface-container-lowest hover:border-neela-primary-fixed-dim"

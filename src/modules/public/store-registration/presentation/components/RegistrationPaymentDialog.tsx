@@ -10,6 +10,7 @@ import {
 } from "@/modules/public/store-registration/application/useRegistrationPayment"
 import type {
   CheckRegistrationStatusPayload,
+  PurchasablePlanCode,
   RegistrationPayment,
 } from "@/modules/public/store-registration/domain/store-registration.types"
 import { formatRupiah } from "@/shared/lib/utils"
@@ -26,20 +27,38 @@ interface RegistrationPaymentDialogProps {
   // The email + password chosen on the form: the backend's proof of ownership
   // for a registration that has no account yet. Held by the page, in memory.
   credentials: CheckRegistrationStatusPayload
+  // Which plan is being bought (the code the backend prices) and its display name.
+  plan: PurchasablePlanCode
+  planName: string
   // Fired once when the payment is confirmed (status PAID).
   onPaid: () => void
 }
 
-// "Beli langsung" — Starter, 1 month, paid by QRIS (Midtrans Core API, so no
+// "Beli langsung" — Starter or Pro, 1 month, paid by QRIS (Midtrans Core API, so no
 // Snap popup: the QR is drawn here and the status is polled). Opening it asks
 // the backend for the QR; the backend hands back the still-valid one if the
 // visitor closed and reopened the dialog, so this never double-charges.
-export function RegistrationPaymentDialog({ open, onOpenChange, credentials, onPaid }: RegistrationPaymentDialogProps) {
+export function RegistrationPaymentDialog({
+  open,
+  onOpenChange,
+  credentials,
+  plan,
+  planName,
+  onPaid,
+}: RegistrationPaymentDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="font-neela sm:max-w-md">
         {/* Mounted only while open: every open starts by fetching the QR. */}
-        {open && <PaymentFlow credentials={credentials} onPaid={onPaid} onClose={() => onOpenChange(false)} />}
+        {open && (
+          <PaymentFlow
+            credentials={credentials}
+            plan={plan}
+            planName={planName}
+            onPaid={onPaid}
+            onClose={() => onOpenChange(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
@@ -47,16 +66,18 @@ export function RegistrationPaymentDialog({ open, onOpenChange, credentials, onP
 
 interface PaymentFlowProps {
   credentials: CheckRegistrationStatusPayload
+  plan: PurchasablePlanCode
+  planName: string
   onPaid: () => void
   onClose: () => void
 }
 
-function PaymentFlow({ credentials, onPaid, onClose }: PaymentFlowProps) {
+function PaymentFlow({ credentials, plan, planName, onPaid, onClose }: PaymentFlowProps) {
   const [now, setNow] = useState(() => Date.now())
 
   // Asked for once on open; "Buat QR baru" / "Coba lagi" bump the attempt.
   const [attempt, setAttempt] = useState(0)
-  const qr = useRegistrationPaymentQr(credentials, attempt)
+  const qr = useRegistrationPaymentQr(credentials, plan, attempt)
   const requestQr = () => setAttempt((current) => current + 1)
 
   const created: RegistrationPayment | undefined = qr.data
@@ -127,7 +148,7 @@ function PaymentFlow({ credentials, onPaid, onClose }: PaymentFlowProps) {
         </span>
         <DialogTitle className="text-neela-headline-md text-neela-on-primary-fixed">Pembayaran diterima</DialogTitle>
         <DialogDescription>
-          Terima kasih! Paket Starter 1 bulan sudah dibayar ({formatRupiah(payment.amount)}). Masa aktif dihitung
+          Terima kasih! Paket {planName} 1 bulan sudah dibayar ({formatRupiah(payment.amount)}). Masa aktif dihitung
           mulai toko kamu disetujui tim Neela.
         </DialogDescription>
         <button type="button" className={`${PRIMARY_BUTTON} mt-2`} onClick={onClose}>
@@ -145,7 +166,7 @@ function PaymentFlow({ credentials, onPaid, onClose }: PaymentFlowProps) {
     <div className="flex flex-col gap-5">
       <DialogHeader>
         <DialogTitle className="text-neela-headline-sm text-neela-on-primary-fixed">
-          Bayar Starter 1 Bulan
+          Bayar {planName} 1 Bulan
         </DialogTitle>
         <DialogDescription>
           Buka aplikasi e-wallet atau mobile banking yang mendukung <b>QRIS</b>, lalu pindai kode ini.

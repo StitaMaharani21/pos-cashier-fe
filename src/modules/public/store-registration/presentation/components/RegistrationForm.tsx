@@ -189,6 +189,7 @@ export function RegistrationForm({
           price={plan.price}
           planName={plan.name}
           disabled={isSubmitting}
+          trialAvailable={!plan.purchaseOnly}
         />
       </div>
 

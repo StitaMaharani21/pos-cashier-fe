@@ -61,14 +61,17 @@ export function StoreRegistrationPage() {
   })
 
   // ?paket=<id> comes from the landing's plan buttons. A plan that isn't
-  // selectable yet falls back to the default (Starter) with a notice —
-  // the backend provisions every registration on Starter regardless.
+  // selectable (none today; a future "Segera hadir") falls back to the default
+  // (Starter) with a notice.
   const requested = findRegistrationPlan(searchParams.get("paket"))
   const [planId, setPlanId] = useState<RegistrationPlanId>(
     requested?.available ? requested.id : DEFAULT_REGISTRATION_PLAN
   )
   const plan = findRegistrationPlan(planId) ?? REGISTRATION_PLANS[0]
   const unavailableRequest = requested && !requested.available ? requested : undefined
+  // A plan with no free trial (Pro) can only be bought outright; the visitor's
+  // own pick is kept for when they switch back to Starter.
+  const effectiveMode: RegistrationPurchaseMode = plan.purchaseOnly ? "paid" : purchaseMode
 
   // An owner who's already logged in has a store — nothing to sign up for.
   if (isOwner) return <Navigate to="/app" replace />
@@ -79,7 +82,7 @@ export function StoreRegistrationPage() {
       onSuccess: () => {
         setSubmitted({ email: payload.owner_email, storeName: payload.store_name })
         window.scrollTo({ top: 0, behavior: "smooth" })
-        if (purchaseMode === "paid") {
+        if (effectiveMode === "paid") {
           setCredentials({ email: payload.owner_email, password: payload.password })
           setPaymentOpen(true)
         }
@@ -140,6 +143,8 @@ export function StoreRegistrationPage() {
               plan={plan}
               onPlanChange={setPlanId}
               requestedPlan={unavailableRequest}
+              // The registration (and any payment) already exists for this plan.
+              locked={submitted != null}
             />
 
             <div className="order-1 lg:order-none lg:col-span-7">
@@ -167,7 +172,7 @@ export function StoreRegistrationPage() {
                       form={form}
                       isSubmitting={mutation.isPending}
                       onSubmit={handleSubmit}
-                      purchaseMode={purchaseMode}
+                      purchaseMode={effectiveMode}
                       onPurchaseModeChange={setPurchaseMode}
                       plan={plan}
                     />
@@ -213,6 +218,8 @@ export function StoreRegistrationPage() {
           open={paymentOpen}
           onOpenChange={setPaymentOpen}
           credentials={credentials}
+          plan={plan.id}
+          planName={plan.name}
           onPaid={() => setPaid(true)}
         />
       )}

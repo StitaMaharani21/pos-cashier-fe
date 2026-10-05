@@ -6,6 +6,7 @@ import {
 } from "@/modules/public/store-registration/infrastructure/store-registration.api"
 import type {
   CheckRegistrationStatusPayload,
+  PurchasablePlanCode,
   RegistrationPayment,
   RegistrationPaymentStatus,
 } from "@/modules/public/store-registration/domain/store-registration.types"
@@ -26,11 +27,17 @@ export function isFinalPayment(payment: RegistrationPayment | undefined): boolea
 // that remount never receives the response — and bumping `attempt` ("Buat QR
 // baru") is how a new QR is requested. Safe to repeat: the backend returns
 // the still-valid QR (or the paid payment) rather than charging again.
-// The password is captured by the closure, never put in the key.
-export function useRegistrationPaymentQr(credentials: CheckRegistrationStatusPayload, attempt: number) {
+// The password is captured by the closure, never put in the key. The plan is
+// in the key: the backend only reuses an open QR of the SAME plan, so switching
+// Starter ↔ Pro asks for (and prices) a new one.
+export function useRegistrationPaymentQr(
+  credentials: CheckRegistrationStatusPayload,
+  plan: PurchasablePlanCode,
+  attempt: number
+) {
   return useQuery({
-    queryKey: ["registration-payment-qr", attempt],
-    queryFn: () => createRegistrationPayment(credentials),
+    queryKey: ["registration-payment-qr", plan, attempt],
+    queryFn: () => createRegistrationPayment({ ...credentials, plan }),
     staleTime: Infinity,
     gcTime: 0,
     retry: false,
@@ -70,6 +77,9 @@ export function paymentErrorMessage(error: unknown): string {
         return "Gagal membuat QR pembayaran. Coba lagi beberapa saat."
       case "INVALID_CREDENTIALS":
         return "Email atau kata sandi tidak cocok dengan pendaftaran ini."
+      case "PLAN_NOT_PURCHASABLE":
+      case "PLAN_NOT_FOUND":
+        return "Paket ini belum bisa dibeli saat pendaftaran. Hubungi tim kami lewat WhatsApp."
       case "REGISTRATION_NOT_PAYABLE":
         return "Pendaftaran ini sudah diproses, jadi tidak bisa dibayar dari sini. Masuk ke portal untuk membeli paket."
       default:

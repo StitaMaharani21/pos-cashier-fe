@@ -17,12 +17,13 @@ export type RegistrationPlanId = "starter" | "pro"
 export interface RegistrationPlan {
   id: RegistrationPlanId
   name: string
-  // False = shown in the picker but not selectable yet. pos-kasir-be
-  // provisions every approved self-service registration on Starter
-  // (store_registration.DefaultPlan) and the submit body has no plan field,
-  // so offering anything else here would promise a plan the backend won't
-  // give. Flip to true once the backend accepts a plan on registration.
+  // False = shown in the picker but not selectable ("Segera hadir").
   available: boolean
+  // True = only sold outright. pos-kasir-be gives a registration that pays
+  // for nothing (the free trial) the Starter plan, so a plan that can't be had
+  // for free must be bought while registering: the store is created on
+  // whichever plan was PAID (store_registration.Approve → PaidRegistrationPlan).
+  purchaseOnly?: boolean
   // Monthly list price shown on the picker card.
   price: string
   badge: string
@@ -40,7 +41,7 @@ export const REGISTRATION_PLANS: RegistrationPlan[] = [
     badge: "Mulai di Paket Starter",
     title: "Yang Kamu Dapat Saat Aktif",
     description:
-      "Toko baru aktif di paket Starter setelah pendaftaran disetujui. Butuh fitur Pro atau Enterprise? Upgrade kapan saja lewat tim kami.",
+      "Coba gratis atau beli langsung, toko aktif di paket Starter setelah pendaftaran disetujui. Butuh fitur Pro? Pilih Pro Dine-In di atas, atau upgrade kapan saja lewat tim kami.",
     benefits: [
       {
         icon: WifiOff,
@@ -71,12 +72,13 @@ export const REGISTRATION_PLANS: RegistrationPlan[] = [
   {
     id: "pro",
     name: "Pro Dine-In",
-    available: false,
+    available: true,
+    purchaseOnly: true,
     price: MONTHLY_PRICE.pro,
     badge: "Paket Pro Dine-In",
     title: "Fitur Lengkap Kafe Dine-In",
     description:
-      "Semua fitur Starter, ditambah fitur untuk kafe dan restoran dine-in yang ramai.",
+      "Semua fitur Starter, ditambah fitur untuk kafe dan restoran dine-in yang ramai. Dibeli langsung lewat QRIS; toko aktif di paket Pro setelah pendaftaran disetujui.",
     benefits: [
       {
         icon: InfinityIcon,
@@ -109,9 +111,9 @@ export const REGISTRATION_PLANS: RegistrationPlan[] = [
 export const DEFAULT_REGISTRATION_PLAN: RegistrationPlanId = "starter"
 
 // How the visitor starts: "trial" = register for free (the original flow);
-// "paid" = register and pay Starter for 1 month by QRIS right away
-// (?mode=beli on the landing's "Beli Starter 1 Bulan" button). Paying is only
-// offered on Starter — the one plan the backend sells at registration.
+// "paid" = register and pay the chosen plan for 1 month by QRIS right away
+// (?mode=beli on the landing's "Beli Starter 1 Bulan" button). The backend sells
+// Starter and Pro this way; "trial" is Starter only (see `purchaseOnly`).
 export type RegistrationPurchaseMode = "trial" | "paid"
 
 export const PURCHASE_MODE_PARAM = "mode"
