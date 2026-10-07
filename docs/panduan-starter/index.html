@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Panduan Paket Starter Neela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .todo { background: #FFF3B0; color: #5C4A00; font-weight: 700; padding: 0 1.6mm; border-radius: 1.2mm; border: 1px dashed #C9A400; }
+  .big { font-size: 11pt; }
+  .benefit { display: flex; gap: 4mm; align-items: flex-start; padding: 3.6mm 4mm; border: 1px solid var(--line); border-radius: 3.5mm; background: var(--canvas); margin-bottom: 3mm; break-inside: avoid; }
+  .benefit .ico { flex: none; width: 11mm; height: 11mm; border-radius: 3.5mm; background: var(--brand); color: #fff; display: grid; place-items: center; font-size: 13pt; }
+  .benefit h4 { margin: 0 0 .8mm; font-size: 11pt; color: var(--navy); }
+  .benefit p { margin: 0; font-size: 9.4pt; color: #3C4E66; }
+  .big-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 5mm 0; }
+  .big-flow .st { position: relative; background: var(--canvas); border: 1px solid var(--line); border-radius: 3.5mm; padding: 4mm 3mm 3.5mm; text-align: center; }
+  .big-flow .st .no { width: 9mm; height: 9mm; border-radius: 50%; background: var(--brand); color: #fff; font-weight: 700; display: grid; place-items: center; margin: 0 auto 2mm; }
+  .big-flow .st b { display: block; color: var(--navy); font-size: 10pt; margin-bottom: 1mm; }
+  .big-flow .st span { font-size: 8.4pt; color: var(--muted); }
+  .opt { border: 2px solid var(--line); border-radius: 3.5mm; padding: 4mm; background: #fff; }
+  .opt.alt { border-color: var(--brand); background: var(--chip); }
+  .opt h4 { margin: 0 0 1mm; color: var(--navy); font-size: 11pt; }
+  .opt p { margin: 0; font-size: 9.4pt; }
+  .say { background: var(--navy); color: #fff; border-radius: 4mm; padding: 5mm 6mm; margin: 5mm 0; font-size: 11pt; }
+  .say b { color: #9CC8FF; }
+  .daily { counter-reset: d; list-style: none; padding: 0; margin: 0; }
+  .daily li { counter-increment: d; display: flex; gap: 4mm; align-items: flex-start; padding: 3mm 0; border-bottom: 1px dashed var(--line); }
+  .daily li::before { content: counter(d); flex: none; width: 8mm; height: 8mm; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 600; font-size: 9pt; display: grid; place-items: center; }
+  .daily b { color: var(--navy); }
+  .daily span { display: block; color: var(--muted); font-size: 9pt; }
+  .lockrow { display: flex; align-items: center; gap: 3mm; padding: 2.6mm 4mm; border: 1px solid var(--line); border-radius: 3mm; margin-bottom: 2mm; background: #fff; break-inside: avoid; }
+  .lockrow .nm { font-weight: 600; color: var(--navy); width: 44mm; }
+  .lockrow .ds { flex: 1; font-size: 9pt; color: var(--muted); }
+  .lockrow .tg { flex: none; }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. SAMPUL ============ -->
+<section class="page cover">
+  <img class="logo" src="assets/logo.png" alt="Neela">
+  <div class="eyebrow">Panduan Pemilik Toko</div>
+  <h1>Neela POS<br>Paket Starter</h1>
+  <div class="sub">Kenali manfaatnya, ikuti alur mulainya, dan mulai berjualan dengan tenang.</div>
+  <div class="cover-foot"><span>Mudah dipahami, tanpa istilah teknis</span><span>Untuk pemilik toko</span></div>
+</section>
+
+<!-- ============ 2. KENALAN ============ -->
+<section class="page">
+  <div class="kicker">Kenalan dulu</div>
+  <h2>Apa itu Paket Starter?</h2>
+  <p class="lead">Paket awal untuk kedai kecil, booth, atau stand. Semua toko baru di Neela mulai dari sini. Cukup untuk mencatat penjualan harian dengan rapi, tanpa ribet.</p>
+
+  <h3 style="margin-top:0">Manfaat untuk toko Anda</h3>
+  <div class="benefit"><div class="ico">🧾</div><div><h4>Kasir yang cepat dan rapi</h4><p>Catat pesanan, isi keranjang, dan terima pembayaran tunai maupun digital. Tetap bisa dipakai saat internet sedang putus.</p></div></div>
+  <div class="benefit"><div class="ico">☕</div><div><h4>Atur menu sendiri</h4><p>Kelola produk, kategori, dan metode pembayaran kapan saja, sesuai kebutuhan toko Anda.</p></div></div>
+  <div class="benefit"><div class="ico">💰</div><div><h4>Shift &amp; kas harian</h4><p>Kasir membuka shift dengan saldo awal dan menutupnya di akhir hari, jadi uang di laci mudah dicocokkan.</p></div></div>
+  <div class="benefit"><div class="ico">📈</div><div><h4>Dashboard &amp; ringkasan harian</h4><p>Pantau angka penting toko lewat KPI dashboard dasar, langsung dari HP atau komputer.</p></div></div>
+  <div class="benefit"><div class="ico">🖨️</div><div><h4>Cetak struk &amp; nomor antrian</h4><p>Cetak struk untuk pelanggan dan gunakan nomor antrian sederhana saat toko ramai.</p></div></div>
+  <div class="benefit"><div class="ico">💬</div><div><h4>Dibantu tim Neela</h4><p>Dukungan lewat WhatsApp setiap hari pukul 07.00–24.00 WIB.</p></div></div>
+
+  <div class="opt alt" style="margin-top:4mm"><h4>Rp99.000 <span style="font-size:9pt;font-weight:400;color:var(--muted)">/ bulan</span></h4><p>Bayar bulanan, fleksibel, tanpa perlu membayar di muka untuk setahun.</p></div>
+  <p style="font-size:8.6pt;color:var(--muted);margin-top:2mm">Harga per toko, belum termasuk PPN (jika berlaku).</p>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>2</span></div>
+</section>
+
+<!-- ============ 3. ALUR MULAI ============ -->
+<section class="page">
+  <div class="kicker">Mulai dari mana?</div>
+  <h2>Alur Memulai</h2>
+  <p class="lead">Dari mendaftar sampai siap berjualan, hanya empat langkah.</p>
+
+  <div class="big-flow">
+    <div class="st"><div class="no">1</div><b>Daftar</b><span>Isi data toko dan akun Anda</span></div>
+    <div class="st"><div class="no">2</div><b>Ditinjau tim</b><span>Tim Neela memeriksa dan menyetujui</span></div>
+    <div class="st"><div class="no">3</div><b>Masuk</b><span>Login dengan email dan kata sandi</span></div>
+    <div class="st"><div class="no">4</div><b>Berjualan</b><span>Isi menu, lalu kasir mulai bekerja</span></div>
+  </div>
+
+  <h3>Langkah 1. Daftar</h3>
+  <p>Buka halaman pendaftaran Neela, lalu isi data toko (nama usaha, alamat, nomor telepon) dan data Anda sebagai pemilik (nama, email, kata sandi). Lalu pilih cara memulai:</p>
+  <div class="grid2">
+    <div class="opt"><h4>Coba Gratis</h4><p>Daftar dulu tanpa bayar. Toko aktif setelah disetujui tim.</p></div>
+    <div class="opt alt"><h4>Beli Langsung 1 Bulan</h4><p>Bayar sekali lewat QRIS dari e-wallet atau mobile banking. Satu bulan dihitung <b>sejak toko disetujui</b>, bukan sejak Anda membayar.</p></div>
+  </div>
+  <div class="callout tip"><span class="ttl">Cara bayar QRIS</span>Setelah mendaftar, kode QR muncul di layar. Pindai dengan aplikasi pembayaran Anda dalam 15 menit. Bila waktunya habis, tekan <span class="lbl">Buat QR baru</span>.</div>
+
+  <h3>Langkah 2. Tunggu persetujuan</h3>
+  <p>Anda bisa mengecek kapan saja lewat halaman <span class="lbl">Status Pendaftaran</span> dengan email dan kata sandi yang Anda buat. Statusnya: <b>Menunggu persetujuan</b>, <b>Disetujui</b>, atau <b>Ditolak</b> (alasannya ditampilkan, lalu Anda bisa mendaftar ulang).</p>
+
+  <h3>Langkah 3. Masuk ke dashboard</h3>
+  <p>Setelah disetujui, tekan <span class="lbl">Masuk ke Portal</span> dan login dengan email dan kata sandi Anda. Bila belum bisa masuk, tunggu beberapa menit, lalu coba lagi.</p>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>3</span></div>
+</section>
+
+<!-- ============ 4. CARA PAKAI ============ -->
+<section class="page">
+  <div class="kicker">Siap berjualan</div>
+  <h2>Cara Memakai Starter</h2>
+  <p class="lead">Setelah masuk, siapkan toko Anda sekali saja. Sesudahnya tinggal dipakai setiap hari.</p>
+
+  <h3 style="margin-top:0">Persiapan awal (sekali saja)</h3>
+  <ol class="daily">
+    <li><div><b>Isi menu</b><span>Buka <span class="lbl">Menu</span> di sidebar, tambahkan menu beserta harga dan kategorinya.</span></div></li>
+    <li><div><b>Cek metode pembayaran &amp; jenis pesanan</b><span>Pastikan pilihan tunai, kartu, transfer, atau e-wallet sudah sesuai toko Anda.</span></div></li>
+    <li><div><b>Buat akun kasir</b><span>Buka <span class="lbl">Pengguna</span>, lalu tambah kasir. Paket Starter memiliki 1 akun kasir aktif.</span></div></li>
+    <li><div><b>Hubungkan perangkat kasir</b><span>Di HP atau tablet kasir, pasang aplikasi Neela, lalu pindai kode QR yang Anda tampilkan sebagai pemilik.</span></div></li>
+    <li><div><b>Pasang printer struk (opsional)</b><span>Printer Bluetooth atau USB bisa disambungkan ke perangkat kasir.</span></div></li>
+  </ol>
+
+  <h3>Rutinitas harian</h3>
+  <div class="grid3">
+    <div class="card"><h4>Pagi: buka shift</h4><p>Kasir login, lalu isi saldo awal uang di laci dan mulai shift.</p></div>
+    <div class="card"><h4>Siang: layani pesanan</h4><p>Pilih menu, proses pesanan, terima pembayaran, dan cetak struk.</p></div>
+    <div class="card"><h4>Malam: tutup shift</h4><p>Cocokkan uang kas dan tutup shift. Penjualan hari ini tercatat rapi.</p></div>
+  </div>
+
+  <h3>Yang bisa Anda pantau sebagai pemilik</h3>
+  <p>Buka <span class="lbl">Dashboard</span> untuk melihat ringkasan hari ini dan kartu <span class="lbl">Limit</span> yang menunjukkan jumlah transaksi hari ini.</p>
+  <div class="callout tip"><span class="ttl">Panduan kasir tersedia terpisah</span>Langkah detail untuk kasir (membuat pesanan, pembayaran, refund, tutup shift) ada di buku <b>Panduan Kasir Neela</b>. Bagikan ke kasir Anda.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>4</span></div>
+</section>
+
+<!-- ============ 5. BATAS ============ -->
+<section class="page">
+  <div class="kicker">Perlu diketahui</div>
+  <h2>Batas &amp; Fitur Terkunci</h2>
+  <p class="lead">Starter dibuat sederhana. Ada beberapa hal yang perlu Anda tahu sejak awal.</p>
+
+  <h3 style="margin-top:0">Dua batas utama</h3>
+  <div class="grid2">
+    <div class="card"><h4>1 akun kasir aktif</h4><p>Butuh lebih dari satu kasir? Tambahkan lewat add-on <b>Kasir Tambahan</b>. Menonaktifkan seorang kasir akan membebaskan satu tempat.</p></div>
+    <div class="card"><h4>±50 transaksi per hari</h4><p>Starter dirancang untuk sekitar 50 transaksi sehari. Ini <b>batas lunak</b>: checkout tidak pernah dihentikan. Pembatasan baru berlaku jika batas terlampaui <b>3 hari berturut-turut</b>. Opsional: biaya kelebihan Rp300 per transaksi, ditagih akhir bulan.</p></div>
+  </div>
+
+  <h3>Fitur yang masih terkunci</h3>
+  <p>Menu yang belum termasuk ditandai ikon gembok di sidebar. Menekannya akan menampilkan penjelasan dan tombol untuk bertanya ke tim Neela.</p>
+  <div class="lockrow"><div class="nm">Laporan</div><div class="ds">Laporan Keuangan dan Laporan Kas</div><div class="tg"><span class="lbl">Add-on</span></div></div>
+  <div class="lockrow"><div class="nm">Inventori lengkap</div><div class="ds">Bahan baku, resep, riwayat dan cek selisih stok</div><div class="tg"><span class="lbl">Add-on</span></div></div>
+  <div class="lockrow"><div class="nm">Pesan lewat QR meja</div><div class="ds">Pelanggan memesan sendiri dari meja</div><div class="tg"><span class="lbl">Paket Pro</span></div></div>
+
+  <div class="say"><b>Intinya:</b> Starter sudah cukup untuk berjualan setiap hari. Butuh laporan atau pengelolaan bahan baku? Tinggal tambahkan <b>add-on</b> yang Anda perlukan, tanpa harus pindah paket.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>5</span></div>
+</section>
+
+<!-- ============ 6. ADD-ON ============ -->
+<section class="page">
+  <div class="kicker">Ingin fitur lebih?</div>
+  <h2>Add-on untuk Starter</h2>
+  <p class="lead">Add-on menambah satu kebutuhan saja, sehingga Anda hanya membayar yang benar-benar dipakai. Semua harga per toko, belum termasuk PPN (jika berlaku).</p>
+
+  <h3 style="margin-top:0">Membuka fitur yang terkunci</h3>
+  <div class="benefit"><div class="ico">📊</div><div><h4>Laporan Lengkap</h4><p>Laporan penjualan, kas, dan untung rugi dengan filter periode, kasir, dan metode bayar. Dapat dibuka oleh akun pemilik.</p><p style="margin-top:1mm"><b>Harga:</b> hubungi tim Neela</p></div></div>
+  <div class="benefit"><div class="ico">🥬</div><div><h4>Inventori Lengkap</h4><p>Kelola bahan baku dan resep, lihat riwayat pergerakan stok, dan cek selisih stok.</p><p style="margin-top:1mm"><b>Harga:</b> hubungi tim Neela</p></div></div>
+  <div class="benefit"><div class="ico">👤</div><div><h4>Kasir Tambahan</h4><p>Tambah jumlah akun kasir di atas 1 akun bawaan Starter. Cocok bila ada kasir bergantian.</p><p style="margin-top:1mm"><b>Harga:</b> hubungi tim Neela</p></div></div>
+
+  <h3>Menambah kapasitas</h3>
+  <table class="t">
+    <tr><th>Tambahan</th><th>Untuk apa</th><th>Harga</th></tr>
+    <tr><td><b>Device Tambahan</b><br><span style="color:var(--muted)">Starter &amp; Pro</span></td><td>Tablet kasir atau admin tambahan di luar 2 device bawaan Starter (1 kasir + 1 admin).</td><td><b>Rp30.000</b> / bulan per device</td></tr>
+    <tr><td><b>Overage Transaksi</b><br><span style="color:var(--muted)">Starter, opsional</span></td><td>Biaya per transaksi bila melewati batas harian, ditagih di akhir bulan. Tidak ada biaya bila Anda tidak melewati batas.</td><td><b>Rp300</b> / transaksi</td></tr>
+  </table>
+  <div class="callout info"><span class="ttl">Bedanya Kasir Tambahan dan Device Tambahan</span><b>Kasir Tambahan</b> menambah jumlah akun kasir. <b>Device Tambahan</b> menambah jumlah perangkat (tablet) yang dipakai di toko.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>6</span></div>
+</section>
+
+<!-- ============ 6b. CARA TAMBAH ============ -->
+<section class="page">
+  <div class="kicker">Add-on · lanjutan</div>
+  <h2>Cara Menambah &amp; Layanan Bantuan</h2>
+
+  <h3>Cara menambah add-on</h3>
+  <div class="big-flow" style="grid-template-columns:repeat(4,1fr)">
+    <div class="st"><div class="no">1</div><b>Buka halaman</b><span>Pilih <b>Paket &amp; Addon</b> di sidebar</span></div>
+    <div class="st"><div class="no">2</div><b>Pilih add-on</b><span>Tekan <b>Tambah Add-on</b> atau <b>Tanya Tim Neela</b></span></div>
+    <div class="st"><div class="no">3</div><b>Chat tim Neela</b><span>WhatsApp terbuka dengan pesan siap kirim</span></div>
+    <div class="st"><div class="no">4</div><b>Aktif</b><span>Tim mengaktifkan, menu terbuka</span></div>
+  </div>
+  <div class="callout info"><span class="ttl">Penting</span>Add-on belum dibeli langsung di dalam aplikasi. Semua lewat tim Neela. Setelah diaktifkan, kembali ke aplikasi dan muat ulang halaman. Perubahan biasanya terlihat dalam sekitar 1 menit.</div>
+
+  <h3>Layanan bantuan (sekali bayar)</h3>
+  <table class="t">
+    <tr><th>Layanan</th><th>Harga</th></tr>
+    <tr><td><b>Setup &amp; training onboarding</b><br><span style="color:var(--muted)">Pendampingan tim Neela sampai toko siap berjualan</span></td><td>Rp500.000<br><span style="color:var(--muted)">Bisa gratis sebagai promo tahun pertama</span></td></tr>
+    <tr><td><b>Input menu awal oleh tim</b><br><span style="color:var(--muted)">Tim Neela memasukkan menu Anda</span></td><td>Rp200.000</td></tr>
+  </table>
+  <p style="font-size:9pt;color:var(--muted)">Biaya pihak ketiga, seperti fee payment gateway per transaksi digital, dibebankan langsung kepada toko. Harga dapat disesuaikan setelah masa pilot.</p>
+
+  <h3>Butuh paket yang lebih besar?</h3>
+  <div class="grid2">
+    <div class="opt"><h4>Pro Dine-In · Rp180.000/bulan</h4><p>Sampai 3 outlet dan 4 perangkat, transaksi unlimited, self-order lewat QR meja, diskon, inventory penuh, dan laporan lengkap.</p></div>
+    <div class="opt"><h4>Enterprise · mulai Rp290.000/bulan</h4><p>Untuk multi-cabang: outlet unlimited, dashboard lintas cabang, hak akses per modul, dan backup otomatis. Harga sesuai kebutuhan.</p></div>
+  </div>
+  <p style="margin-top:3mm">Di halaman <b>Paket &amp; Addon</b>, tekan <span class="lbl">Upgrade ke Pro Dine-In</span> atau <span class="lbl">Konsultasi Tim Enterprise</span>. Upgrade berlaku langsung tanpa perlu install ulang. Biaya dan masa aktif paket baru dikonfirmasi tim Neela sebelum diproses.</p>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>7</span></div>
+</section>
+
+<!-- ============ 7. BANTUAN ============ -->
+<section class="page">
+  <div class="kicker">Butuh bantuan?</div>
+  <h2>Pertanyaan Umum</h2>
+
+  <dl class="faq">
+    <dt>Apakah kasir tetap bisa bekerja saat internet putus?</dt>
+    <dd>Bisa. Aplikasi kasir tetap dapat dipakai dan datanya tersinkron otomatis begitu koneksi kembali.</dd>
+
+    <dt>Kasir saya terhenti setelah melewati 50 transaksi?</dt>
+    <dd>Tidak. Itu batas lunak, kasir tetap bisa melayani pelanggan. Pembatasan baru berlaku bila batas terlampaui 3 hari berturut-turut.</dd>
+
+    <dt>Tombol “Tambah Kasir” tidak bisa ditekan.</dt>
+    <dd>Jatah kasir di Starter (1 akun) sudah terpakai. Nonaktifkan kasir yang tidak dipakai, atau tambah add-on <b>Kasir Tambahan</b>.</dd>
+
+    <dt>Saya sudah menambah add-on, tetapi menu masih bergembok.</dt>
+    <dd>Tunggu sekitar 1 menit, lalu muat ulang halaman. Bila masih terkunci, hubungi tim Neela.</dd>
+
+    <dt>Pendaftaran saya ditolak.</dt>
+    <dd>Buka halaman <span class="lbl">Status Pendaftaran</span>, baca alasannya, perbaiki data, lalu tekan <span class="lbl">Daftar Ulang</span>.</dd>
+
+    <dt>Saya tidak bisa membayar QRIS tepat waktu.</dt>
+    <dd>Tekan <span class="lbl">Buat QR baru</span>. Pendaftaran Anda tetap tercatat, tidak perlu mengulang dari awal.</dd>
+
+    <dt>Di mana tanggal jatuh tempo paket saya?</dt>
+    <dd>Saat ini belum tampil di dashboard. Silakan tanyakan ke tim Neela.</dd>
+  </dl>
+
+  <div class="say" style="margin-top:8mm"><b>Hubungi tim Neela</b><br>Lewat WhatsApp dari tombol di halaman <b>Paket &amp; Addon</b>.<br>Jam dukungan: <b>07.00–24.00 WIB</b>.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter</span><span>8</span></div>
+</section>
+
+</body>
+</html>

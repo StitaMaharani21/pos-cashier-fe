@@ -1,3 +1,6 @@
+import { useState } from "react"
+import { LocateFixedIcon } from "lucide-react"
+
 import type { BusinessSettings } from "@/entities/business-settings/model/business-settings.types"
 import {
   businessSettingsSchema,
@@ -23,6 +26,9 @@ interface BusinessSettingsFormPayload {
   email: string
   tax_percentage: number
   receipt_footer: string
+  latitude?: number
+  longitude?: number
+  self_order_radius_m?: number
 }
 
 interface BusinessSettingsFormProps {
@@ -45,8 +51,35 @@ export function BusinessSettingsForm({
       email: settings?.email ?? "",
       taxPercentage: settings?.tax_percentage != null ? String(settings.tax_percentage) : "",
       receiptFooter: settings?.receipt_footer ?? "",
+      latitude: settings?.latitude != null ? String(settings.latitude) : "",
+      longitude: settings?.longitude != null ? String(settings.longitude) : "",
+      selfOrderRadiusM: settings?.self_order_radius_m != null ? String(settings.self_order_radius_m) : "100",
     },
   })
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState<string | null>(null)
+
+  // Fill the coordinates from this device — meant to be pressed at the cafe.
+  function useMyLocation() {
+    if (!("geolocation" in navigator)) {
+      setLocationError("Peramban ini tidak mendukung lokasi.")
+      return
+    }
+    setLocating(true)
+    setLocationError(null)
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setValue("latitude", position.coords.latitude.toFixed(6), { shouldDirty: true, shouldValidate: true })
+        form.setValue("longitude", position.coords.longitude.toFixed(6), { shouldDirty: true, shouldValidate: true })
+        setLocating(false)
+      },
+      () => {
+        setLocationError("Tidak bisa membaca lokasi. Izinkan akses lokasi di peramban, atau isi manual.")
+        setLocating(false)
+      },
+      { enableHighAccuracy: true, timeout: 10_000 }
+    )
+  }
 
   function handleSubmit(values: BusinessSettingsFormValues) {
     onSubmit({
@@ -56,6 +89,10 @@ export function BusinessSettingsForm({
       email: values.email ?? "",
       tax_percentage: values.taxPercentage ? Number(values.taxPercentage) : 0,
       receipt_footer: values.receiptFooter ?? "",
+      ...(values.latitude?.trim() && values.longitude?.trim()
+        ? { latitude: Number(values.latitude), longitude: Number(values.longitude) }
+        : {}),
+      ...(values.selfOrderRadiusM?.trim() ? { self_order_radius_m: Number(values.selfOrderRadiusM) } : {}),
     })
   }
 
@@ -157,6 +194,67 @@ export function BusinessSettingsForm({
             </FormItem>
           )}
         />
+
+        <div className="flex flex-col gap-3.5 rounded-xl border bg-muted/30 p-4">
+          <div>
+            <h3 className="text-sm font-extrabold text-foreground">Lokasi Kafe (Pesan dari Meja)</h3>
+            <p className="text-xs text-muted-foreground">
+              Dipakai untuk menandai pesanan QR meja yang datang dari luar kafe di daftar order kasir. Hanya penanda,
+              pesanan tidak ditolak. Tekan tombol di bawah saat Anda berada di kafe.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3.5">
+            <FormField
+              control={form.control}
+              name="latitude"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Latitude</FormLabel>
+                  <FormControl>
+                    <Input inputMode="decimal" placeholder="-6.175392" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="longitude"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Longitude</FormLabel>
+                  <FormControl>
+                    <Input inputMode="decimal" placeholder="106.827153" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="selfOrderRadiusM"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Radius (meter)</FormLabel>
+                <FormControl>
+                  <Input type="number" min={10} max={2000} className="max-w-40" {...field} />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Standar 100 m. GPS dalam ruangan sering meleset, jangan terlalu kecil.
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" variant="outline" size="sm" disabled={locating} onClick={useMyLocation}>
+              <LocateFixedIcon />
+              {locating ? "Membaca lokasi..." : "Gunakan lokasi saya sekarang"}
+            </Button>
+            {locationError && <span className="text-xs text-destructive">{locationError}</span>}
+          </div>
+        </div>
 
         <div className="flex gap-2.5">
           <Button

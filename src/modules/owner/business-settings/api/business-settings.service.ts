@@ -41,6 +41,13 @@ function toFormData(payload: UpdateBusinessSettingsPayload): FormData {
   formData.append("tax_percentage", String(payload.tax_percentage))
   formData.append("receipt_footer", payload.receipt_footer)
   if (payload.logo) formData.append("logo", payload.logo)
+  if (payload.latitude != null && payload.longitude != null) {
+    formData.append("latitude", String(payload.latitude))
+    formData.append("longitude", String(payload.longitude))
+  }
+  if (payload.self_order_radius_m != null) {
+    formData.append("self_order_radius_m", String(payload.self_order_radius_m))
+  }
   return formData
 }
 

@@ -23,4 +23,4 @@ Sublayers:
 - `schemas/` — zod schema mirroring the multipart form fields
 - `section/` — `MenuCatalogSection.tsx` (tabs), `MenuSection.tsx` (the Menu tab: toolbar, table, pagination, sheets)
 
-**Not in scope yet**: `/master/addon-groups` (menu-addon groups/options) is owner-only and menu-adjacent, but isn't its own screen in the backend's design doc. Documented extension point inside this feature (e.g. an "addons" tab on the menu edit form) if/when that screen is actually needed — don't scaffold it speculatively.
+**Addons** (extra-charge options like "Gula +Rp5.000") are their own screen: see `modules/owner/menu-addon` (`/app/menu-addon`).

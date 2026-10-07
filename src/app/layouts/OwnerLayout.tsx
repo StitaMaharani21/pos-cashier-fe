@@ -39,6 +39,7 @@ const NAV_GROUPS = [
     items: [
       // Kategori Menu + Menu are tabs of this one page.
       { to: "/app/menu", label: "Menu" },
+      { to: "/app/menu-addon", label: "Addon Menu" },
       { to: "/app/ingredient", label: "Bahan Baku" },
       { to: "/app/payment-method", label: "Metode Pembayaran" },
       { to: "/app/order-type", label: "Jenis Order" },

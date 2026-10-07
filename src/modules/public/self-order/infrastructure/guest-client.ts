@@ -38,6 +38,12 @@ export function createGuestClient({ storeCode, guestToken }: GuestContext) {
         )
       }
       const payload = data as Partial<ApiErrorPayload> | undefined
+      // A 5xx is the server's problem whatever its body says (e.g. an
+      // unmapped error comes back as a generic INTERNAL): one code so the
+      // screens can say so, instead of echoing "Internal server error".
+      if (status >= 500) {
+        return Promise.reject(new ApiError({ code: "SERVER_ERROR", message: "Server sedang bermasalah." }, status))
+      }
       if (payload?.code && payload.message) {
         return Promise.reject(new ApiError({ code: payload.code, message: payload.message }, status))
       }
@@ -54,8 +60,29 @@ export function isSessionGone(error: unknown): boolean {
   return error instanceof ApiError && (error.status === 401 || error.status === 403 || error.status === 404)
 }
 
+// Backend error codes → copy for a customer. Anything else shows the
+// backend's own message.
 export function guestErrorMessage(error: unknown): string {
   if (error instanceof NetworkError) return "Periksa koneksi internet kamu, lalu coba lagi."
-  if (error instanceof ApiError) return error.message
+  if (error instanceof ApiError) {
+    switch (error.code) {
+      case "NO_ACTIVE_SHIFT":
+        return "Kasir belum buka. Minta bantuan staf."
+      case "DINE_IN_DISABLED":
+        return "Pemesanan dari meja sedang dinonaktifkan. Silakan pesan langsung ke kasir."
+      case "TABLE_INACTIVE":
+        return "Meja ini sedang tidak menerima pesanan. Minta bantuan staf."
+      case "TABLE_HAS_PENDING_ORDER":
+        return "Pesanan sebelumnya di meja ini masih menunggu kasir. Coba lagi sebentar."
+      case "RATE_LIMITED":
+        return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi."
+      case "QTY_LIMIT":
+        return "Jumlah pesanan melebihi batas. Kurangi jumlahnya atau panggil staf."
+      case "SERVER_ERROR":
+        return "Server sedang bermasalah. Coba lagi sebentar lagi."
+      default:
+        return error.message
+    }
+  }
   return "Terjadi kesalahan. Coba lagi."
 }

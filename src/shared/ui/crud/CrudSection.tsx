@@ -68,6 +68,8 @@ interface CrudSectionProps<T, TCreate, TUpdate> {
   extraRowActions?: (row: T) => ReactNode
   // Extra UI that lives next to the table (e.g. a dialog the row actions open).
   children?: ReactNode
+  // Buttons placed in the toolbar next to "Tambah …" (e.g. "Cetak semua QR").
+  toolbarActions?: ReactNode
 }
 
 // The orchestrator every owner master-data feature's `section/*.tsx` wires
@@ -95,6 +97,7 @@ export function CrudSection<T, TCreate, TUpdate>({
   describeForm,
   extraRowActions,
   children,
+  toolbarActions,
 }: CrudSectionProps<T, TCreate, TUpdate>) {
   const queryClient = useQueryClient()
   const { can } = useCapabilities()
@@ -215,11 +218,16 @@ export function CrudSection<T, TCreate, TUpdate>({
         filtering={table.filtering}
         onReset={table.reset}
         action={
-          canCreate && (
-            <Button className="h-10" onClick={() => openForm(null)}>
-              <PlusIcon />
-              Tambah {title}
-            </Button>
+          (toolbarActions || canCreate) && (
+            <div className="flex flex-wrap gap-2">
+              {toolbarActions}
+              {canCreate && (
+                <Button className="h-10" onClick={() => openForm(null)}>
+                  <PlusIcon />
+                  Tambah {title}
+                </Button>
+              )}
+            </div>
           )
         }
       >

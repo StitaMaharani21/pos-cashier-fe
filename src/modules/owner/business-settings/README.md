@@ -8,3 +8,5 @@ Store-wide info printed on receipts and used across the app. Backed by `pos-kasi
 "Ganti Logo" uploads immediately (PUT with the *saved* settings + the new file), separate from the form's "Simpan Perubahan", and is disabled until the settings row exists — the PUT needs the required fields, so the form must be saved once first.
 
 Sublayers: `components/` (`BusinessSettingsForm`, `BusinessLogoCard`), `schemas/` (zod), `section/` (`BusinessSettingsSection.tsx`) — no `columns/`, there's no table/list here.
+
+**Lokasi kafe (Pesan dari Meja).** `latitude`, `longitude` and `self_order_radius_m` (default 100 m) live in the same PUT. They feed the "di luar radius" flag the backend puts on QR-table orders; it is only a hint for the cashier. The form's "Gunakan lokasi saya sekarang" fills the coordinates from the device (press it at the cafe). Coordinates are both-or-neither, and a PUT that omits them keeps the saved location — which is why the logo upload, which resends the other fields, never clears it.

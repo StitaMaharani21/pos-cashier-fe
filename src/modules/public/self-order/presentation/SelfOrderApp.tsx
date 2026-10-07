@@ -11,6 +11,7 @@ import type {
   GuestSession,
 } from "@/modules/public/self-order/domain/self-order.types"
 import { guestErrorMessage, isSessionGone } from "@/modules/public/self-order/infrastructure/guest-client"
+import { getGuestLocation } from "@/modules/public/self-order/infrastructure/guest-location"
 import { CartScreen } from "@/modules/public/self-order/presentation/components/CartScreen"
 import { ConfirmScreen } from "@/modules/public/self-order/presentation/components/ConfirmScreen"
 import { ItemSheet, type ItemSheetValues } from "@/modules/public/self-order/presentation/components/ItemSheet"
@@ -48,6 +49,8 @@ export function SelfOrderApp({ storeCode, session, onNewSession, initialScreen }
   const [name, setName] = useState(readOrdererName)
   const [placed, setPlaced] = useState<{ order: GuestOrder; items: GuestCartItem[] } | null>(null)
   const [gone, setGone] = useState(false)
+  // Waiting for the browser's location (or its refusal) before the order goes out.
+  const [locating, setLocating] = useState(false)
   const [now, setNow] = useState(() => Date.now())
 
   const menu = useGuestMenu(storeCode)
@@ -156,10 +159,16 @@ export function SelfOrderApp({ storeCode, session, onNewSession, initialScreen }
     })
   }
 
-  function submitCart() {
+  async function submitCart() {
     const items = cart.items
+    // The cashier sees whether the order came from inside the cafe. Asked now,
+    // never blocking: no permission just means no location on the order.
+    setLocating(true)
+    const location = await getGuestLocation()
+    setLocating(false)
+
     checkout.mutate(
-      { guest_name: name, notes: "" },
+      { guest_name: name, notes: "", ...(location ?? {}) },
       {
         onSuccess: (order) => {
           setPlaced({ order, items })
@@ -200,7 +209,7 @@ export function SelfOrderApp({ storeCode, session, onNewSession, initialScreen }
         <CartScreen
           cart={cart}
           busy={busy}
-          isSubmitting={checkout.isPending}
+          isSubmitting={checkout.isPending || locating}
           onBack={() => setScreen("menu")}
           onStep={stepItem}
           onRemove={removeItem}

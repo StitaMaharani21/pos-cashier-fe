@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { StoreIcon } from "lucide-react"
 
 import { guestSessionKey, useGuestSession } from "@/modules/public/self-order/application/useGuestSession"
-import { isSessionGone } from "@/modules/public/self-order/infrastructure/guest-client"
+import { guestErrorMessage, isSessionGone } from "@/modules/public/self-order/infrastructure/guest-client"
 import { LoadingScreen, StateScreen } from "@/modules/public/self-order/presentation/components/StateScreen"
 import { SelfOrderApp } from "@/modules/public/self-order/presentation/SelfOrderApp"
 import { ApiError, NetworkError } from "@/shared/api/client"
@@ -75,8 +75,36 @@ function SessionError({ error, onRetry }: { error: unknown; onRetry: () => void 
         />
       )
     }
-    // No shift is open, so the shared cart can't be created yet.
-    if (/shift/i.test(error.message)) {
+    if (error.code === "DINE_IN_DISABLED") {
+      return (
+        <StateScreen
+          title="Pesan dari meja dinonaktifkan"
+          description="Toko ini sedang tidak menerima pesanan lewat HP. Silakan pesan langsung ke kasir."
+        />
+      )
+    }
+    if (error.code === "TABLE_INACTIVE") {
+      return (
+        <StateScreen
+          title="Meja ini tidak menerima pesanan"
+          description="Meja ini sedang dinonaktifkan. Minta bantuan staf."
+        />
+      )
+    }
+    if (error.code === "RATE_LIMITED" || error.code === "SERVER_ERROR") {
+      return (
+        <StateScreen
+          title="Belum bisa membuka meja"
+          description={guestErrorMessage(error)}
+          actionLabel="Coba lagi"
+          onAction={onRetry}
+        />
+      )
+    }
+    // No shift is open, so the shared cart can't be created yet. The backend
+    // answers NO_ACTIVE_SHIFT; the message match covers an older backend that
+    // still answered a bare 500 for it.
+    if (error.code === "NO_ACTIVE_SHIFT" || /shift/i.test(error.message)) {
       return (
         <StateScreen
           title="Kasir belum buka"

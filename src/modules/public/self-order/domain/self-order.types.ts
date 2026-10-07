@@ -96,6 +96,11 @@ export interface UpdateCartItemPayload {
 export interface CheckoutPayload {
   guest_name: string
   notes: string
+  // The guest's position, when the browser gave one. Only a hint for the
+  // cashier ("di luar radius"); an order without it is accepted all the same.
+  latitude?: number
+  longitude?: number
+  accuracy?: number
 }
 
 export interface GuestOrder {

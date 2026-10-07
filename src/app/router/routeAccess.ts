@@ -13,6 +13,8 @@ export const routeAccess: Record<string, AccessRule> = {
   "": { feature: "pos", module: "dashboard" }, // index route ("/app")
   // Kategori Menu + Menu tabs (the old /app/menu-category redirects here).
   menu: { feature: "pos", module: "menu" },
+  // Add-on groups (e.g. "Gula" +Rp5.000) attached to menus.
+  "menu-addon": { feature: "pos", module: "menu" },
   ingredient: { feature: "inventory_full", module: "inventory" },
   "payment-method": { feature: "pos", module: "payment_method" },
   "order-type": { feature: "pos", module: "menu" },

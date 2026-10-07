@@ -14,6 +14,32 @@ export const businessSettingsSchema = z.object({
       "Pajak harus antara 0 dan 100"
     ),
   receiptFooter: z.string().optional(),
+  // Cafe location for QR-table orders. Kept as strings (text inputs); both
+  // coordinates or neither, and the ranges mirror the backend's bindings.
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
+  selfOrderRadiusM: z.string().optional(),
+}).superRefine((values, ctx) => {
+  const lat = values.latitude?.trim() ?? ""
+  const lng = values.longitude?.trim() ?? ""
+  const radius = values.selfOrderRadiusM?.trim() ?? ""
+
+  if ((lat === "") !== (lng === "")) {
+    ctx.addIssue({
+      code: "custom",
+      path: [lat === "" ? "latitude" : "longitude"],
+      message: "Isi latitude dan longitude bersamaan",
+    })
+  }
+  if (lat !== "" && !(Number.isFinite(Number(lat)) && Number(lat) >= -90 && Number(lat) <= 90)) {
+    ctx.addIssue({ code: "custom", path: ["latitude"], message: "Latitude harus antara -90 dan 90" })
+  }
+  if (lng !== "" && !(Number.isFinite(Number(lng)) && Number(lng) >= -180 && Number(lng) <= 180)) {
+    ctx.addIssue({ code: "custom", path: ["longitude"], message: "Longitude harus antara -180 dan 180" })
+  }
+  if (radius !== "" && !(Number.isInteger(Number(radius)) && Number(radius) >= 10 && Number(radius) <= 2000)) {
+    ctx.addIssue({ code: "custom", path: ["selfOrderRadiusM"], message: "Radius 10–2000 meter" })
+  }
 })
 
 export type BusinessSettingsFormValues = z.infer<typeof businessSettingsSchema>

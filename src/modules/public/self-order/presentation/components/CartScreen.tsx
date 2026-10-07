@@ -109,6 +109,9 @@ export function CartScreen({ cart, busy, isSubmitting, onBack, onStep, onRemove,
             <button type="button" className="so-cta" disabled={isSubmitting || busy} onClick={onSubmit}>
               {isSubmitting ? "Mengirim…" : "Kirim ke Kasir"}
             </button>
+            <p className="so-footnote">
+              Izinkan lokasi saat diminta: kasir memakainya untuk memastikan pesanan datang dari kafe.
+            </p>
           </div>
         </>
       )}

@@ -1,21 +1,38 @@
 import { CircleCheck } from "lucide-react"
 
+import type { CurrentSubscription, SubscriptionPlan } from "@/entities/subscription/model/subscription.types"
+import type { PaymentIntent } from "@/modules/owner/billing/lib/payment-intent"
 import { PLANS, type Plan } from "@/modules/public/landing/presentation/landing.content"
 import { ownerPlanInquiryMessage, waLink } from "@/modules/public/shared/contact"
 import type { Capabilities } from "@/shared/access/types"
-import { cn } from "@/shared/lib/utils"
+import { formatRupiah, cn } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
+import { Button } from "@/shared/ui/button"
 
 const PLAN_RANK: Record<Plan["id"], number> = { starter: 0, pro: 1, enterprise: 2 }
+
+// Plans an owner can pay for in the console. Enterprise is a custom quote and
+// always goes through sales.
+const SELF_SERVE: Plan["id"][] = ["starter", "pro"]
+
+interface PlanComparisonGridProps {
+  caps: Capabilities
+  // From GET /subscriptions/plans: the prices the backend actually charges and
+  // the ids needed to buy. Missing (request failed / older backend) → the
+  // static price list and WhatsApp buttons, exactly as before.
+  plans?: SubscriptionPlan[]
+  current?: CurrentSubscription
+  onBuy: (intent: PaymentIntent) => void
+}
 
 // Reuses PLANS (the same data PricingSection's marketing cards render) but
 // deliberately does NOT reuse PlanCard/PlanCtaLink: those use public-page
 // (neela-*) design tokens nothing else in /app uses, carry a monthly/annual
 // toggle this discovery page doesn't need, and route through an
-// isOwner-detection heuristic built for visitors — inside /app the viewer is
-// always the owner, so the CTA here always goes straight to WhatsApp.
-export function PlanComparisonGrid({ caps }: { caps: Capabilities }) {
+// isOwner-detection heuristic built for visitors.
+export function PlanComparisonGrid({ caps, plans, current, onBuy }: PlanComparisonGridProps) {
   const currentRank = PLAN_RANK[caps.plan]
+  const currentPlanName = PLANS.find((p) => p.id === caps.plan)?.name ?? caps.plan
 
   return (
     <div className="flex flex-col gap-4">
@@ -28,6 +45,18 @@ export function PlanComparisonGrid({ caps }: { caps: Capabilities }) {
           const rank = PLAN_RANK[plan.id]
           const isCurrent = rank === currentRank
           const isBelowCurrent = rank < currentRank
+          const backendPlan = SELF_SERVE.includes(plan.id) ? plans?.find((p) => p.code === plan.id) : undefined
+
+          const buy = (mode: "upgrade" | "renew") =>
+            backendPlan &&
+            onBuy({
+              kind: "plan",
+              plan: backendPlan,
+              planName: plan.name,
+              currentPlanName,
+              mode,
+              renewAt: current?.renew_at,
+            })
 
           return (
             <div
@@ -44,8 +73,7 @@ export function PlanComparisonGrid({ caps }: { caps: Capabilities }) {
 
               <div>
                 <span className="text-2xl font-extrabold text-foreground">
-                  {plan.pricePrefix}
-                  {plan.price.monthly}
+                  {backendPlan ? formatRupiah(backendPlan.price) : `${plan.pricePrefix ?? ""}${plan.price.monthly}`}
                 </span>
                 <span className="text-sm text-muted-foreground">/bulan</span>
                 <p className="mt-0.5 text-xs text-muted-foreground">{plan.subtext.monthly}</p>
@@ -66,13 +94,24 @@ export function PlanComparisonGrid({ caps }: { caps: Capabilities }) {
                 {plan.note && <p className="text-xs text-muted-foreground italic">{plan.note}</p>}
               </div>
 
-              <div className="mt-auto pt-2">
+              <div className="mt-auto flex flex-col gap-2 pt-2">
                 {isCurrent ? (
-                  <Badge className="w-full justify-center py-1.5 text-sm">Paket Anda Saat Ini</Badge>
+                  <>
+                    <Badge className="w-full justify-center py-1.5 text-sm">Paket Anda Saat Ini</Badge>
+                    {backendPlan && (
+                      <Button variant="outline" className="h-10 w-full" onClick={() => buy("renew")}>
+                        Perpanjang {plan.name}
+                      </Button>
+                    )}
+                  </>
                 ) : isBelowCurrent ? (
                   <Badge variant="secondary" className="w-full justify-center py-1.5 text-sm">
                     Termasuk di paket Anda
                   </Badge>
+                ) : backendPlan ? (
+                  <Button className="h-10 w-full font-semibold" onClick={() => buy("upgrade")}>
+                    Upgrade &amp; Bayar
+                  </Button>
                 ) : (
                   <a
                     href={waLink(ownerPlanInquiryMessage(plan.name))}

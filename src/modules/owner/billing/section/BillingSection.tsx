@@ -1,6 +1,17 @@
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+
 import { AddonList } from "@/modules/owner/billing/components/AddonList"
 import { CurrentPlanSummaryCard } from "@/modules/owner/billing/components/CurrentPlanSummaryCard"
+import { PaymentQrDialog } from "@/modules/owner/billing/components/PaymentQrDialog"
 import { PlanComparisonGrid } from "@/modules/owner/billing/components/PlanComparisonGrid"
+import {
+  useAddonCatalog,
+  useCurrentSubscription,
+  useSubscriptionPlans,
+} from "@/modules/owner/billing/api/subscription.queries"
+import type { PaymentIntent } from "@/modules/owner/billing/lib/payment-intent"
+import { DEVICE_QUOTA_KEY, getDeviceQuota } from "@/modules/owner/device/api/device.service"
 import { useCapabilities } from "@/shared/access/useCapabilities"
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/ui/page-header"
@@ -10,13 +21,20 @@ import { PageHeader } from "@/shared/ui/page-header"
 // this page to find out what to upgrade to — gating it would lock an owner
 // out of the one page that explains how to unlock everything else.
 //
-// Pure read-only discovery page: no mutation, no payment flow. Every CTA
-// here reuses the exact same contactLink()/waLink() WhatsApp mechanism the
-// sidebar lock icons and LockedPage/UpsellModal already use — this page
-// just makes that existing path easier to find and compare up front,
-// instead of only reacting to a lock an owner happens to hit.
+// An owner can pay for an upgrade/renewal, the Laporan/Inventori add-ons and
+// extra devices right here with QRIS (PaymentQrDialog). What the backend does
+// not sell yet (an add-on without a price, Kasir Tambahan, overage,
+// Enterprise) keeps the WhatsApp path every locked-feature CTA uses.
 export function BillingSection() {
   const { caps, isLoading, refetch } = useCapabilities()
+  const [intent, setIntent] = useState<PaymentIntent | null>(null)
+
+  // Supplements: the page renders from capabilities alone when any of these
+  // fail, falling back to the static price list and the WhatsApp buttons.
+  const plans = useSubscriptionPlans()
+  const current = useCurrentSubscription()
+  const catalog = useAddonCatalog()
+  const quota = useQuery({ queryKey: DEVICE_QUOTA_KEY, queryFn: getDeviceQuota, staleTime: 30_000, retry: false })
 
   if (isLoading || !caps) {
     return (
@@ -38,10 +56,11 @@ export function BillingSection() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Paket & Addon" description="Lihat paket dan add-on yang tersedia untuk toko Anda" />
-      <CurrentPlanSummaryCard caps={caps} />
-      <PlanComparisonGrid caps={caps} />
-      <AddonList caps={caps} />
+      <PageHeader title="Paket & Addon" description="Lihat dan beli paket serta add-on untuk toko Anda" />
+      <CurrentPlanSummaryCard caps={caps} current={current.data} />
+      <PlanComparisonGrid caps={caps} plans={plans.data} current={current.data} onBuy={setIntent} />
+      <AddonList caps={caps} catalog={catalog.data} quota={quota.data} onBuy={setIntent} />
+      <PaymentQrDialog intent={intent} onOpenChange={(open) => !open && setIntent(null)} />
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { UsersSection } from "@/modules/owner/cashier/section/UsersSection"
 import { DashboardSection } from "@/modules/owner/dashboard/section/DashboardSection"
 import { FinancialReportSection } from "@/modules/owner/financial-report/section/FinancialReportSection"
 import { IngredientSection } from "@/modules/owner/ingredient/section/IngredientSection"
+import { MenuAddonSection } from "@/modules/owner/menu-addon/section/MenuAddonSection"
 import { MenuCatalogSection } from "@/modules/owner/menu/section/MenuCatalogSection"
 import { OrderTypeSection } from "@/modules/owner/order-type/section/OrderTypeSection"
 import { PaymentMethodSection } from "@/modules/owner/payment-method/section/PaymentMethodSection"
@@ -60,6 +61,7 @@ export function AppRouter() {
               category URL lands on its tab. */}
           <Route path="menu" element={guarded("menu", <MenuCatalogSection />)} />
           <Route path="menu-category" element={<Navigate to="/app/menu" replace />} />
+          <Route path="menu-addon" element={guarded("menu-addon", <MenuAddonSection />)} />
           <Route path="ingredient" element={guarded("ingredient", <IngredientSection />)} />
           <Route
             path="payment-method"

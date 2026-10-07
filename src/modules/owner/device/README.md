@@ -6,6 +6,7 @@ Backed by `pos-kasir-be`'s `internal/central/device` (table `devices` in the cen
 - `POST /devices/pairing-code` `{name}` → `{device_id, pairing_token, expires_at}` — a new PENDING device, valid 10 minutes.
 - `GET /devices` — all of the store's devices, newest first; PENDING rows carry `pairing_expires_at`.
 - `PATCH /devices/:id/revoke`.
+- `GET /devices/quota` → `{limit, used, base, extra, unlimited}`: the plan's allowance (Starter 2, Pro 4, Enterprise unlimited) plus active *Device Tambahan* add-ons; `used` = BOUND devices. Pairing is refused with `DEVICE_LIMIT_REACHED` (403) once `used >= limit` — at both `pairing-code` and `claim` — while devices already bound keep working if the allowance later shrinks. `DeviceSection` shows "x dari y perangkat terpakai", disables "Hubungkan Perangkat" when full and links to `/app/billing` to buy more (`DEVICE_QUOTA_KEY`, a child of `DEVICES_KEY` so a revoke refreshes it).
 
 **Enforcement is backend-side and cashier-only** (`middleware.RequireCashierDevice`, mounted on `/api/v1` of every store engine):
 - `POST /auth/login/pin` and every request with a cashier JWT need `X-Device-Token` of a BOUND device.

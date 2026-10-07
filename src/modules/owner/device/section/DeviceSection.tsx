@@ -3,10 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, formatDistanceToNow } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { BanIcon, PlusIcon, TabletSmartphoneIcon } from "lucide-react"
+import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
 import type { Device } from "@/entities/device/model/device.types"
-import { DEVICES_KEY, listDevices, revokeDevice } from "@/modules/owner/device/api/device.service"
+import {
+  DEVICES_KEY,
+  DEVICE_QUOTA_KEY,
+  getDeviceQuota,
+  listDevices,
+  revokeDevice,
+} from "@/modules/owner/device/api/device.service"
 import { PairingQrDialog } from "@/modules/owner/device/components/PairingQrDialog"
 import { DEVICE_FILTER_OPTIONS, DEVICE_STATE_META, deviceState } from "@/modules/owner/device/lib/device-status"
 import { useCapabilities } from "@/shared/access/useCapabilities"
@@ -44,6 +51,11 @@ export function DeviceSection() {
     queryKey: DEVICES_KEY,
     queryFn: listDevices,
   })
+
+  // Allowance of the plan (+ Device Tambahan). Supplementary: if it can't be
+  // read, pairing is simply not pre-blocked here — the backend still enforces it.
+  const { data: quota } = useQuery({ queryKey: DEVICE_QUOTA_KEY, queryFn: getDeviceQuota, staleTime: 30_000, retry: false })
+  const quotaFull = quota != null && !quota.unlimited && quota.used >= quota.limit
 
   const table = useClientTable({
     rows: devices,
@@ -131,8 +143,27 @@ export function DeviceSection() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Perangkat Kasir"
-        description={`${bound} perangkat terhubung · hanya perangkat terdaftar yang bisa login kasir`}
+        description={
+          quota && !quota.unlimited
+            ? `${quota.used} dari ${quota.limit} perangkat terpakai · hanya perangkat terdaftar yang bisa login kasir`
+            : `${bound} perangkat terhubung · hanya perangkat terdaftar yang bisa login kasir`
+        }
       />
+
+      {quotaFull && (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+        >
+          <span>
+            Kuota perangkat penuh ({quota.used} dari {quota.limit}). Beli device tambahan, atau cabut perangkat yang tidak
+            dipakai.
+          </span>
+          <Link to="/app/billing" className="shrink-0 font-semibold underline underline-offset-2">
+            Beli device tambahan
+          </Link>
+        </div>
+      )}
 
       <TableToolbar
         search={table.search}
@@ -142,7 +173,7 @@ export function DeviceSection() {
         onReset={table.reset}
         action={
           canManage && (
-            <Button className="h-10" onClick={() => setPairingOpen(true)}>
+            <Button className="h-10" disabled={quotaFull} onClick={() => setPairingOpen(true)}>
               <PlusIcon />
               Hubungkan Perangkat
             </Button>

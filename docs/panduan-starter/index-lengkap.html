@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Panduan Paket Starter &amp; Add-on Neela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .todo { background: #FFF3B0; color: #5C4A00; font-weight: 700; padding: 0 1.6mm; border-radius: 1.2mm; border: 1px dashed #C9A400; }
+  .side { width: 56mm; background: #fff; border: 1px solid var(--line); border-radius: 3mm; padding: 3mm; font-size: 8pt; box-shadow: 0 4px 14px rgba(11,29,58,.1); }
+  .side .grp { font-size: 6.4pt; letter-spacing: .12em; color: var(--muted); font-weight: 600; margin: 2.2mm 0 .8mm; text-transform: uppercase; }
+  .side .it { padding: 1mm 1.6mm; border-radius: 1.4mm; color: var(--ink); }
+  .side .it.on { background: var(--chip); color: var(--brand); font-weight: 600; }
+  .side .it.lock { color: #8A97AA; display: flex; justify-content: space-between; }
+  .side .it.lock::after { content: '🔒'; font-size: 7pt; }
+  .pcard { border: 1px solid var(--line); border-radius: 3mm; padding: 3.5mm; background: #fff; }
+  .pcard.cur { border: 2px solid var(--brand); background: var(--chip); }
+  .pcard h4 { margin: 0 0 1mm; font-size: 11pt; color: var(--navy); }
+  .pcard .pr { font-weight: 700; color: var(--brand); font-size: 11pt; }
+  .pcard .b { display: block; margin-top: 2mm; padding: 1.2mm 2mm; border-radius: 1.6mm; text-align: center; font-size: 8pt; font-weight: 600; }
+  .pcard .b.cur { background: var(--brand); color: #fff; }
+  .pcard .b.in { background: #fff; color: var(--muted); border: 1px solid var(--line); }
+  .pcard .b.wa { background: #1FA855; color: #fff; }
+  .addrow { display: flex; gap: 3mm; align-items: center; border: 1px solid var(--line); border-radius: 3mm; padding: 3mm 4mm; background: #fff; margin-bottom: 2.5mm; break-inside: avoid; }
+  .addrow .tx { flex: 1; }
+  .addrow .tx b { color: var(--navy); font-size: 10pt; }
+  .addrow .tx span { display: block; color: var(--muted); font-size: 8.4pt; }
+  .btnwa { background: #1FA855; color: #fff; font-weight: 600; font-size: 8pt; padding: 1.6mm 3mm; border-radius: 1.8mm; white-space: nowrap; }
+  .qr { width: 38mm; height: 38mm; border: 1.2mm solid var(--navy); border-radius: 2.5mm; background: repeating-conic-gradient(var(--navy) 0 25%, #fff 0 50%) 0 0/4.2mm 4.2mm; margin: 2mm auto; }
+  .dlg { border: 1px solid var(--line); border-radius: 4mm; padding: 5mm; background: #fff; box-shadow: 0 8px 22px rgba(11,29,58,.14); text-align: center; }
+  .bar { height: 2.2mm; background: var(--line); border-radius: 2mm; overflow: hidden; margin: 1.5mm 0; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. SAMPUL ============ -->
+<section class="page cover">
+  <img class="logo" src="assets/logo.png" alt="Neela">
+  <div class="eyebrow">Buku Panduan Pemilik Toko</div>
+  <h1>Neela POS<br>Paket Starter<br>&amp; Add-on</h1>
+  <div class="sub">Mulai dari mendaftar, memahami batas paket, sampai membuka fitur tambahan lewat add-on. Langkah demi langkah, sesuai tampilan aplikasi.</div>
+  <div class="cover-foot"><span>Berlaku untuk dashboard owner Neela</span><span>Untuk pemilik toko</span></div>
+</section>
+
+<!-- ============ 2. DAFTAR ISI ============ -->
+<section class="page">
+  <div class="kicker">Selamat datang</div>
+  <h2>Isi Panduan</h2>
+  <p class="lead">Panduan ini menjelaskan apa yang Anda dapat di paket <b>Starter</b>, apa yang masih terkunci, dan bagaimana membukanya dengan <b>add-on</b>.</p>
+
+  <ol class="toc">
+    <li><span class="n">1</span><span><span class="t">Mengenal Paket Starter</span><span class="d">Apa yang termasuk dan apa yang tidak</span></span><span class="pg">3</span></li>
+    <li><span class="n">2</span><span><span class="t">Mendaftar &amp; Memulai</span><span class="d">Formulir, status pendaftaran, dan login</span></span><span class="pg">5</span></li>
+    <li><span class="n">3</span><span><span class="t">Membayar Starter via QRIS</span><span class="d">Beli langsung 1 bulan saat mendaftar</span></span><span class="pg">7</span></li>
+    <li><span class="n">4</span><span><span class="t">Batas Paket Starter</span><span class="d">Kuota kasir dan batas transaksi harian</span></span><span class="pg">9</span></li>
+    <li><span class="n">5</span><span><span class="t">Fitur Terkunci &amp; Cara Membukanya</span><span class="d">Ikon gembok, jendela upsell, halaman terkunci</span></span><span class="pg">10</span></li>
+    <li><span class="n">6</span><span><span class="t">Add-on</span><span class="d">Laporan Lengkap, Inventori Lengkap, Kasir Tambahan</span></span><span class="pg">12</span></li>
+    <li><span class="n">7</span><span><span class="t">Halaman “Paket &amp; Addon”</span><span class="d">Memahami setiap kartu, badge, dan tombol</span></span><span class="pg">14</span></li>
+    <li><span class="n">8</span><span><span class="t">Upgrade, Perpanjang &amp; Ganti Paket</span><span class="d">Semua lewat tim Neela</span></span><span class="pg">16</span></li>
+    <li><span class="n">9</span><span><span class="t">Tanya Jawab &amp; Pemecahan Masalah</span><span class="d">Kendala yang paling sering terjadi</span></span><span class="pg">17</span></li>
+  </ol>
+
+  <div class="callout info"><span class="ttl">Cara membaca</span>Teks berlatar biru seperti <span class="lbl">Tambah Add-on</span> adalah nama tombol atau label persis seperti yang tampil di layar. Kolom bertanda <span class="todo">[isi]</span> adalah informasi harga yang diumumkan tim Neela.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>2</span></div>
+</section>
+
+<!-- ============ 3. MENGENAL STARTER ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">1</div><div><div class="kicker">Bagian 1</div><h2 style="margin:0">Mengenal Paket Starter</h2></div></div>
+  <p class="lead">Starter adalah paket dasar untuk kedai kecil, booth, atau stand. Semua toko baru di Neela dimulai dari paket ini.</p>
+
+  <h3 style="margin-top:0">Yang sudah termasuk</h3>
+  <div class="grid3">
+    <div class="card"><h4>Kasir (POS)</h4><p>Menu, pesanan, metode pembayaran, jenis order, pengguna, dan pengaturan bisnis.</p></div>
+    <div class="card"><h4>Shift &amp; Kas</h4><p>Buka dan tutup shift kasir dengan saldo awal dan akhir.</p></div>
+    <div class="card"><h4>Diskon</h4><p>Voucher dan Diskon Otomatis.</p></div>
+  </div>
+  <div class="callout tip"><span class="ttl">Stok dasar tetap tersedia</span>Pelacakan stok per menu (“Per menu (satuan)”) dan kartu “Stok Hampir Habis” di dashboard bisa dipakai di semua paket, tanpa add-on.</div>
+
+  <h3>Yang belum termasuk (terkunci)</h3>
+  <table class="t">
+    <tr><th>Fitur</th><th>Di Starter</th><th>Cara membuka</th></tr>
+    <tr><td>Laporan Keuangan &amp; Laporan Kas</td><td>Terkunci</td><td>Add-on <b>Laporan Lengkap</b></td></tr>
+    <tr><td>Bahan Baku, Riwayat Stok, Cek Selisih Stok, stok per bahan baku (resep)</td><td>Terkunci</td><td>Add-on <b>Inventori Lengkap</b></td></tr>
+    <tr><td>QR Self-Order per Meja (menu Meja)</td><td>Terkunci</td><td>Upgrade ke paket <b>Pro</b> (tidak ada add-on)</td></tr>
+    <tr><td>Multi Outlet &amp; Hak Akses Kustom</td><td>Tidak ditampilkan</td><td>Paket <b>Enterprise</b></td></tr>
+  </table>
+
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>3</span></div>
+</section>
+
+<section class="page">
+  <div class="kicker">Bagian 1 · lanjutan</div>
+  <div style="color:var(--muted);font-size:9pt;margin-bottom:2mm">Mengenal Paket Starter</div>
+  <h3 style="margin-top:0">Starter dibanding paket lain</h3>
+  <table class="t">
+    <tr><th></th><th>Starter</th><th>Pro</th><th>Enterprise</th></tr>
+    <tr><td>Akun kasir aktif</td><td>1</td><td>2</td><td>5</td></tr>
+    <tr><td>Transaksi harian</td><td>Dirancang hingga 80</td><td>Tanpa batas</td><td>Tanpa batas</td></tr>
+    <tr><td>Laporan</td><td>Add-on</td><td>Termasuk</td><td>Termasuk</td></tr>
+    <tr><td>Inventori lengkap</td><td>Add-on</td><td>Termasuk</td><td>Termasuk</td></tr>
+    <tr><td>QR Self-Order</td><td>Terkunci</td><td>Termasuk</td><td>Termasuk</td></tr>
+    <tr><td>Multi Outlet &amp; Hak Akses Kustom</td><td>–</td><td>–</td><td>Termasuk</td></tr>
+  </table>
+  <div class="callout info"><span class="ttl">Harga paket</span>Harga Starter per bulan: <span class="todo">[isi]</span>. Informasi terbaru selalu diumumkan tim Neela dan ditampilkan di halaman utama (bagian “Paket Langganan”).</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>4</span></div>
+</section>
+
+<!-- ============ 4. MENDAFTAR ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">2</div><div><div class="kicker">Bagian 2</div><h2 style="margin:0">Mendaftar &amp; Memulai</h2></div></div>
+  <p class="lead">Pendaftaran dilakukan di halaman <span class="lbl">/daftar</span>. Toko aktif setelah ditinjau dan disetujui tim Neela.</p>
+
+  <div class="flow">
+    <div class="fs"><b>1</b>Isi formulir</div><div class="ar">›</div>
+    <div class="fs"><b>2</b>Verifikasi tim Neela</div><div class="ar">›</div>
+    <div class="fs"><b>3</b>Toko siap dipakai</div>
+  </div>
+
+  <h3 style="margin-top:2mm">Mengisi formulir</h3>
+  <table class="t">
+    <tr><th>Bagian</th><th>Isian</th><th>Aturan</th></tr>
+    <tr><td rowspan="3">1. Profil Usaha &amp; Toko</td><td>Nama Usaha / Kafe</td><td>Wajib, 3–150 karakter</td></tr>
+    <tr><td>Alamat Toko</td><td>Wajib, maks. 255 karakter</td></tr>
+    <tr><td>Nomor Telepon Toko</td><td>Wajib. Dicetak di struk sebagai kontak toko</td></tr>
+    <tr><td rowspan="6">2. Data Pemilik &amp; Kredensial Login</td><td>Nama Lengkap Pemilik</td><td>Wajib, 3–150 karakter</td></tr>
+    <tr><td>Nomor WhatsApp</td><td>Opsional. Untuk dihubungi saat pendampingan setup</td></tr>
+    <tr><td>Email</td><td>Wajib. Dipakai untuk masuk ke dashboard owner</td></tr>
+    <tr><td>Username Pemilik</td><td>Wajib, 3–100 karakter</td></tr>
+    <tr><td>Kata Sandi</td><td>Minimal 8 karakter. Disarankan campuran huruf besar, kecil, dan angka</td></tr>
+    <tr><td>Ulangi Kata Sandi</td><td>Harus sama dengan kata sandi</td></tr>
+  </table>
+  <p>Centang pernyataan persetujuan di bagian bawah formulir, lalu pilih <b>Cara Memulai</b>:</p>
+  <div class="grid2">
+    <div class="card"><h4>Coba Gratis</h4><p>Daftar dulu tanpa pembayaran. Toko aktif setelah disetujui tim. Tombol: <span class="lbl">Kirim Pendaftaran</span></p></div>
+    <div class="card"><h4>Beli Langsung Starter 1 Bulan</h4><p>Bayar via QRIS saat mendaftar. Masa aktif mulai saat toko disetujui. Tombol: <span class="lbl">Daftar &amp; Bayar Sekarang</span></p></div>
+  </div>
+  <div class="callout warn"><span class="ttl">Paket Pro belum bisa dipilih saat mendaftar</span>Semua toko aktif di Starter lebih dulu. Upgrade ke Pro dibantu tim Neela setelah toko aktif (lihat Bagian 8).</div>
+
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>5</span></div>
+</section>
+
+<section class="page">
+  <div class="kicker">Bagian 2 · lanjutan</div>
+  <div style="color:var(--muted);font-size:9pt;margin-bottom:2mm">Mendaftar &amp; Memulai</div>
+  <h3 style="margin-top:0">Memantau status pendaftaran</h3>
+  <p>Buka <span class="lbl">/status-pendaftaran</span>, isi <b>Email Pendaftaran</b> dan <b>Kata Sandi</b>, lalu tekan <span class="lbl">Cek Status</span>.</p>
+  <table class="t">
+    <tr><th>Status</th><th>Artinya</th><th>Langkah Anda</th></tr>
+    <tr><td><span class="lbl">Menunggu persetujuan</span></td><td>Sedang Ditinjau</td><td>Tunggu, tekan <span class="lbl">Perbarui Status</span></td></tr>
+    <tr><td><span class="lbl">Disetujui</span></td><td>Pendaftaran Disetujui</td><td>Tekan <span class="lbl">Masuk ke Portal</span>. Bila belum bisa masuk, tunggu beberapa menit</td></tr>
+    <tr><td><span class="lbl">Ditolak</span></td><td>Alasan penolakan ditampilkan</td><td>Perbaiki data, lalu <span class="lbl">Daftar Ulang</span></td></tr>
+  </table>
+  <div class="callout info"><span class="ttl">Masuk ke dashboard</span>Setelah disetujui, login di <span class="lbl">/login</span> (“Masuk sebagai Owner”) dengan email dan kata sandi yang Anda buat.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>6</span></div>
+</section>
+
+<!-- ============ 5. QRIS ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">3</div><div><div class="kicker">Bagian 3</div><h2 style="margin:0">Membayar Starter via QRIS</h2></div></div>
+  <p class="lead">Hanya berlaku bila Anda memilih <b>Beli Langsung Starter 1 Bulan</b> saat mendaftar. Pembayaran memakai QRIS dari e-wallet atau mobile banking apa pun.</p>
+
+  <div class="cols">
+    <div>
+      <ol class="steps">
+        <li>Setelah menekan <span class="lbl">Daftar &amp; Bayar Sekarang</span>, jendela <b>Bayar Starter 1 Bulan</b> muncul dengan kode QR dan nominal tagihan.</li>
+        <li>Buka aplikasi e-wallet atau mobile banking yang mendukung QRIS, lalu pindai kode QR.</li>
+        <li>Tunggu. Halaman memperbarui diri otomatis (setiap ±3 detik) dan menampilkan <b>Pembayaran diterima</b>.</li>
+        <li>Tekan <span class="lbl">Selesai</span>. Pendaftaran Anda tetap menunggu persetujuan tim Neela.</li>
+      </ol>
+      <div class="callout warn"><span class="ttl">QR hanya berlaku 15 menit</span>Waktu hitung mundur tampil di jendela (“Menunggu pembayaran · berlaku m:ss”). Bila lewat, tekan <span class="lbl">Buat QR baru</span>.</div>
+      <div class="callout tip"><span class="ttl">Masa aktif tidak hangus saat menunggu</span>Satu bulan Starter dihitung sejak toko <b>disetujui</b>, bukan sejak Anda membayar.</div>
+      <div class="callout info"><span class="ttl">Belum sempat bayar?</span>Tutup jendela, pendaftaran tetap tercatat. Tekan <span class="lbl">Bayar Sekarang</span> di layar “Pendaftaran Terkirim!” selagi halaman masih terbuka. Selama QR masih berlaku, Anda mendapat QR yang sama, jadi tidak tertagih dua kali.</div>
+    </div>
+    <div>
+      <div class="dlg">
+        <div style="font-weight:700;color:var(--navy);font-size:10pt">Bayar Starter 1 Bulan</div>
+        <div style="font-size:7.5pt;color:var(--muted);margin-top:1mm">Buka e-wallet atau mobile banking yang mendukung QRIS, lalu pindai kode ini.</div>
+        <div class="qr"></div>
+        <div style="font-size:8pt;color:var(--brand);font-weight:600">Menunggu pembayaran · berlaku 14:32</div>
+        <div class="btn" style="margin-top:2mm;border:1px solid var(--line);padding:1.4mm;border-radius:1.8mm;font-size:8pt">Tutup</div>
+      </div>
+      <div class="phone caption" style="width:auto;background:none;box-shadow:none;padding:0"><div class="caption">Jendela pembayaran QRIS</div></div>
+    </div>
+  </div>
+
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>7</span></div>
+</section>
+
+<section class="page">
+  <div class="kicker">Bagian 3 · lanjutan</div>
+  <div style="color:var(--muted);font-size:9pt;margin-bottom:2mm">Membayar Starter via QRIS</div>
+  <h3 style="margin-top:0">Status &amp; pesan yang mungkin muncul</h3>
+  <table class="t">
+    <tr><th>Tampilan</th><th>Artinya</th><th>Yang dilakukan</th></tr>
+    <tr><td>Pembayaran diterima</td><td>Pembayaran berhasil</td><td>Tekan <span class="lbl">Selesai</span></td></tr>
+    <tr><td>QR kedaluwarsa</td><td>Lewat 15 menit</td><td><span class="lbl">Buat QR baru</span></td></tr>
+    <tr><td>Pembayaran tidak berhasil</td><td>Gagal atau dibatalkan</td><td><span class="lbl">Buat QR baru</span></td></tr>
+    <tr><td>Pembayaran belum bisa dimulai</td><td>Gagal membuat QR</td><td><span class="lbl">Coba lagi</span>; bila terus gagal, hubungi tim Neela</td></tr>
+    <tr><td>“Pembayaran online belum tersedia saat ini…”</td><td>Layanan bayar belum aktif</td><td>Pendaftaran tetap tercatat, tim Neela menghubungi Anda</td></tr>
+    <tr><td>“Pendaftaran ini sudah diproses…”</td><td>Toko sudah disetujui atau ditolak</td><td>Pembelian paket selanjutnya lewat tim Neela (Bagian 8)</td></tr>
+  </table>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>8</span></div>
+</section>
+
+<!-- ============ 6. BATAS PAKET ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">4</div><div><div class="kicker">Bagian 4</div><h2 style="margin:0">Batas Paket Starter</h2></div></div>
+  <p class="lead">Starter memiliki dua batas yang terlihat di dashboard dan menu <b>Pengguna</b>.</p>
+
+  <h3 style="margin-top:0">1. Kuota akun kasir: 1 akun aktif</h3>
+  <div class="cols">
+    <div>
+      <p>Di menu <b>Pengguna</b>, kartu <span class="lbl">Kuota Kasir</span> menampilkan “Kasir Aktif {terpakai} / {batas} kasir” dan bilah penggunaan.</p>
+      <ul>
+        <li>Starter mendapat <b>1</b> akun kasir aktif. Add-on <b>Kasir Tambahan</b> menambah jumlah ini (total = 1 + jumlah add-on).</li>
+        <li>Saat kuota penuh, tombol <span class="lbl">Tambah Kasir</span> nonaktif dengan keterangan “Kuota kasir paket ini sudah penuh”.</li>
+        <li>Menonaktifkan seorang kasir <b>membebaskan satu slot</b>. Hanya kasir berstatus aktif yang dihitung.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Kuota Kasir</h4>
+      <p>Jumlah akun kasir aktif vs batas paket</p>
+      <div style="margin-top:2mm;font-size:9pt"><b style="color:var(--navy)">Kasir Aktif</b> &nbsp; 1 / 1 kasir</div>
+      <div class="bar"><i style="width:100%"></i></div>
+      <div style="font-size:8pt;color:var(--muted)">Paket starter</div>
+    </div>
+  </div>
+
+  <h3>2. Batas transaksi harian: dirancang hingga 80</h3>
+  <div class="cols">
+    <div>
+      <p>Di Dashboard, kartu <span class="lbl">Limit</span> (“Penggunaan harian vs batas maksimum”) menampilkan “Batas Transaksi Harian: {terpakai} / {batas} transaksi” dan persentase pemakaian.</p>
+      <ul>
+        <li>Yang dihitung: <b>pesanan berhasil hari ini</b> (pesanan yang dibatalkan tidak dihitung). Hari mengikuti zona waktu toko (default WIB).</li>
+        <li>Paket Pro dan Enterprise menampilkan “Tanpa batas”.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Limit</h4>
+      <p>Penggunaan harian vs batas maksimum</p>
+      <div style="margin-top:2mm;font-size:9pt"><b style="color:var(--navy)">Batas Transaksi Harian</b> &nbsp; 62 / 80 transaksi</div>
+      <div class="bar"><i style="width:77%"></i></div>
+      <div style="font-size:8pt;color:var(--muted)">Penggunaan: 62 transaksi · 77%</div>
+    </div>
+  </div>
+  <div class="callout info"><span class="ttl">Saat ini hanya penanda, bukan pemblokir</span>Kartu Limit berfungsi sebagai pengingat. Aplikasi tidak menghentikan kasir saat angka mencapai batas. Angka batas resmi dikonfirmasi tim Neela: <span class="todo">[konfirmasi: 80 atau 50]</span>.</div>
+
+  <h3>Yang tidak dibatasi di Starter</h3>
+  <div class="grid3">
+    <div class="card"><h4>Menu</h4><p>Tidak ada batas jumlah menu.</p></div>
+    <div class="card"><h4>Stok per menu</h4><p>Pelacakan stok per menu dan notifikasi stok menipis.</p></div>
+    <div class="card"><h4>Diskon &amp; refund</h4><p>Voucher, diskon otomatis, dan refund tersedia.</p></div>
+  </div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>9</span></div>
+</section>
+
+<!-- ============ 7. TERKUNCI ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">5</div><div><div class="kicker">Bagian 5</div><h2 style="margin:0">Fitur Terkunci &amp; Cara Membukanya</h2></div></div>
+  <p class="lead">Fitur di luar paket Anda tetap terlihat, tetapi diberi ikon gembok supaya Anda tahu cara membukanya.</p>
+
+  <div class="cols">
+    <div>
+      <h3 style="margin-top:0">Di sidebar</h3>
+      <p>Menu yang terkunci tampil redup dengan ikon gembok. Mengkliknya <b>tidak membuka halaman</b>, melainkan jendela penjelasan (upsell).</p>
+      <table class="t">
+        <tr><th>Menu terkunci</th><th>Membuka dengan</th></tr>
+        <tr><td>Bahan Baku</td><td>Add-on Inventori Lengkap</td></tr>
+        <tr><td>Riwayat Stok</td><td>Add-on Inventori Lengkap</td></tr>
+        <tr><td>Cek Selisih Stok</td><td>Add-on Inventori Lengkap</td></tr>
+        <tr><td>Laporan Keuangan</td><td>Add-on Laporan Lengkap</td></tr>
+        <tr><td>Laporan Kas</td><td>Add-on Laporan Lengkap</td></tr>
+        <tr><td>Meja</td><td>Upgrade ke Pro</td></tr>
+      </table>
+    </div>
+    <div class="side">
+      <div class="it">Dashboard</div>
+      <div class="it">Paket &amp; Addon</div>
+      <div class="grp">Master Data</div>
+      <div class="it on">Menu</div>
+      <div class="it lock">Bahan Baku</div>
+      <div class="it">Metode Pembayaran</div>
+      <div class="it">Jenis Order</div>
+      <div class="it lock">Meja</div>
+      <div class="it">Pengguna</div>
+      <div class="grp">Diskon</div>
+      <div class="it">Voucher</div>
+      <div class="it">Diskon Otomatis</div>
+      <div class="grp">Laporan</div>
+      <div class="it lock">Laporan Keuangan</div>
+      <div class="it lock">Laporan Kas</div>
+      <div class="it lock">Riwayat Stok</div>
+      <div class="it lock">Cek Selisih Stok</div>
+    </div>
+  </div>
+
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>10</span></div>
+</section>
+
+<section class="page">
+  <div class="kicker">Bagian 5 · lanjutan</div>
+  <div style="color:var(--muted);font-size:9pt;margin-bottom:2mm">Fitur Terkunci &amp; Cara Membukanya</div>
+  <h3 style="margin-top:0">Jendela upsell</h3>
+  <div class="cols" style="grid-template-columns:1fr 70mm">
+    <div>
+      <p>Berisi nama fitur, penjelasan singkat, dan badge penanda cara membuka:</p>
+      <table class="t">
+        <tr><th>Badge</th><th>Tombol</th><th>Makna</th></tr>
+        <tr><td><span class="lbl">Tersedia sebagai Add-on</span></td><td><span class="lbl">Tambah Add-on</span></td><td>Cukup beli add-on</td></tr>
+        <tr><td><span class="lbl">Tersedia di Paket Pro</span></td><td><span class="lbl">Upgrade ke Pro</span></td><td>Perlu naik ke Pro</td></tr>
+        <tr><td><span class="lbl">Tersedia di Paket Enterprise</span></td><td><span class="lbl">Hubungi Kami</span></td><td>Perlu Enterprise</td></tr>
+      </table>
+      <p style="margin-bottom:0">Tombol membuka <b>WhatsApp</b> ke tim Neela dengan pesan yang sudah terisi. Tekan <span class="lbl">Nanti</span> untuk menutup, atau <span class="lbl">Lihat semua paket &amp; addon</span> untuk ke halaman Paket &amp; Addon.</p>
+    </div>
+    <div class="dlg" style="text-align:left">
+      <span class="tag">Tersedia sebagai Add-on</span>
+      <div style="font-weight:700;color:var(--navy);font-size:10.5pt;margin-top:2mm">Laporan Lengkap</div>
+      <div style="font-size:8pt;color:var(--muted);margin:1mm 0 3mm">Laporan penjualan, kas, dan untung rugi dengan filter periode, kasir, dan metode bayar.</div>
+      <div class="btnwa" style="text-align:center">Tambah Add-on</div>
+      <div style="text-align:center;font-size:8pt;color:var(--muted);margin-top:2mm">Nanti · Lihat semua paket &amp; addon</div>
+    </div>
+  </div>
+
+  <h3>Cara lain Anda bertemu fitur terkunci</h3>
+  <ul>
+    <li><b>Membuka alamat halaman langsung:</b> halaman terkunci menampilkan kartu penjelasan yang sama dengan tombol WhatsApp.</li>
+    <li><b>Form Menu, bagian “Stok”:</b> opsi “Per bahan baku (resep)” berikon gembok. Dibuka oleh add-on Inventori Lengkap.</li>
+    <li><b>Tab “Sumber Order” di laporan:</b> khusus paket Pro ke atas, tidak terbuka oleh add-on Laporan Lengkap.</li>
+  </ul>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>11</span></div>
+</section>
+
+<!-- ============ 8. ADD-ON ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">6</div><div><div class="kicker">Bagian 6</div><h2 style="margin:0">Add-on</h2></div></div>
+  <p class="lead">Add-on menyalakan <b>satu fitur tambahan</b> tanpa harus upgrade ke paket penuh. Tersedia tiga add-on untuk Starter:</p>
+
+  <table class="t">
+    <tr><th>Add-on</th><th>Yang terbuka</th><th>Harga</th></tr>
+    <tr><td><b>Laporan Lengkap</b></td><td>Laporan Keuangan dan Laporan Kas, termasuk ekspor Excel. Hanya untuk akun owner.</td><td><span class="todo">[isi]</span></td></tr>
+    <tr><td><b>Inventori Lengkap</b></td><td>Bahan Baku, resep, Riwayat Stok, Cek Selisih Stok, dan pelacakan stok menu “Per bahan baku (resep)”.</td><td><span class="todo">[isi]</span></td></tr>
+    <tr><td><b>Kasir Tambahan</b></td><td>Menambah kuota akun kasir di atas 1 akun bawaan Starter. Jumlahnya sesuai yang Anda minta (1 + jumlah tambahan).</td><td><span class="todo">[isi]</span> per tambahan kasir</td></tr>
+  </table>
+
+  <h3 style="margin-top:2mm">Isi Laporan Lengkap</h3>
+  <div class="grid2">
+    <div class="card"><h4>Laporan Keuangan (penjualan)</h4><p>Ringkasan, per metode bayar, diskon, transaksi, per kasir, dibatalkan, per kategori, jam ramai, produk terlaris, pajak, dan ekspor Excel.</p></div>
+    <div class="card"><h4>Laporan Kas</h4><p>Ringkasan shift, transaksi tiap shift, ringkasan kas, tren, dan anomali selisih kas.</p></div>
+  </div>
+
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>12</span></div>
+</section>
+
+<section class="page">
+  <div class="kicker">Bagian 6 · lanjutan</div>
+  <div style="color:var(--muted);font-size:9pt;margin-bottom:2mm">Add-on</div>
+  <h3 style="margin-top:0">Cara membeli dan mengaktifkan</h3>
+  <ol class="steps">
+    <li>Buka <span class="lbl">Paket &amp; Addon</span> di sidebar (atau tekan tombol di jendela upsell).</li>
+    <li>Pada add-on yang Anda inginkan, tekan <span class="lbl">Tambah Add-on</span>. WhatsApp ke tim Neela terbuka dengan pesan yang sudah terisi.</li>
+    <li>Tim Neela memproses permintaan Anda (termasuk kesepakatan harga dan pembayaran), lalu <b>mengaktifkan add-on di sistem</b>.</li>
+    <li>Setelah aktif, kartu add-on berubah menjadi badge <span class="lbl">Aktif</span> dan menu terkunci terbuka.</li>
+  </ol>
+  <div class="callout warn"><span class="ttl">Tidak ada pembayaran add-on di dalam aplikasi</span>Add-on tidak dibeli lewat checkout otomatis. Semuanya melalui tim Neela.</div>
+  <div class="callout info"><span class="ttl">Add-on belum terlihat aktif?</span>Perubahan bisa membutuhkan sekitar 1 menit. Kembali ke jendela aplikasi atau muat ulang halaman. Bila tetap terkunci setelah beberapa menit, hubungi tim Neela.</div>
+
+  <h3>Yang tidak bisa dibuka dengan add-on</h3>
+  <ul style="margin-bottom:0">
+    <li><b>QR Self-Order per Meja</b> (pelanggan memesan lewat QR di meja): perlu paket Pro.</li>
+    <li><b>Sumber Order</b> (perbandingan order QR vs manual): perlu paket Pro.</li>
+    <li><b>Multi Outlet</b> dan <b>Hak Akses Kustom</b>: perlu paket Enterprise.</li>
+  </ul>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>13</span></div>
+</section>
+
+<!-- ============ 9. HALAMAN PAKET & ADDON ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">7</div><div><div class="kicker">Bagian 7</div><h2 style="margin:0">Halaman “Paket &amp; Addon”</h2></div></div>
+  <p class="lead">Buka dari sidebar, tepat di bawah Dashboard. “Lihat paket dan add-on yang tersedia untuk toko Anda.”</p>
+
+  <h3 style="margin-top:0">Paket Anda Saat Ini</h3>
+  <p>Kartu di bagian atas menampilkan nama paket (misalnya <span class="lbl">Starter</span>) dan add-on yang aktif sebagai badge, misalnya “Laporan Lengkap aktif”. Bila belum ada: “Belum ada add-on aktif.”</p>
+
+  <h3>Perbandingan Paket</h3>
+  <p>Tiga kartu paket dengan harga bulanan. Status tiap kartu bagi pemilik Starter:</p>
+  <div class="grid3">
+    <div class="pcard cur"><h4>Starter</h4><div class="pr"><span class="todo">[isi]</span><span style="font-size:8pt;font-weight:400;color:var(--muted)"> /bulan</span></div><span class="b cur">Paket Anda Saat Ini</span></div>
+    <div class="pcard"><h4>Pro Dine-In</h4><div class="pr"><span class="todo">[isi]</span><span style="font-size:8pt;font-weight:400;color:var(--muted)"> /bulan</span></div><span class="b wa">Upgrade ke Pro Dine-In</span></div>
+    <div class="pcard"><h4>Enterprise</h4><div class="pr"><span class="todo">[isi]</span><span style="font-size:8pt;font-weight:400;color:var(--muted)"> /bulan</span></div><span class="b wa">Konsultasi Tim Enterprise</span></div>
+  </div>
+  <p style="margin-top:3mm">Tombol hijau membuka WhatsApp tim Neela. Bila Anda sudah di Pro, kartu Starter berlabel <span class="lbl">Termasuk di paket Anda</span>.</p>
+
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>14</span></div>
+</section>
+
+<section class="page">
+  <div class="kicker">Bagian 7 · lanjutan</div>
+  <div style="color:var(--muted);font-size:9pt;margin-bottom:2mm">Halaman “Paket &amp; Addon”</div>
+  <h3 style="margin-top:0">Add-on</h3>
+  <div class="addrow"><div class="tx"><b>Laporan Lengkap</b><span>Laporan penjualan, kas, dan untung rugi dengan filter periode, kasir, dan metode bayar.</span></div><span class="tag">Tersedia sebagai Add-on</span><span class="btnwa">Tambah Add-on</span></div>
+  <div class="addrow"><div class="tx"><b>Inventori Lengkap</b><span>Kelola bahan baku dan resep, lihat riwayat pergerakan stok, dan cek selisih stok.</span></div><span class="tag">Tersedia sebagai Add-on</span><span class="btnwa">Tambah Add-on</span></div>
+  <div class="addrow"><div class="tx"><b>Kasir Tambahan</b><span>Tambah kuota akun kasir di luar batas paket Anda.</span></div><span class="tag">Tersedia sebagai Add-on</span><span class="btnwa">Tambah Add-on</span></div>
+
+  <table class="t">
+    <tr><th>Tanda di kartu add-on</th><th>Artinya</th></tr>
+    <tr><td><span class="lbl">Aktif</span></td><td>Add-on sedang menyala untuk toko Anda. Tidak ada tombol lagi.</td></tr>
+    <tr><td><span class="lbl">Tersedia sebagai Add-on</span> + <span class="lbl">Tambah Add-on</span></td><td>Belum aktif. Tombol membuka WhatsApp ke tim Neela.</td></tr>
+  </table>
+  <div class="callout info"><span class="ttl">Halaman ini tidak menampilkan tanggal jatuh tempo</span>Informasi masa aktif, perpanjangan, dan harga add-on disampaikan tim Neela.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>15</span></div>
+</section>
+
+<!-- ============ 10. UPGRADE ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">8</div><div><div class="kicker">Bagian 8</div><h2 style="margin:0">Upgrade, Perpanjang &amp; Ganti Paket</h2></div></div>
+  <p class="lead">Setelah toko aktif, semua perubahan paket dan add-on dilakukan bersama tim Neela lewat WhatsApp.</p>
+
+  <table class="t">
+    <tr><th>Kebutuhan</th><th>Caranya</th></tr>
+    <tr><td>Upgrade ke Pro Dine-In</td><td>Halaman Paket &amp; Addon → <span class="lbl">Upgrade ke Pro Dine-In</span> → WhatsApp tim Neela</td></tr>
+    <tr><td>Paket Enterprise / multi-cabang</td><td>Halaman Paket &amp; Addon → <span class="lbl">Konsultasi Tim Enterprise</span></td></tr>
+    <tr><td>Tambah atau aktifkan add-on</td><td>Halaman Paket &amp; Addon → <span class="lbl">Tambah Add-on</span></td></tr>
+    <tr><td>Tambah kuota kasir</td><td>Add-on <b>Kasir Tambahan</b> → <span class="lbl">Tambah Add-on</span></td></tr>
+    <tr><td>Perpanjang Starter, menanyakan masa aktif</td><td>Hubungi tim Neela via WhatsApp</td></tr>
+    <tr><td>Mengembalikan atau mengganti paket</td><td>Hubungi tim Neela via WhatsApp</td></tr>
+  </table>
+
+  <div class="callout tip"><span class="ttl">Jam dukungan</span>Jam dukungan tim Neela: <b>07.00–24.00 WIB</b>.</div>
+  <div class="callout info"><span class="ttl">Tips pesan WhatsApp</span>Tulis nama toko, paket yang Anda pakai sekarang, dan yang ingin ditambahkan. Pesan dari tombol di aplikasi sudah berisi sebagian informasi ini.</div>
+
+  <h3>Setelah paket berubah</h3>
+  <ol class="steps">
+    <li>Tim Neela mengonfirmasi bahwa paket atau add-on sudah aktif.</li>
+    <li>Kembali ke aplikasi. Perubahan biasanya terlihat dalam sekitar 1 menit.</li>
+    <li>Bila ikon gembok masih ada, muat ulang halaman atau pindah ke tab lain lalu kembali.</li>
+    <li>Menu yang sebelumnya terkunci terbuka dan kartu add-on menjadi <span class="lbl">Aktif</span>.</li>
+  </ol>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>16</span></div>
+</section>
+
+<!-- ============ 11. FAQ ============ -->
+<section class="page">
+  <div class="section-head"><div class="num">9</div><div><div class="kicker">Bagian 9</div><h2 style="margin:0">Tanya Jawab &amp; Masalah Umum</h2></div></div>
+
+  <dl class="faq">
+    <dt>Add-on sudah dibayar, tetapi menu masih terkunci.</dt>
+    <dd>Perubahan membutuhkan sekitar 1 menit. Muat ulang halaman. Bila masih terkunci setelah beberapa menit, hubungi tim Neela dengan nama toko Anda.</dd>
+
+    <dt>Tombol “Tambah Kasir” abu-abu dan tidak bisa ditekan.</dt>
+    <dd>Kuota kasir aktif sudah penuh (Starter: 1). Nonaktifkan salah satu kasir untuk membebaskan slot, atau beli add-on <b>Kasir Tambahan</b>.</dd>
+
+    <dt>Muncul pesan “cashier limit reached for current plan”.</dt>
+    <dd>Sama seperti di atas: kuota akun kasir sudah penuh. Tambahkan kuota lewat add-on Kasir Tambahan.</dd>
+
+    <dt>Pelanggan sudah melewati 80 transaksi hari ini. Apakah kasir terblokir?</dt>
+    <dd>Tidak. Kartu Limit hanya penanda dan kasir tetap bisa checkout. Lihat Bagian 4.</dd>
+
+    <dt>Muncul pesan “Anda tidak memiliki akses untuk tindakan ini.”</dt>
+    <dd>Akun Anda tidak punya izin untuk tindakan tersebut. Fitur laporan dan inventori hanya untuk akun owner.</dd>
+
+    <dt>Saya membuka alamat halaman dan muncul “Halaman Tidak Ditemukan”.</dt>
+    <dd>Fitur tersebut (Multi Outlet atau Hak Akses Kustom) khusus paket Enterprise dan tidak ditampilkan di Starter.</dd>
+
+    <dt>Pendaftaran saya ditolak.</dt>
+    <dd>Buka halaman status pendaftaran. Alasan penolakan tertulis di kotak “Alasan penolakan”. Perbaiki data, lalu tekan <span class="lbl">Daftar Ulang</span>.</dd>
+
+    <dt>Email saya dinyatakan sudah terdaftar.</dt>
+    <dd>“Pendaftaran dengan email ini sedang ditinjau tim kami” berarti pendaftaran sebelumnya masih menunggu. “Email ini sudah terdaftar di toko aktif” berarti Anda cukup masuk lewat halaman login.</dd>
+
+    <dt>Saya sudah menyetujui, tetapi belum bisa masuk.</dt>
+    <dd>Setelah disetujui, toko Anda sedang disiapkan. Tunggu beberapa menit, lalu coba masuk lagi.</dd>
+
+    <dt>QR pembayaran kedaluwarsa sebelum sempat saya bayar.</dt>
+    <dd>Tekan <span class="lbl">Buat QR baru</span>. QR hanya berlaku 15 menit.</dd>
+
+    <dt>Saya tidak melihat tanggal jatuh tempo paket di aplikasi.</dt>
+    <dd>Saat ini belum ada tampilan masa aktif di dashboard. Tanyakan ke tim Neela.</dd>
+  </dl>
+
+  <div class="callout tip" style="margin-top:6mm"><span class="ttl">Butuh bantuan langsung?</span>Hubungi tim Neela via WhatsApp melalui tombol di halaman <span class="lbl">Paket &amp; Addon</span>. Layanan tersedia 07.00–24.00 WIB.</div>
+  <div class="pfoot"><span><b>Neela POS</b> · Panduan Paket Starter &amp; Add-on</span><span>17</span></div>
+</section>
+
+</body>
+</html>

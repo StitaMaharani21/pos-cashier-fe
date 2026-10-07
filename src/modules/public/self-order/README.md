@@ -16,6 +16,14 @@ Backend contract (`pos-kasir-be`, all under `/api/v1`, every request needs `X-St
 
 Layers (same split as `store-registration`): `domain/` (hand-written DTO types — the generator leaves `/guest/*` out), `infrastructure/` (axios + endpoints), `application/` (react-query hooks), `presentation/` (screens + `self-order.css`).
 
+**Printed, permanent QR.** The link a table's QR opens is `/pesan/:storeCode/<table code>`; `POST /guest/sessions/resolve` takes that permanent code (or an older 4-hour session token) and opens/reuses the table's session by itself. Because anyone with a photo of the QR could try to order from home, the protection is layered and mostly on the backend:
+
+- the cashier must **approve** every order (it arrives as `pending`; nothing is cooked or charged before that);
+- at most 2 orders per table can wait for the cashier, a guest cart is capped (20 per item, 60 in total), and the guest routes are rate limited (per guest token, since a cafe's guests share one Wi-Fi IP);
+- when the guest presses "Kirim ke Kasir" the page asks for their **location** (`infrastructure/guest-location.ts`, 8 s, never blocking — a refusal just sends no coordinates) and the backend flags the order `inside` / `outside` / `unknown` against the cafe's coordinates and radius (Pengaturan Bisnis). It is only a hint for the cashier and the guest never sees it; the cashier app has to show `guest_geo_status`.
+
+Error codes the page words for customers (`guestErrorMessage`, `SessionError`): `NO_ACTIVE_SHIFT`, `DINE_IN_DISABLED`, `TABLE_INACTIVE`, `TABLE_HAS_PENDING_ORDER`, `RATE_LIMITED`, `QTY_LIMIT`; any 5xx becomes `SERVER_ERROR` ("Server sedang bermasalah") instead of echoing the backend text.
+
 Things to know:
 
 - **Own axios client** (`infrastructure/guest-client.ts`), never `apiClient`: that one attaches the owner's token/store code and logs the owner out on 401, opens the upsell modal on 402 and toasts on 403.
