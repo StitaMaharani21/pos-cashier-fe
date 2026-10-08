@@ -34,4 +34,7 @@ export const routeAccess: Record<string, AccessRule> = {
   // Header avatar menu only (not in the sidebar) — any logged-in owner.
   "change-password": {},
   "business-settings": { feature: "pos", module: "settings" },
+  // Owner's own Midtrans account (Pro+). No RBAC module: the backend route is
+  // owner-only (JWT) + the online_payment feature, nothing finer.
+  "payment-gateway": { feature: "online_payment" },
 }

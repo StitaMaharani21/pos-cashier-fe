@@ -16,6 +16,10 @@ export const featureCopy: Partial<Record<Feature, { title: string; description: 
     description:
       "Pelanggan memesan sendiri lewat QR di meja, pesanan langsung masuk ke kasir.",
   },
+  online_payment: {
+    title: "Pembayaran Online (Midtrans)",
+    description: "Terima pembayaran QRIS pelanggan langsung ke akun Midtrans toko Anda.",
+  },
   multi_outlet: {
     title: "Multi Outlet",
     description: "Kelola beberapa outlet dalam satu akun, dengan laporan gabungan.",

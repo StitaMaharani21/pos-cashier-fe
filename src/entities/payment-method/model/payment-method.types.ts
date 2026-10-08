@@ -1,6 +1,12 @@
 import type { components } from "@/shared/api/generated/owner-schema"
 
-export type PaymentMethod = components["schemas"]["dto.PaymentMethodResponse"]
+// `provider` isn't in the generated schema yet (it lags the backend): set to
+// "midtrans" for the managed "QRIS Midtrans" method that saving the store's own
+// Midtrans key creates (type "qris"). Managed methods are read-only in the CRUD
+// (409 PAYMENT_METHOD_MANAGED) — see modules/owner/payment-gateway.
+export type PaymentMethod = components["schemas"]["dto.PaymentMethodResponse"] & {
+  provider?: string
+}
 
 // Backend-enforced via `binding:"required,oneof=cash card transfer qris
 // ewallet"` on CreatePaymentMethodFormRequest/UpdatePaymentMethodFormRequest

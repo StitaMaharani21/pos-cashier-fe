@@ -71,6 +71,7 @@ const NAV_GROUPS = [
     items: [
       { to: "/app/profile", label: "Profile" },
       { to: "/app/business-settings", label: "Bisnis" },
+      { to: "/app/payment-gateway", label: "Pembayaran Online" },
     ],
   },
 ]

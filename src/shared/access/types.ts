@@ -5,7 +5,7 @@
 // sync manually if those Go types change.
 
 // `Feature` is `type Feature string` on the Go side (not a closed enum), but
-// entitlement.AllFeatures() only ever returns these 8 values today.
+// entitlement.AllFeatures() only ever returns these 9 values today.
 export type Feature =
   | "pos"
   | "shift"
@@ -13,6 +13,9 @@ export type Feature =
   | "reports"
   | "inventory_full"
   | "qr_self_order"
+  // Pro+ only, can't be bought as an add-on: customers pay orders by QRIS into
+  // the store's own Midtrans account (/payment-gateway).
+  | "online_payment"
   | "multi_outlet"
   | "custom_rbac"
 

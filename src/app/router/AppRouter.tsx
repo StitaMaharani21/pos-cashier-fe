@@ -16,6 +16,7 @@ import { IngredientSection } from "@/modules/owner/ingredient/section/Ingredient
 import { MenuAddonSection } from "@/modules/owner/menu-addon/section/MenuAddonSection"
 import { MenuCatalogSection } from "@/modules/owner/menu/section/MenuCatalogSection"
 import { OrderTypeSection } from "@/modules/owner/order-type/section/OrderTypeSection"
+import { PaymentGatewaySection } from "@/modules/owner/payment-gateway/section/PaymentGatewaySection"
 import { PaymentMethodSection } from "@/modules/owner/payment-method/section/PaymentMethodSection"
 import { ProductDiscountSection } from "@/modules/owner/product-discount/section/ProductDiscountSection"
 import { ProfileSection } from "@/modules/owner/profile/section/ProfileSection"
@@ -99,6 +100,10 @@ export function AppRouter() {
           <Route
             path="business-settings"
             element={guarded("business-settings", <BusinessSettingsSection />)}
+          />
+          <Route
+            path="payment-gateway"
+            element={guarded("payment-gateway", <PaymentGatewaySection />)}
           />
         </Route>
 

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { InfoIcon } from "lucide-react"
+import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
 import type {
@@ -31,10 +32,12 @@ type MethodConfig = (typeof METHOD_TYPES)[number]
 
 // The screen manages one payment method per type. A store may still have
 // several rows of a type from the old free-form screen — the oldest one is
-// the one managed here.
+// the one managed here. Gateway-managed methods (provider "midtrans", also
+// type "qris") are skipped: the backend rejects edits to them, so the static
+// QRIS row here must never resolve to one.
 function methodFor(type: PaymentMethodType, methods: PaymentMethod[]): PaymentMethod | undefined {
   return methods
-    .filter((method) => method.type === type)
+    .filter((method) => method.type === type && !method.provider)
     .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))[0]
 }
 
@@ -193,6 +196,7 @@ export function PaymentMethodSection() {
     return { config, method, active: method?.status === "active" }
   })
   const activeCount = rows.filter((row) => row.active).length
+  const managedMidtrans = methods.find((method) => method.provider === "midtrans")
   const selected = rows.find((row) => row.config.type === selectedType) ?? rows[0]
   const togglingType = toggleMutation.isPending ? toggleMutation.variables?.config.type : undefined
 
@@ -210,6 +214,20 @@ export function PaymentMethodSection() {
           Metode nonaktif tidak akan muncul di kasir &amp; aplikasi pelanggan
         </p>
       </div>
+
+      {managedMidtrans && (
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-foreground">
+          <InfoIcon className="size-4 shrink-0 text-primary" />
+          <span>
+            "{managedMidtrans.name}" dikelola otomatis (
+            {managedMidtrans.status === "active" ? "aktif" : "nonaktif"}) dan tidak muncul di
+            daftar ini.
+          </span>
+          <Link to="/app/payment-gateway" className="font-semibold text-primary underline">
+            Atur di Pembayaran Online
+          </Link>
+        </p>
+      )}
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)]">
         <div className="flex flex-col gap-3">
