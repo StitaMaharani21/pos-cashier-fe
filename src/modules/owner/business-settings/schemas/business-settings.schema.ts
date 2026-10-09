@@ -28,17 +28,17 @@ export const businessSettingsSchema = z.object({
     ctx.addIssue({
       code: "custom",
       path: [lat === "" ? "latitude" : "longitude"],
-      message: "Isi latitude dan longitude bersamaan",
+      message: "Garis lintang dan garis bujur harus diisi bersamaan",
     })
   }
   if (lat !== "" && !(Number.isFinite(Number(lat)) && Number(lat) >= -90 && Number(lat) <= 90)) {
-    ctx.addIssue({ code: "custom", path: ["latitude"], message: "Latitude harus antara -90 dan 90" })
+    ctx.addIssue({ code: "custom", path: ["latitude"], message: "Garis lintang harus antara -90 dan 90" })
   }
   if (lng !== "" && !(Number.isFinite(Number(lng)) && Number(lng) >= -180 && Number(lng) <= 180)) {
-    ctx.addIssue({ code: "custom", path: ["longitude"], message: "Longitude harus antara -180 dan 180" })
+    ctx.addIssue({ code: "custom", path: ["longitude"], message: "Garis bujur harus antara -180 dan 180" })
   }
   if (radius !== "" && !(Number.isInteger(Number(radius)) && Number(radius) >= 10 && Number(radius) <= 2000)) {
-    ctx.addIssue({ code: "custom", path: ["selfOrderRadiusM"], message: "Radius 10–2000 meter" })
+    ctx.addIssue({ code: "custom", path: ["selfOrderRadiusM"], message: "Jarak harus antara 10 dan 2000 meter" })
   }
 })
 

@@ -100,7 +100,7 @@ export function MenuScreen(props: MenuScreenProps) {
             {visible.length === 0 ? (
               <StateScreen
                 title={search ? "Tidak ditemukan" : "Belum ada menu"}
-                description={search ? "Coba kata kunci lain." : "Menu belum tersedia. Tanyakan ke staff."}
+                description={search ? "Coba kata kunci lain." : "Menu belum tersedia. Tanyakan ke staf."}
                 icon={<SearchIcon aria-hidden />}
               />
             ) : (

@@ -24,8 +24,8 @@ import { RegistrationStatusForm } from "@/modules/public/store-registration/pres
 import { RegistrationStatusResult } from "@/modules/public/store-registration/presentation/components/RegistrationStatusResult"
 import { REGISTER_PATH } from "@/modules/public/shared/contact"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
-import { ApiError, NetworkError } from "@/shared/api/client"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Public "Status Pendaftaran" screen (/status-pendaftaran). Submitting the
 // registration form only queues a `pending` request that an internal admin
@@ -66,13 +66,7 @@ export function RegistrationStatusPage() {
           })
           return
         }
-        if (error instanceof NetworkError) {
-          toast.error("Tidak dapat terhubung ke server. Coba lagi beberapa saat.")
-          return
-        }
-        toast.error(
-          error instanceof ApiError ? error.message : "Status pendaftaran gagal diperiksa. Coba lagi."
-        )
+        toast.error(friendlyErrorMessage(error, "Status pendaftaran gagal diperiksa. Coba lagi."))
       },
     })
   }

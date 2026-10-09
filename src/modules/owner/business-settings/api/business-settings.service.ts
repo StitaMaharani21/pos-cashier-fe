@@ -6,6 +6,7 @@ import type {
 } from "@/entities/business-settings/model/business-settings.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Singleton GET+PUT, no create/delete/list — hand-written per the feature's
 // README, `createCrudService` doesn't apply here.
@@ -64,11 +65,11 @@ export async function updateBusinessSettings(
     return response.data.data
   } catch (error) {
     if (error instanceof ApiError) {
-      throw new CrudServiceError(error.code, error.message)
+      throw new CrudServiceError(error.code, friendlyErrorMessage(error))
     }
     throw new CrudServiceError(
       "UNKNOWN",
-      error instanceof Error ? error.message : "Unexpected error"
+      friendlyErrorMessage(error)
     )
   }
 }

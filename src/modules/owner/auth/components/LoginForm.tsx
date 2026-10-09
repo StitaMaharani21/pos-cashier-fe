@@ -51,7 +51,7 @@ export function LoginForm({ onSubmit, isSubmitting }: LoginFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Kata sandi</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
@@ -63,7 +63,7 @@ export function LoginForm({ onSubmit, isSubmitting }: LoginFormProps) {
                     type="button"
                     onClick={() => setShowPassword((value) => !value)}
                     className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   >
                     {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                   </button>
@@ -75,7 +75,7 @@ export function LoginForm({ onSubmit, isSubmitting }: LoginFormProps) {
         />
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Logging in..." : "Log in"}
+          {isSubmitting ? "Sedang masuk..." : "Masuk"}
         </Button>
       </form>
     </Form>

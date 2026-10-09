@@ -65,7 +65,7 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
     // "(live)" caption — this is a provisional estimate, still meaningful
     // for an open shift, unlike saldo_akhir/selisih below which require the
     // shift to be closed and physically counted.
-    header: "Estimasi Saldo Akhir (live)",
+    header: "Perkiraan Saldo Akhir (sementara)",
     align: "right",
     render: (row) => (
       <span className="tabular-nums text-muted-foreground">{formatRupiah(row.estimasi_saldo_akhir ?? 0)}</span>
@@ -103,7 +103,7 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
           )}
         >
           {row.is_anomaly && (
-            <AlertTriangleIcon className="size-3.5 shrink-0" aria-label="Anomali" />
+            <AlertTriangleIcon className="size-3.5 shrink-0" aria-label="Selisih tak wajar" />
           )}
           {formatSelisih(row.selisih)}
         </span>

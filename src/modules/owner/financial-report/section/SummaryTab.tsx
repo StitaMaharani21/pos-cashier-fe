@@ -102,7 +102,7 @@ export function SummaryTab({
           footer={
             <DeltaFooter
               percent={data.comparison.total_transactions_change_pct}
-              label="vs periode sebelumnya"
+              label="dibanding periode sebelumnya"
             />
           }
         />
@@ -117,7 +117,7 @@ export function SummaryTab({
           label="Pendapatan Bersih (setelah diskon)"
           value={formatRupiah(data.net_revenue)}
           footer={
-            <DeltaFooter percent={data.comparison.net_revenue_change_pct} label="vs periode sebelumnya" />
+            <DeltaFooter percent={data.comparison.net_revenue_change_pct} label="dibanding periode sebelumnya" />
           }
         />
         <KpiCard

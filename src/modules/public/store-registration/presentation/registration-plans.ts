@@ -41,25 +41,25 @@ export const REGISTRATION_PLANS: RegistrationPlan[] = [
     badge: "Mulai di Paket Starter",
     title: "Yang Kamu Dapat Saat Aktif",
     description:
-      "Coba gratis atau beli langsung, toko aktif di paket Starter setelah pendaftaran disetujui. Butuh fitur Pro? Pilih Pro Dine-In di atas, atau upgrade kapan saja lewat tim kami.",
+      "Coba gratis atau beli langsung, toko aktif di paket Starter setelah pendaftaran disetujui. Butuh fitur Pro? Pilih Pro Dine-In di atas, atau pindah paket kapan saja lewat tim kami.",
     benefits: [
       {
         icon: WifiOff,
         iconClassName: "text-neela-tertiary",
-        title: "100% Mode Kasir Offline-First",
+        title: "Kasir Tetap Jalan Tanpa Internet",
         body: "Koneksi WiFi padam atau sinyal lemah? Kasir tetap cetak struk & terima transaksi tanpa jeda.",
       },
       {
         icon: ReceiptText,
         iconClassName: "text-neela-primary",
-        title: "Checkout Tak Pernah Diblokir",
-        body: `Batas ±${STARTER_SOFT_DAILY_LIMIT} transaksi/hari di Starter hanya pengingat upgrade — kasir tetap jalan saat rush hour.`,
+        title: "Kasir Tidak Pernah Diblokir",
+        body: `Batas ±${STARTER_SOFT_DAILY_LIMIT} transaksi/hari di Starter hanya pengingat untuk pindah paket — kasir tetap jalan saat rush hour.`,
       },
       {
         icon: Headset,
         iconClassName: "text-neela-tertiary",
         title: "Gratis Asistensi Setup via WhatsApp",
-        body: "Dibantu input menu, integrasi printer Bluetooth & pengaturan meja hingga siap jualan.",
+        body: "Dibantu memasukkan menu, menyambungkan printer Bluetooth & mengatur meja sampai siap jualan.",
       },
       {
         icon: CreditCard,
@@ -83,26 +83,26 @@ export const REGISTRATION_PLANS: RegistrationPlan[] = [
       {
         icon: InfinityIcon,
         iconClassName: "text-neela-primary",
-        title: "Transaksi Unlimited",
-        body: "Tanpa limit harian sama sekali.",
+        title: "Transaksi Tanpa Batas",
+        body: "Tidak ada batas transaksi harian sama sekali.",
       },
       {
         icon: QrCode,
         iconClassName: "text-neela-tertiary",
-        title: "Self-Order via QR Meja",
-        body: "Tamu pesan sendiri dari halaman menu publik, manajemen meja & status meja.",
+        title: "Pesan Sendiri Lewat QR Meja",
+        body: "Tamu memindai QR di meja lalu memesan sendiri dari HP. Meja dan statusnya mudah diatur.",
       },
       {
         icon: Package,
         iconClassName: "text-neela-secondary",
         title: "Stok Penuh",
-        body: "Riwayat pergerakan stok, stock opname, dan notifikasi stok menipis.",
+        body: "Riwayat stok masuk dan keluar, cek stok fisik, dan pemberitahuan stok menipis.",
       },
       {
         icon: ChartColumn,
         iconClassName: "text-neela-primary",
         title: "Laporan Penjualan, Kas & Untung Rugi",
-        body: "HPP otomatis dan analisa menu terlaris.",
+        body: "Modal per menu dihitung otomatis, plus daftar menu terlaris.",
       },
     ],
   },

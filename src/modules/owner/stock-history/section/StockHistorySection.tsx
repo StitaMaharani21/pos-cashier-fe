@@ -74,7 +74,7 @@ export function StockHistorySection() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Riwayat Stok"
-        description="Pergerakan stok per bahan baku atau menu — penjualan otomatis maupun penyesuaian manual."
+        description="Catatan stok masuk dan keluar untuk tiap bahan baku atau menu, baik dari penjualan maupun penyesuaian manual."
       />
 
       <StockHistoryFilters

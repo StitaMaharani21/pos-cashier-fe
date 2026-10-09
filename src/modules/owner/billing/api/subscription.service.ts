@@ -6,6 +6,7 @@ import type {
 } from "@/entities/subscription/model/subscription.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import type { SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // pos-kasir-be internal/central/subscription_payment — owner-only (JWT owner),
 // under /api/v1/subscriptions. Prices and durations always come from the
@@ -50,8 +51,8 @@ export async function getPayment(paymentId: number): Promise<SubscriptionPayment
   return response.data.data
 }
 
-// Backend error codes → Indonesian copy. Anything else shows the backend's
-// message (or a generic one for a network failure).
+// Backend error codes → Indonesian copy. Anything else falls back to a generic
+// friendly message (never the backend's raw text).
 export function paymentErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
@@ -66,16 +67,14 @@ export function paymentErrorMessage(error: unknown): string {
         return "Paket ini belum bisa dibeli sendiri. Hubungi tim Neela."
       case "ADDON_NOT_PURCHASABLE":
       case "ADDON_NOT_FOUND":
-        return "Add-on ini belum bisa dibeli sendiri. Hubungi tim Neela."
+        return "Fitur tambahan ini belum bisa dibeli sendiri. Hubungi tim Neela."
       case "ADDON_INCLUDED_IN_PLAN":
-        return "Add-on ini sudah termasuk di paket Anda."
+        return "Fitur ini sudah termasuk di paket Anda."
       case "ADDON_ALREADY_ACTIVE":
-        return "Add-on ini sudah aktif tanpa batas waktu."
+        return "Fitur tambahan ini sudah aktif tanpa batas waktu."
       case "INVALID_QTY":
         return "Jumlah harus antara 1 dan 10."
-      default:
-        return error.message
     }
   }
-  return "Terjadi kesalahan. Coba lagi."
+  return friendlyErrorMessage(error)
 }

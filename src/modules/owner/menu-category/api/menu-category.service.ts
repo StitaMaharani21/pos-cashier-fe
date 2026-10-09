@@ -2,12 +2,13 @@ import type { MenuCategory } from "@/entities/menu-category/model/menu-category.
 import type { MenuCategoryFormPayload } from "@/modules/owner/menu-category/components/MenuCategoryForm"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 const RESOURCE = "/master/menu-categories"
 
 function toServiceError(error: unknown): CrudServiceError {
-  if (error instanceof ApiError) return new CrudServiceError(error.code, error.message)
-  return new CrudServiceError("UNKNOWN", error instanceof Error ? error.message : "Unexpected error")
+  if (error instanceof ApiError) return new CrudServiceError(error.code, friendlyErrorMessage(error))
+  return new CrudServiceError("UNKNOWN", friendlyErrorMessage(error))
 }
 
 // A store has a handful of categories — fetched in one page; search, the

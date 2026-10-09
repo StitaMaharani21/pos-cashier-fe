@@ -74,7 +74,7 @@ export function ProfileSection() {
           <p className="truncate text-xs text-muted-foreground">
             {ROLE_LABELS[profile.role ?? ""] ?? profile.role}
             {profile.username && ` · @${profile.username}`}
-            {storeCode && ` · Toko ${storeCode}`}
+            {storeCode && ` · Kode toko ${storeCode}`}
           </p>
         </div>
       </div>

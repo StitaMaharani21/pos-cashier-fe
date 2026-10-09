@@ -10,7 +10,8 @@ import type {
   RegistrationPayment,
   RegistrationPaymentStatus,
 } from "@/modules/public/store-registration/domain/store-registration.types"
-import { ApiError, NetworkError } from "@/shared/api/client"
+import { ApiError } from "@/shared/api/client"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // How often the open dialog asks whether the QR was paid.
 const POLL_MS = 3000
@@ -68,7 +69,6 @@ export function useRegistrationPaymentStatus(
 
 // Codes come from the backend (subscription_payment / store_registration).
 export function paymentErrorMessage(error: unknown): string {
-  if (error instanceof NetworkError) return "Tidak dapat terhubung ke server. Coba lagi beberapa saat."
   if (error instanceof ApiError) {
     switch (error.code) {
       case "PAYMENT_PROVIDER_NOT_CONFIGURED":
@@ -81,10 +81,10 @@ export function paymentErrorMessage(error: unknown): string {
       case "PLAN_NOT_FOUND":
         return "Paket ini belum bisa dibeli saat pendaftaran. Hubungi tim kami lewat WhatsApp."
       case "REGISTRATION_NOT_PAYABLE":
-        return "Pendaftaran ini sudah diproses, jadi tidak bisa dibayar dari sini. Masuk ke portal untuk membeli paket."
+        return "Pendaftaran ini sudah diproses, jadi tidak bisa dibayar dari sini. Masuk ke akun Anda untuk membeli paket."
       default:
-        return error.message
+        return friendlyErrorMessage(error, "Pembayaran gagal diproses. Coba lagi.")
     }
   }
-  return "Pembayaran gagal diproses. Coba lagi."
+  return friendlyErrorMessage(error, "Pembayaran gagal diproses. Coba lagi.")
 }

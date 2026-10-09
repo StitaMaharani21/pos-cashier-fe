@@ -87,7 +87,7 @@ export function RegistrationForm({
       </div>
 
       <div className="flex flex-col gap-3 rounded-xl bg-neela-surface-container-low/60 p-4">
-        <GroupTitle icon={IdCard}>2. Data Pemilik &amp; Kredensial Login</GroupTitle>
+        <GroupTitle icon={IdCard}>2. Data Pemilik &amp; Akun Masuk</GroupTitle>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <TextField
             id="ownerName"
@@ -124,11 +124,11 @@ export function RegistrationForm({
             autoComplete="email"
             registration={register("ownerEmail")}
             error={errors.ownerEmail?.message}
-            hint="Dipakai untuk masuk ke dashboard owner."
+            hint="Dipakai untuk masuk ke akun pemilik toko."
           />
           <TextField
             id="ownerUsername"
-            label="Username Pemilik"
+            label="Nama Pengguna Pemilik"
             icon={AtSign}
             required
             placeholder="budi_kopitemu"
@@ -224,7 +224,7 @@ export function RegistrationForm({
       <div className="rounded-xl bg-neela-surface-container-low px-4 py-2 text-center">
         <span className="text-neela-body-md text-neela-on-surface-variant">Sudah memiliki akun toko? </span>
         <Link to="/login" className="text-neela-label-md font-semibold text-neela-primary hover:underline">
-          Masuk ke Portal
+          Masuk ke Akun
         </Link>
         <span className="text-neela-body-md text-neela-on-surface-variant"> · Sudah mendaftar? </span>
         <Link

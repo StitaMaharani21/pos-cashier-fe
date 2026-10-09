@@ -42,6 +42,8 @@ declare module "axios" {
 // a wrong password — distinguish them instead.
 export class NetworkError extends Error {}
 
+export const NETWORK_ERROR_MESSAGE = "Tidak bisa terhubung. Periksa koneksi internet, lalu coba lagi."
+
 // internal/middleware/entitlement_middleware.go's RequireFeature aborts with
 // this flat shape (no `message`, no nested `data`) — deliberately not an
 // ApiError/AppError, since it needs to carry feature + upgrade_hint for the
@@ -113,11 +115,7 @@ apiClient.interceptors.response.use(
     }
 
     if (!error.response) {
-      return Promise.reject(
-        new NetworkError(
-          "Could not reach the server. Check that the API is running and reachable (and, in the browser, that its ALLOWED_ORIGINS includes this app's origin)."
-        )
-      )
+      return Promise.reject(new NetworkError(NETWORK_ERROR_MESSAGE))
     }
 
     return Promise.reject(error)

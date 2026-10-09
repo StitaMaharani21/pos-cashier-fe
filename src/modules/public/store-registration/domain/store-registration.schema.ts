@@ -32,8 +32,8 @@ export const storeRegistrationSchema = z
     ownerUsername: z
       .string()
       .trim()
-      .min(3, "Username minimal 3 karakter")
-      .max(100, "Username maksimal 100 karakter"),
+      .min(3, "Nama pengguna minimal 3 karakter")
+      .max(100, "Nama pengguna maksimal 100 karakter"),
     ownerEmail: z
       .string()
       .trim()

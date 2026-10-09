@@ -8,11 +8,11 @@ export const serverKeySchema = z.object({
   serverKey: z
     .string()
     .trim()
-    .min(1, "Server key wajib diisi")
-    .max(200, "Server key terlalu panjang")
+    .min(1, "Kunci rahasia wajib diisi")
+    .max(200, "Kunci rahasia terlalu panjang")
     .regex(
       /^(SB-)?Mid-server-/,
-      "Format tidak dikenali. Server key diawali Mid-server- (production) atau SB-Mid-server- (sandbox)"
+      "Format kunci belum dikenali. Kunci asli diawali Mid-server-, kunci uji coba diawali SB-Mid-server-"
     ),
 })
 

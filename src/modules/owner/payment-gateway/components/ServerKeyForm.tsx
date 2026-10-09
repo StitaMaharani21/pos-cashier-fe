@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/shared/ui/form"
 import { Input } from "@/shared/ui/input"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Owns its own mutation (like ChangePasswordForm) because INVALID_SERVER_KEY
 // maps onto the field while the other failures are toasts.
@@ -39,7 +40,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
     onSuccess: () => {
       toast.success(
         connected
-          ? "Server key Midtrans diperbarui"
+          ? "Kunci rahasia Midtrans berhasil diperbarui"
           : "Midtrans berhasil terhubung. Metode \"QRIS Midtrans\" kini aktif untuk pelanggan."
       )
       // The save also creates/enables the managed "QRIS Midtrans" method.
@@ -49,7 +50,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
     },
     onError: (error) => {
       if (!(error instanceof CrudServiceError)) {
-        toast.error("Gagal menyimpan server key")
+        toast.error("Gagal menyimpan kunci rahasia Midtrans")
         return
       }
       switch (error.code) {
@@ -60,19 +61,19 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
         case "INVALID_SERVER_KEY":
           form.setError("serverKey", {
             message:
-              "Server key ditolak Midtrans. Pastikan key benar dan sesuai mode server (sandbox atau production).",
+              "Kunci rahasia ditolak Midtrans. Pastikan kuncinya benar dan sesuai mode akun Anda (uji coba atau asli).",
           })
           return
         case "PAYMENT_PROVIDER_UNAVAILABLE":
-          toast.error("Midtrans tidak dapat dihubungi saat ini. Coba lagi sebentar lagi.")
+          toast.error("Midtrans sedang tidak bisa dihubungi. Coba lagi sebentar lagi.")
           return
         case "PAYMENT_PROVIDER_NOT_CONFIGURED":
           toast.error(
-            "Pembayaran online belum dikonfigurasi di server. Hubungi tim Neela untuk bantuan."
+            "Pembayaran online belum siap dipakai. Hubungi tim Neela untuk bantuan."
           )
           return
         default:
-          toast.error(error.message)
+          toast.error(friendlyErrorMessage(error))
       }
     },
   })
@@ -86,7 +87,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-5">
         <div>
           <h2 className="text-base font-extrabold text-foreground">
-            {connected ? "Ganti Server Key" : "Hubungkan Akun Midtrans"}
+            {connected ? "Ganti Kunci Rahasia" : "Hubungkan Akun Midtrans"}
           </h2>
           <p className="text-xs text-muted-foreground">
             Pembayaran QRIS pelanggan akan masuk langsung ke akun Midtrans toko Anda.
@@ -98,7 +99,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
           name="serverKey"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Server Key Midtrans</FormLabel>
+              <FormLabel>Kunci Rahasia Midtrans (Server Key)</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -109,8 +110,8 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
                 />
               </FormControl>
               <FormDescription>
-                Ada di dashboard Midtrans → Settings → Access Keys. Key dienkripsi dan tidak akan
-                ditampilkan lagi setelah disimpan.
+                Cari di dashboard Midtrans: menu Settings → Access Keys, lalu salin bagian Server Key.
+                Kunci disimpan dengan aman dan tidak akan ditampilkan lagi.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -121,7 +122,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
           {mutation.isPending
             ? "Memverifikasi..."
             : connected
-              ? "Simpan Key Baru"
+              ? "Simpan Kunci Baru"
               : "Simpan & Hubungkan"}
         </Button>
       </form>

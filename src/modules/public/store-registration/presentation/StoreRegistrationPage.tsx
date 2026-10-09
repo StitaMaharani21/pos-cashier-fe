@@ -32,8 +32,8 @@ import {
 } from "@/modules/public/store-registration/presentation/registration-plans"
 import { waLink } from "@/modules/public/shared/contact"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
-import { ApiError, NetworkError } from "@/shared/api/client"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Public self-service store registration ("/daftar", the landing page's
 // "Daftar Early Access"). Submits to pos-kasir-be's
@@ -97,17 +97,11 @@ export function StoreRegistrationPage() {
         }
         if (conflict === "email_active") {
           form.setError("ownerEmail", {
-            message: "Email ini sudah terdaftar di toko aktif. Silakan masuk ke portal.",
+            message: "Email ini sudah terdaftar di toko aktif. Silakan masuk ke akun Anda.",
           })
           return
         }
-        if (error instanceof NetworkError) {
-          toast.error("Tidak dapat terhubung ke server. Coba lagi beberapa saat.")
-          return
-        }
-        toast.error(
-          error instanceof ApiError ? error.message : "Pendaftaran gagal dikirim. Coba lagi."
-        )
+        toast.error(friendlyErrorMessage(error, "Pendaftaran gagal dikirim. Coba lagi."))
       },
     })
   }
@@ -133,7 +127,7 @@ export function StoreRegistrationPage() {
               <span className="text-neela-primary-container">Nikmati Kasir Lancar</span>
             </h1>
             <p className="mt-1 text-neela-body-lg text-neela-on-surface-variant">
-              Solusi POS cloud cerdas dengan ketangguhan offline-first untuk kafe, resto, dan UMKM
+              Aplikasi kasir yang tetap jalan tanpa internet, untuk kafe, resto, dan UMKM
               kuliner di seluruh Indonesia.
             </p>
           </div>

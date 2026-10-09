@@ -37,7 +37,7 @@ export function OwnerHeader() {
       <div className="flex items-center gap-4">
         <span className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-muted px-3.5 py-1.5 text-xs text-muted-foreground sm:flex">
           <RefreshCwIcon className="size-2.5" />
-          Sinkronisasi 1 mnt lalu
+          Data diperbarui 1 mnt lalu
         </span>
 
         <button

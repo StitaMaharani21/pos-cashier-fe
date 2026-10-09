@@ -55,7 +55,7 @@ export function UpsellModal() {
             onClick={close}
             className="text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
           >
-            Lihat semua paket & addon
+            Lihat semua paket & fitur tambahan
           </Link>
         </DialogFooter>
       </DialogContent>

@@ -199,8 +199,8 @@ export function BusinessSettingsForm({
           <div>
             <h3 className="text-sm font-extrabold text-foreground">Lokasi Kafe (Pesan dari Meja)</h3>
             <p className="text-xs text-muted-foreground">
-              Dipakai untuk menandai pesanan QR meja yang datang dari luar kafe di daftar order kasir. Hanya penanda,
-              pesanan tidak ditolak. Tekan tombol di bawah saat Anda berada di kafe.
+              Dipakai untuk memberi tanda pada pesanan dari QR meja yang dikirim dari luar kafe, supaya kasir tahu. Pesanan
+              tetap diterima. Tekan tombol "Gunakan lokasi saya sekarang" saat Anda sedang berada di kafe.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3.5">
@@ -209,7 +209,7 @@ export function BusinessSettingsForm({
               name="latitude"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Latitude</FormLabel>
+                  <FormLabel>Garis lintang (Latitude)</FormLabel>
                   <FormControl>
                     <Input inputMode="decimal" placeholder="-6.175392" {...field} />
                   </FormControl>
@@ -222,7 +222,7 @@ export function BusinessSettingsForm({
               name="longitude"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Longitude</FormLabel>
+                  <FormLabel>Garis bujur (Longitude)</FormLabel>
                   <FormControl>
                     <Input inputMode="decimal" placeholder="106.827153" {...field} />
                   </FormControl>
@@ -236,12 +236,12 @@ export function BusinessSettingsForm({
             name="selfOrderRadiusM"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Radius (meter)</FormLabel>
+                <FormLabel>Jarak dari kafe (meter)</FormLabel>
                 <FormControl>
                   <Input type="number" min={10} max={2000} className="max-w-40" {...field} />
                 </FormControl>
                 <p className="text-xs text-muted-foreground">
-                  Standar 100 m. GPS dalam ruangan sering meleset, jangan terlalu kecil.
+                  Standarnya 100 meter. Lokasi di dalam ruangan sering kurang tepat, jadi jangan diisi terlalu kecil.
                 </p>
                 <FormMessage />
               </FormItem>

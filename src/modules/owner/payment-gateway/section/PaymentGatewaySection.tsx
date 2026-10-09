@@ -18,7 +18,7 @@ import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 
 const STEPS = [
   "Daftar atau masuk ke dashboard Midtrans.",
-  "Salin Server Key dari Settings → Access Keys.",
+  "Salin Server Key (kunci rahasia) dari menu Settings → Access Keys.",
   "Tempel di formulir ini lalu simpan.",
   "Metode \"QRIS Midtrans\" muncul di kasir dan halaman pesan dari meja.",
 ]
@@ -111,7 +111,7 @@ export function PaymentGatewaySection() {
         open={confirmingDisconnect}
         onOpenChange={setConfirmingDisconnect}
         title="Putuskan Midtrans?"
-        description='Pelanggan tidak bisa lagi membayar pesanan lewat QRIS online dan metode "QRIS Midtrans" dinonaktifkan. Server key akan dihapus; transaksi yang sudah berjalan tetap tercatat.'
+        description='Pelanggan tidak bisa lagi membayar pesanan lewat QRIS online dan metode "QRIS Midtrans" dinonaktifkan. Kunci rahasia akan dihapus; transaksi yang sudah berjalan tetap tercatat.'
         confirmLabel="Putuskan"
         pendingLabel="Memutuskan..."
         isPending={disconnect.isPending}

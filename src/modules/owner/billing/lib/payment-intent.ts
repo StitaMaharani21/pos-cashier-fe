@@ -78,8 +78,8 @@ export function intentNotes(intent: PaymentIntent): string[] {
   const { addon, qty } = intent
   if (addon.per_unit) {
     return [
-      `${qty} device tambahan aktif ${days} hari mulai setelah pembayaran diterima.`,
-      "Setelah masa aktif habis, kuota kembali ke batas paket. Perangkat yang sudah terpasang tetap berjalan, tetapi memasang perangkat baru dibatasi sampai Anda membeli lagi.",
+      `${qty} perangkat tambahan aktif ${days} hari mulai setelah pembayaran diterima.`,
+      "Setelah masa aktif habis, jumlah perangkat kembali ke batas paket. Perangkat yang sudah terpasang tetap berjalan, tetapi memasang perangkat baru dibatasi sampai Anda membeli lagi.",
     ]
   }
   return addon.active_until && isFuture(addon.active_until)

@@ -21,7 +21,7 @@ export function StockReconciliationSection() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Cek Selisih Stok"
-        description="Bandingkan stok di tabel master dengan stok hasil pergerakan terakhir — selisih berarti ada perubahan stok di luar jalur penyesuaian/penjualan normal."
+        description="Bandingkan stok yang tercatat dengan stok hasil hitungan dari riwayat terakhir. Jika ada selisih, berarti stok berubah dengan cara yang tidak tercatat di penjualan atau penyesuaian."
       />
 
       <div className="flex flex-col gap-3">

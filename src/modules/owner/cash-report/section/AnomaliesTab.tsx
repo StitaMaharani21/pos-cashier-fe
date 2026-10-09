@@ -35,7 +35,7 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
       <div className="flex flex-wrap items-end gap-2.5">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="anomaly-threshold" className="text-xs text-muted-foreground">
-            Ambang Selisih (Rp)
+            Tampilkan jika selisih lebih dari (Rp)
           </Label>
           <Input
             id="anomaly-threshold"
@@ -53,7 +53,7 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
         icon={AlertTriangleIcon}
         tone="warning"
         iconTone="warning"
-        label="Jumlah Shift Anomali"
+        label="Shift dengan Selisih Tak Wajar"
         value={
           <>
             {rows.length} <span className="text-sm font-normal text-muted-foreground">Shift</span>
@@ -68,8 +68,8 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
         // state (ReportStateCard's default "muted" tone, never "danger").
         <ReportStateCard
           icon={ShieldCheckIcon}
-          title="Tidak ada shift dengan selisih di atas ambang batas pada periode ini"
-          hint="Tidak ada indikasi anomali kas pada rentang tanggal dan ambang batas ini."
+          title="Tidak ada shift dengan selisih di atas batas pada periode ini"
+          hint="Uang tunai sesuai catatan pada rentang tanggal dan batas selisih ini."
         />
       ) : (
         <CrudTable
@@ -78,13 +78,13 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
           getRowId={(row) => row.shift_id}
           isLoading={query.isPending}
           isError={query.isError}
-          errorHint="Laporan kas mungkin memerlukan paket Pro atau addon Laporan."
+          errorHint="Laporan kas mungkin memerlukan paket Pro atau fitur tambahan Laporan."
           onRetry={() => query.refetch()}
           onRowClick={(row) => setSelectedShiftId(row.shift_id)}
           minWidth="min-w-[1080px]"
           empty={{
             icon: AlertTriangleIcon,
-            title: "Tidak ada shift anomali",
+            title: "Tidak ada shift dengan selisih tak wajar",
           }}
         />
       )}

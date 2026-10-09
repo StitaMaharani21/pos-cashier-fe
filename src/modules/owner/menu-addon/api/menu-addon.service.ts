@@ -10,6 +10,7 @@ import { listMenus } from "@/modules/owner/menu/api/menu.service"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { createCrudService } from "@/shared/api/crud/createCrudService"
 import { CrudServiceError, type CrudService, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 const RESOURCE = "/master/addon-groups"
 
@@ -39,8 +40,8 @@ export interface AddonGroupDraft {
 }
 
 function toServiceError(error: unknown): CrudServiceError {
-  if (error instanceof ApiError) return new CrudServiceError(error.code, error.message)
-  return new CrudServiceError("UNKNOWN", error instanceof Error ? error.message : "Unexpected error")
+  if (error instanceof ApiError) return new CrudServiceError(error.code, friendlyErrorMessage(error))
+  return new CrudServiceError("UNKNOWN", friendlyErrorMessage(error))
 }
 
 // Plain JSON list/delete come from the generic factory; create and update

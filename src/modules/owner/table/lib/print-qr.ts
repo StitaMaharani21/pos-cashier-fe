@@ -25,7 +25,7 @@ export function buildQrPrintHtml(cards: QrCard[], storeName: string): string {
         (storeName ? `<p class="store">${escapeHtml(storeName)}</p>` : "") +
         `<h1>Meja ${escapeHtml(card.number)}</h1>` +
         `<div class="qr">${svg}</div>` +
-        `<p class="cta">Scan untuk melihat menu &amp; memesan</p>` +
+        `<p class="cta">Pindai untuk melihat menu &amp; memesan</p>` +
         `<p class="note">Pembayaran dilakukan di kasir.</p>` +
         `</section>`
       )

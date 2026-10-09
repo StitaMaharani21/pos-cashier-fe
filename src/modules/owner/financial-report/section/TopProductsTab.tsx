@@ -11,7 +11,7 @@ interface RankedProduct extends TopProductItem {
 }
 
 const SORT_OPTIONS: { value: TopProductsSort; label: string }[] = [
-  { value: "qty", label: "Berdasarkan Qty Terjual" },
+  { value: "qty", label: "Berdasarkan Jumlah Terjual" },
   { value: "revenue", label: "Berdasarkan Pendapatan" },
 ]
 
@@ -30,7 +30,7 @@ function buildColumns(sort: TopProductsSort): CrudColumn<RankedProduct>[] {
     },
     {
       key: "qty",
-      header: "Qty Terjual",
+      header: "Jumlah Terjual",
       align: "right",
       className: sort === "qty" ? "font-semibold text-foreground" : undefined,
       render: (row) => <span className="tabular-nums">{row.qty}</span>,

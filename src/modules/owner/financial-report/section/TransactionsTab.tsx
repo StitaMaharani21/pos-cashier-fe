@@ -111,7 +111,7 @@ export function TransactionsTab({
         getRowId={(row) => row.order_no}
         isLoading={isLoading}
         isError={isError}
-        errorHint="Laporan transaksi mungkin memerlukan paket Pro atau addon Laporan."
+        errorHint="Laporan transaksi mungkin memerlukan paket Pro atau fitur tambahan Laporan."
         onRetry={() => refetch()}
         minWidth="min-w-[960px]"
         empty={{

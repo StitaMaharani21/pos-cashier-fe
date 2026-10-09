@@ -25,8 +25,8 @@ export function HeroSection() {
             </h1>
 
             <p className="max-w-xl text-neela-body-lg text-neela-on-surface-variant lg:text-neela-body-xl">
-              Kasir cloud offline-first: tetap jualan saat WiFi mati, sinkron otomatis saat
-              online.
+              Aplikasi kasir yang tetap jalan saat WiFi mati, dan mengirim datanya
+              otomatis saat internet kembali.
             </p>
 
             <div className="flex w-full flex-col items-stretch gap-4 pt-1 sm:w-auto sm:flex-row sm:items-center">

@@ -6,6 +6,7 @@ import type {
 } from "@/entities/payment-gateway/model/payment-gateway.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Singleton owned by the store: GET (status), PUT (save key), DELETE (remove
 // key) — no list/create/update, so `createCrudService` doesn't apply.
@@ -20,7 +21,7 @@ export const PAYMENT_GATEWAY_QUERY_KEY = ["payment-gateway"]
 export const PAYMENT_METHODS_QUERY_KEY = ["payment-methods"]
 
 function toServiceError(error: unknown): CrudServiceError {
-  if (error instanceof ApiError) return new CrudServiceError(error.code, error.message)
+  if (error instanceof ApiError) return new CrudServiceError(error.code, friendlyErrorMessage(error))
   // The api client's interceptor already opened the upsell modal and refetched
   // capabilities for a 402, and rejects with the raw AxiosError (the flat 402
   // body has no `message`, so it isn't an ApiError). Callers skip the toast
@@ -30,7 +31,7 @@ function toServiceError(error: unknown): CrudServiceError {
   }
   return new CrudServiceError(
     "UNKNOWN",
-    error instanceof Error ? error.message : "Unexpected error"
+    friendlyErrorMessage(error)
   )
 }
 

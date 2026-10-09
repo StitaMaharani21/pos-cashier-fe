@@ -41,7 +41,7 @@ export function RegistrationHeader() {
           </Link>
           <Link
             to="/login"
-            aria-label="Masuk Portal"
+            aria-label="Masuk"
             className="flex size-8 items-center justify-center rounded-full bg-neela-primary text-neela-on-primary"
           >
             <User className="size-4" />
@@ -59,7 +59,7 @@ export function RegistrationFooter() {
     <footer className="mt-auto w-full bg-neela-surface-container-lowest py-4 shadow-[0_-1px_6px_rgba(0,0,0,0.02)]">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-2 px-4 text-neela-body-sm text-neela-on-surface-variant sm:flex-row md:px-6 lg:px-8">
         <div>
-          © {new Date().getFullYear()} {COPYRIGHT_HOLDER}. Sistem POS Offline-First untuk F&amp;B Indonesia.
+          © {new Date().getFullYear()} {COPYRIGHT_HOLDER}. Aplikasi kasir untuk usaha kuliner Indonesia.
         </div>
         <a
           href={waLink("Halo Neela POS, saya butuh bantuan")}

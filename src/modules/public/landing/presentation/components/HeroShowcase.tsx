@@ -120,7 +120,7 @@ export function HeroShowcase() {
           style={{ ...box({ left: 110, top: 64 }), ...pill(17, 12, 20) }}
         >
           <span aria-hidden className="shrink-0 rounded-full bg-neela-tertiary-fixed" style={{ width: atLeast(10, 6), height: atLeast(10, 6) }} />
-          <span>Mode Offline Aktif — Transaksi Disimpan Aman</span>
+          <span>Tanpa Internet — Transaksi Tetap Tersimpan Aman</span>
         </div>
 
         {/* The two secondary pills only fit once the visual is ≥ 28rem wide. */}
@@ -129,7 +129,7 @@ export function HeroShowcase() {
           style={{ ...box({ right: 60, top: 24 }), ...pill(16, 10, 18) }}
         >
           <Clock aria-hidden className="shrink-0 text-neela-tertiary" style={{ width: atLeast(20, 12), height: atLeast(20, 12) }} />
-          <span>Buka shift + saldo kas awal</span>
+          <span>Buka kasir + uang kas awal</span>
         </div>
 
         <div

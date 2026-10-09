@@ -6,6 +6,7 @@ import type {
 } from "@/entities/cashier/model/cashier.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Create + list + a narrow status toggle only — the backend has no full
 // "edit" (PUT) for a cashier, so `shared/api/crud/createCrudService` doesn't
@@ -15,11 +16,11 @@ const RESOURCE = "/auth/users/cashier"
 
 function toCrudServiceError(error: unknown): CrudServiceError {
   if (error instanceof ApiError) {
-    return new CrudServiceError(error.code, error.message)
+    return new CrudServiceError(error.code, friendlyErrorMessage(error))
   }
   return new CrudServiceError(
     "UNKNOWN",
-    error instanceof Error ? error.message : "Unexpected error"
+    friendlyErrorMessage(error)
   )
 }
 

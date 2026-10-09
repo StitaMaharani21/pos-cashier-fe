@@ -4,7 +4,7 @@ import { LoaderCircleIcon, TriangleAlertIcon } from "lucide-react"
 interface StateScreenProps {
   title: string
   description: string
-  // "stamp" renders the red "Sesi Berakhir" rubber stamp instead of the icon.
+  // "stamp" renders the red "Tidak Berlaku" rubber stamp instead of the icon.
   stamp?: string
   icon?: ReactNode
   actionLabel?: string

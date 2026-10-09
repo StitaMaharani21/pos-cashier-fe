@@ -17,11 +17,11 @@ export function LandingScreen({ session, onStart }: { session: GuestSession; onS
           <div className="cap">Nomor meja</div>
         </div>
         <h1>Selamat datang!</h1>
-        <p className="lead">Langsung pilih menu dan pesan dari HP kamu. Tidak perlu login atau install aplikasi.</p>
+        <p className="lead">Langsung pilih menu dan pesan dari HP kamu. Tidak perlu masuk akun atau pasang aplikasi.</p>
         <div className="so-pill">
           <ClockIcon size={13} aria-hidden />
           <span>
-            Sesi meja berlaku sampai <b>{formatClock(session.expired_at)}</b>
+            Meja ini bisa dipakai memesan sampai <b>{formatClock(session.expired_at)}</b>
           </span>
         </div>
         <div className="so-note">
@@ -37,7 +37,7 @@ export function LandingScreen({ session, onStart }: { session: GuestSession; onS
           Lihat Menu
           <ArrowRightIcon size={16} aria-hidden />
         </button>
-        <div className="so-footnote">Tanpa login · tanpa install app</div>
+        <div className="so-footnote">Tanpa akun · tanpa pasang aplikasi</div>
       </div>
     </div>
   )

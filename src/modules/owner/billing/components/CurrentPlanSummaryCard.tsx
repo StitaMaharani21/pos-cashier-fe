@@ -14,7 +14,7 @@ function planName(plan: Capabilities["plan"]): string {
 
 const ADDON_TITLES: Record<string, string> = {
   ...Object.fromEntries(BILLING_ADDONS.map((addon) => [addon.code, addon.title])),
-  EXTRA_DEVICE: "Device Tambahan",
+  EXTRA_DEVICE: "Perangkat Tambahan",
 }
 
 interface CurrentPlanSummaryCardProps {
@@ -39,10 +39,10 @@ export function CurrentPlanSummaryCard({ caps, current }: CurrentPlanSummaryCard
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {owned.length === 0 ? (
-          <span className="text-sm text-muted-foreground">Belum ada add-on aktif.</span>
+          <span className="text-sm text-muted-foreground">Belum ada fitur tambahan yang aktif.</span>
         ) : (
           owned.map((addon, index) => {
-            const title = ADDON_TITLES[addon.code] ?? addon.code
+            const title = ADDON_TITLES[addon.code] ?? "Fitur tambahan"
             const until = formatDay(addon.expires_at)
             return (
               <Badge key={`${addon.code}-${index}`} variant="secondary">

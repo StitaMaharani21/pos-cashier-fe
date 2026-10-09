@@ -4,6 +4,7 @@ import type {
 } from "@/entities/auth/model/profile.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Self-service, not a CRUD resource — always the caller's own account, so
 // `createCrudService` doesn't apply (same reasoning as business-settings).
@@ -11,11 +12,11 @@ const PROFILE = "/me/profile"
 
 function toCrudServiceError(error: unknown): CrudServiceError {
   if (error instanceof ApiError) {
-    return new CrudServiceError(error.code, error.message)
+    return new CrudServiceError(error.code, friendlyErrorMessage(error))
   }
   return new CrudServiceError(
     "UNKNOWN",
-    error instanceof Error ? error.message : "Unexpected error"
+    friendlyErrorMessage(error)
   )
 }
 

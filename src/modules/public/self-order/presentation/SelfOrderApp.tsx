@@ -86,10 +86,10 @@ export function SelfOrderApp({ storeCode, session, onNewSession, initialScreen }
   if (!placed && (expired || gone || (cartQuery.error && isSessionGone(cartQuery.error)))) {
     return (
       <StateScreen
-        stamp="Sesi Berakhir"
-        title="Sesi meja sudah tidak aktif"
-        description="Sesi QR meja ini sudah berakhir atau ditutup oleh kasir. Pesanan tidak bisa ditambahkan lagi."
-        footnote="Panggil staff dan minta scan ulang QR meja"
+        stamp="Tidak Berlaku"
+        title="Meja ini sudah tidak aktif"
+        description="QR meja ini sudah tidak bisa dipakai, mungkin karena sudah ditutup kasir. Pesanan tidak bisa ditambahkan lagi."
+        footnote="Panggil staf dan minta QR meja yang baru"
       />
     )
   }

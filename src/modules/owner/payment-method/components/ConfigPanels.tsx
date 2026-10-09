@@ -130,12 +130,12 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
           <p className="text-xs text-muted-foreground">
             {acceptsCredit
               ? "Ditambahkan ke total saat pelanggan bayar pakai kartu kredit. Kosongkan jika tidak ada biaya tambahan."
-              : "Aktifkan Credit Card untuk mengatur biaya tambahan."}
+              : "Aktifkan Kartu Kredit untuk mengatur biaya tambahan."}
           </p>
         )}
       </div>
 
-      <Hint>Saat bayar pakai kartu, kasir memilih bank EDC dari daftar bank di Transfer Bank.</Hint>
+      <Hint>Saat pelanggan bayar pakai kartu, kasir memilih bank dari mesin kartu (EDC) yang dipakai. Daftar banknya diatur di Transfer Bank.</Hint>
     </div>
   )
 }

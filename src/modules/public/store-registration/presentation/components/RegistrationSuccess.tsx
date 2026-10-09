@@ -46,7 +46,7 @@ export function RegistrationSuccess({ email, storeName, purchase }: Registration
         ))}
       <p className="max-w-md text-neela-body-md text-neela-on-surface-variant">
         Terima kasih, pendaftaran <strong className="text-neela-on-surface">{storeName}</strong> sudah
-        kami terima dan sedang ditinjau tim Neela. Setelah disetujui, kamu bisa masuk ke portal dengan
+        kami terima dan sedang ditinjau tim Neela. Setelah disetujui, kamu bisa masuk dengan
         email <strong className="text-neela-on-surface">{email}</strong> dan kata sandi yang baru kamu
         buat.
       </p>

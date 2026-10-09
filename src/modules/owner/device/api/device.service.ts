@@ -2,6 +2,7 @@ import type { Device, GeneratePairingCodePayload, PairingCode } from "@/entities
 import type { DeviceQuota } from "@/entities/subscription/model/subscription.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // pos-kasir-be internal/central/device — owner-only (JWT owner):
 // POST /devices/pairing-code, GET /devices, PATCH /devices/:id/revoke.
@@ -14,14 +15,14 @@ export const DEVICE_QUOTA_KEY = ["devices", "quota"]
 // The backend refuses a new pairing once the plan's device allowance (plus any
 // Device Tambahan add-on) is used up.
 export const DEVICE_LIMIT_MESSAGE =
-  "Kuota perangkat penuh. Beli device tambahan di Paket & Addon, atau cabut perangkat yang tidak dipakai."
+  "Jumlah perangkat sudah mencapai batas. Tambah perangkat di menu Paket & Fitur Tambahan, atau cabut perangkat yang tidak dipakai."
 
 function toServiceError(error: unknown): CrudServiceError {
   if (error instanceof ApiError) {
     if (error.code === "DEVICE_LIMIT_REACHED") return new CrudServiceError(error.code, DEVICE_LIMIT_MESSAGE)
-    return new CrudServiceError(error.code, error.message)
+    return new CrudServiceError(error.code, friendlyErrorMessage(error))
   }
-  return new CrudServiceError("UNKNOWN", error instanceof Error ? error.message : "Unexpected error")
+  return new CrudServiceError("UNKNOWN", friendlyErrorMessage(error))
 }
 
 // Throws (the section shows its error state). Newest first.

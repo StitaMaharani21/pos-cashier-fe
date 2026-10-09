@@ -8,6 +8,7 @@ import type {
 } from "@/entities/payment-channel/model/payment-channel.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Hand-written, not `createCrudService` — POST/PUT here are
 // multipart/form-data (optional image/logo), unlike the plain-JSON resources
@@ -39,10 +40,10 @@ function channelFormData(payload: PaymentChannelPayload): FormData {
 }
 
 function toServiceError(error: unknown): CrudServiceError {
-  if (error instanceof ApiError) return new CrudServiceError(error.code, error.message)
+  if (error instanceof ApiError) return new CrudServiceError(error.code, friendlyErrorMessage(error))
   return new CrudServiceError(
     "UNKNOWN",
-    error instanceof Error ? error.message : "Unexpected error"
+    friendlyErrorMessage(error)
   )
 }
 

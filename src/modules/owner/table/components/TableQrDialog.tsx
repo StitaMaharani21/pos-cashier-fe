@@ -7,12 +7,12 @@ import { toast } from "sonner"
 import type { Table } from "@/entities/table/model/table.types"
 import { TABLE_QR_KEY, getTableQR, rotateTableQR } from "@/modules/owner/table/api/table.service"
 import { printQrCards } from "@/modules/owner/table/lib/print-qr"
-import { ApiError } from "@/shared/api/client"
 import { useAuthStore } from "@/shared/auth/store"
 import { buildSelfOrderUrl } from "@/shared/lib/self-order-url"
 import { Button } from "@/shared/ui/button"
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 interface TableQrDialogProps {
   table: Table | null
@@ -37,8 +37,7 @@ export function TableQrDialog({ table, storeName, onOpenChange }: TableQrDialogP
 }
 
 function errorText(error: unknown): string {
-  if (error instanceof ApiError) return error.message
-  return error instanceof Error ? error.message : "Gagal memuat QR meja"
+  return friendlyErrorMessage(error, "Gagal memuat QR meja")
 }
 
 function QrFlow({ table, storeName }: { table: Table; storeName: string }) {
@@ -94,7 +93,7 @@ function QrFlow({ table, storeName }: { table: Table; storeName: string }) {
       <DialogHeader>
         <DialogTitle className="text-xl font-bold">QR Meja {table.number}</DialogTitle>
         <DialogDescription>
-          QR ini permanen: cetak sekali dan taruh di meja. Customer scan untuk melihat menu dan memesan dari HP mereka.
+          QR ini permanen: cetak sekali dan taruh di meja. Pelanggan tinggal memindai QR ini untuk melihat menu dan memesan dari HP mereka.
         </DialogDescription>
       </DialogHeader>
 
@@ -126,8 +125,8 @@ function QrFlow({ table, storeName }: { table: Table; storeName: string }) {
             {/* A phone can't open the owner's own machine through localhost. */}
             {isLocalHost(url) && (
               <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-700">
-                Tautan ini memakai alamat lokal sehingga HP customer tidak bisa membukanya. Atur VITE_PUBLIC_APP_URL ke
-                alamat yang bisa diakses dari HP sebelum mencetak.
+                QR ini memakai alamat yang hanya bisa dibuka dari komputer ini, jadi HP pelanggan tidak akan bisa
+                membukanya. Hubungi tim Neela sebelum mencetak.
               </p>
             )}
             <code className="max-w-full break-all rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
@@ -169,7 +168,7 @@ function QrFlow({ table, storeName }: { table: Table; storeName: string }) {
         open={confirmingRotate}
         onOpenChange={setConfirmingRotate}
         title="Ganti QR meja ini?"
-        description={`QR Meja ${table.number} yang sudah dicetak akan berhenti berlaku, dan customer yang sedang memesan dari QR lama akan terputus. Anda perlu mencetak dan menempel QR yang baru.`}
+        description={`QR Meja ${table.number} yang sudah dicetak akan berhenti berlaku, dan pelanggan yang sedang memesan dengan QR lama tidak bisa melanjutkan pesanannya. Anda perlu mencetak dan menempel QR yang baru.`}
         confirmLabel="Ganti QR"
         pendingLabel="Mengganti..."
         isPending={rotate.isPending}

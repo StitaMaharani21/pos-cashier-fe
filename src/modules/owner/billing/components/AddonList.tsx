@@ -16,12 +16,12 @@ const MANUAL_EXTRAS = [
   {
     key: "device",
     ...EXTRA_PRICING.extraDevice,
-    message: "Halo Neela, saya ingin menambah device untuk toko saya.",
+    message: "Halo Neela, saya ingin menambah perangkat untuk toko saya.",
   },
   {
     key: "overage",
     ...EXTRA_PRICING.overage,
-    message: "Halo Neela, saya ingin tanya soal overage transaksi.",
+    message: "Halo Neela, saya ingin tanya soal tambahan transaksi harian.",
   },
 ]
 
@@ -42,9 +42,9 @@ export function AddonList({ caps, catalog, quota, onBuy }: AddonListProps) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-bold text-foreground">Add-on</h2>
+        <h2 className="text-lg font-bold text-foreground">Fitur Tambahan</h2>
         <p className="text-sm text-muted-foreground">
-          Nyalakan satu fitur tambahan tanpa upgrade paket penuh.
+          Aktifkan satu fitur tambahan tanpa harus pindah ke paket yang lebih besar.
         </p>
       </div>
       <div className="flex flex-col gap-3">

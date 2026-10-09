@@ -86,9 +86,9 @@ export function TableSection() {
       empty={{
         icon: ArmchairIcon,
         title: "Belum ada meja",
-        hint: "Tambahkan meja, lalu cetak QR-nya sekali dan taruh di meja agar customer bisa memesan dari HP.",
+        hint: "Tambahkan meja, lalu cetak QR-nya sekali dan taruh di meja agar pelanggan bisa memesan dari HP.",
       }}
-      describeForm={(row) => (row ? "Perbarui data meja" : "Meja yang bisa di-scan customer untuk memesan")}
+      describeForm={(row) => (row ? "Perbarui data meja" : "Meja yang bisa dipakai pelanggan untuk memesan lewat QR")}
       toolbarActions={
         <Button variant="outline" className="h-10" disabled={printAll.isPending} onClick={handlePrintAll}>
           <PrinterIcon />

@@ -70,7 +70,7 @@ function SessionError({ error, onRetry }: { error: unknown; onRetry: () => void 
       return (
         <StateScreen
           title="Toko tidak ditemukan"
-          description="Tautan ini tidak valid. Scan ulang QR di meja kamu."
+          description="Tautan ini tidak valid. Pindai ulang QR di meja kamu."
           icon={<StoreIcon aria-hidden />}
         />
       )
@@ -108,7 +108,7 @@ function SessionError({ error, onRetry }: { error: unknown; onRetry: () => void 
       return (
         <StateScreen
           title="Kasir belum buka"
-          description="Pemesanan baru bisa dimulai setelah kasir membuka kasir. Minta bantuan staff."
+          description="Kasir belum siap menerima pesanan. Coba lagi sebentar, atau minta bantuan staf."
           actionLabel="Coba lagi"
           onAction={onRetry}
         />
@@ -117,15 +117,15 @@ function SessionError({ error, onRetry }: { error: unknown; onRetry: () => void 
     if (isSessionGone(error)) {
       return (
         <StateScreen
-          stamp="Sesi Berakhir"
+          stamp="Tidak Berlaku"
           title="QR meja ini tidak berlaku"
-          description="Sesi QR meja ini sudah berakhir atau ditutup oleh kasir."
-          footnote="Panggil staff dan minta scan ulang QR meja"
+          description="QR meja ini sudah tidak bisa dipakai untuk memesan, mungkin karena sudah ditutup kasir."
+          footnote="Panggil staf dan minta QR meja yang baru"
         />
       )
     }
     return (
-      <StateScreen title="Gagal membuka meja" description={error.message} actionLabel="Coba lagi" onAction={onRetry} />
+      <StateScreen title="Gagal membuka meja" description={guestErrorMessage(error)} actionLabel="Coba lagi" onAction={onRetry} />
     )
   }
   return (

@@ -26,11 +26,11 @@ export function DeviceAddonCard({ item, quota, onBuy }: DeviceAddonCardProps) {
       <div className="min-w-0">
         <p className="font-semibold text-foreground">{item.name}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Tablet kasir atau admin tambahan di luar jumlah device paket Anda.
+          Tablet kasir atau admin tambahan di luar jumlah perangkat paket Anda.
         </p>
         <p className="mt-1 text-sm font-semibold text-foreground">
           {formatRupiah(item.price)}
-          <span className="font-normal text-muted-foreground"> / device / {item.duration_days} hari</span>
+          <span className="font-normal text-muted-foreground"> / perangkat / {item.duration_days} hari</span>
         </p>
         {quota && (
           <p className="mt-1 text-xs text-muted-foreground">

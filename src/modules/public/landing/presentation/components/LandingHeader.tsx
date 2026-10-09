@@ -37,15 +37,15 @@ export function LandingHeader() {
               to="/login"
               className="hidden items-center justify-center px-4 py-2 text-neela-label-md text-neela-on-surface transition-colors hover:text-neela-primary-container sm:inline-flex"
             >
-              Masuk Portal
+              Masuk
             </Link>
           )}
           <PrimaryCta className="inline-flex items-center justify-center rounded-full bg-neela-primary-container px-6 py-2 text-center text-neela-label-md text-neela-on-primary-container shadow-[0_4px_14px_rgba(2,102,255,0.35)] transition-all hover:bg-neela-primary active:scale-[0.98]" />
           {/* Decorative in the Stitch design; wired to the portal here since
-              "Masuk Portal" is hidden below `sm` — the only way in on phones. */}
+              "Masuk" is hidden below `sm` — the only way in on phones. */}
           <Link
             to={portalHref}
-            aria-label={isOwner ? "Buka Dashboard" : "Masuk Portal"}
+            aria-label={isOwner ? "Buka Dashboard" : "Masuk"}
             className="flex size-8 shrink-0 items-center justify-center rounded-full bg-neela-primary text-neela-on-primary"
           >
             {isOwner ? <LayoutDashboard className="size-4" /> : <User className="size-4" />}

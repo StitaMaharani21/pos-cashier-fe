@@ -129,7 +129,7 @@ export function ItemSheet({ menu, initialName, isSubmitting, error, onSubmit, on
           <textarea
             id="so-notes"
             rows={2}
-            placeholder="mis. less sugar, tanpa es"
+            placeholder="mis. gula sedikit, tanpa es"
             value={notes}
             maxLength={200}
             onChange={(event) => setNotes(event.target.value)}

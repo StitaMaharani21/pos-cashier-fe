@@ -21,12 +21,12 @@ import { TaxTab } from "@/modules/owner/financial-report/section/TaxTab"
 import { TopProductsTab } from "@/modules/owner/financial-report/section/TopProductsTab"
 import { TransactionsTab } from "@/modules/owner/financial-report/section/TransactionsTab"
 import { VoidTransactionsTab } from "@/modules/owner/financial-report/section/VoidTransactionsTab"
-import { ApiError, NetworkError } from "@/shared/api/client"
 import { downloadBlob } from "@/shared/lib/download"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/ui/page-header"
 import { PageTabs, type PageTab } from "@/shared/ui/page-tabs"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 type Tab =
   | "summary"
@@ -86,14 +86,14 @@ const GROUPS: { id: Group; label: string; leaves: PageTab<Tab>[] }[] = [
       { id: "peak-hours", label: "Jam Sibuk" },
     ],
   },
-  { id: "void", label: "Void/Batal", leaves: [{ id: "void", label: "Void/Batal" }] },
+  { id: "void", label: "Dibatalkan", leaves: [{ id: "void", label: "Pesanan Dibatalkan" }] },
   { id: "transactions", label: "Transaksi", leaves: [{ id: "transactions", label: "Detail Transaksi" }] },
   {
     id: "other",
     label: "Lainnya",
     leaves: [
       { id: "tax", label: "Pajak" },
-      { id: "order-source", label: "Sumber Order" },
+      { id: "order-source", label: "Sumber Pesanan" },
     ],
   },
 ]
@@ -204,11 +204,7 @@ export function FinancialReportSection() {
           downloadBlob(blob, `laporan-${REPORT_ID[tab]}-${from}-sd-${to}.xlsx`)
         },
         onError: (error) => {
-          if (error instanceof ApiError || error instanceof NetworkError) {
-            toast.error(error.message)
-          } else {
-            toast.error("Gagal mengunduh laporan")
-          }
+          toast.error(friendlyErrorMessage(error, "Gagal mengunduh laporan"))
         },
       }
     )

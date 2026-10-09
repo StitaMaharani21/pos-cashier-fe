@@ -5,6 +5,7 @@ import {
   type PaginatedResponse,
   type SingleResponse,
 } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Generic CRUD factory for the plain-JSON master-data endpoints
 // (menu-categories, payment-methods, tables — anything that isn't
@@ -64,10 +65,10 @@ export function createCrudService<T, TCreate = Partial<T>, TUpdate = Partial<T>>
 
 function toCrudServiceError(error: unknown): CrudServiceError {
   if (error instanceof ApiError) {
-    return new CrudServiceError(error.code, error.message)
+    return new CrudServiceError(error.code, friendlyErrorMessage(error))
   }
   return new CrudServiceError(
     "UNKNOWN",
-    error instanceof Error ? error.message : "Unexpected error"
+    friendlyErrorMessage(error)
   )
 }

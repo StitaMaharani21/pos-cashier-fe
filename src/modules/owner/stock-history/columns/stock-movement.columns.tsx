@@ -1,5 +1,6 @@
 import { format } from "date-fns"
 
+import { movementReferenceLabel, movementTypeLabel } from "@/modules/owner/stock-history/lib/labels"
 import type { NormalizedStockMovement } from "@/modules/owner/stock-history/lib/normalize"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { cn } from "@/shared/lib/utils"
@@ -12,10 +13,10 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
   },
   {
     key: "type",
-    header: "Tipe",
+    header: "Jenis",
     render: (row) => (
-      <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold uppercase">
-        {row.type}
+      <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold">
+        {movementTypeLabel(row.type)}
       </span>
     ),
   },
@@ -39,8 +40,8 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
   },
   {
     key: "reference",
-    header: "Referensi",
-    render: (row) => (row.referenceId ? `${row.referenceType} #${row.referenceId}` : row.referenceType || "—"),
+    header: "Asal Perubahan",
+    render: (row) => movementReferenceLabel(row.referenceType, row.referenceId),
   },
   {
     key: "notes",

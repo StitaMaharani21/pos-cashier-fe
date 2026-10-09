@@ -16,7 +16,7 @@ import { Badge } from "@/shared/ui/badge"
 const STATUS_META: Record<string, { label: string; className: string }> = {
   selesai: { label: "Selesai", className: "bg-emerald-50 text-emerald-600" },
   diproses: { label: "Diproses", className: "bg-blue-50 text-blue-600" },
-  pending: { label: "Pending", className: "bg-amber-50 text-amber-600" },
+  pending: { label: "Menunggu", className: "bg-amber-50 text-amber-600" },
   dibatalkan: { label: "Dibatalkan", className: "bg-destructive/10 text-destructive" },
 }
 

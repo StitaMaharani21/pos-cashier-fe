@@ -293,10 +293,10 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel }: 
           </Section>
 
           <Section icon={BoxIcon} title="Stok" description="Pantau ketersediaan stok menu">
-            <div role="radiogroup" aria-label="Pelacakan stok" className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
+            <div role="radiogroup" aria-label="Pencatatan stok" className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
               {[
-                { value: false, label: "Tidak dilacak" },
-                { value: true, label: "Lacak stok" },
+                { value: false, label: "Stok tidak dihitung" },
+                { value: true, label: "Hitung stok" },
               ].map((option) => (
                 <button
                   key={option.label}
@@ -391,7 +391,7 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel }: 
               <InfoIcon className="mt-0.5 size-4 shrink-0" />
               {stockDeductionMethod === "none" && "Menu selalu dianggap tersedia tanpa batas stok."}
               {stockDeductionMethod === "by_menu" &&
-                "Stok berkurang 1 setiap kali terjual — cocok untuk item satuan seperti kue atau minuman kemasan. Batas stok menipis (default 5) belum bisa diatur dari sini."}
+                "Stok berkurang 1 setiap kali terjual — cocok untuk item satuan seperti kue atau minuman kemasan. Peringatan stok menipis muncul saat sisa 5 atau kurang (belum bisa diubah dari sini)."}
               {stockDeductionMethod === "by_ingredient" &&
                 "Stok bahan baku berkurang otomatis sesuai resep setiap menu ini terjual — cocok untuk item racikan."}
             </p>

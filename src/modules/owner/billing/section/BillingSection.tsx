@@ -39,7 +39,7 @@ export function BillingSection() {
   if (isLoading || !caps) {
     return (
       <div className="flex flex-col gap-5">
-        <PageHeader title="Paket & Addon" description="Lihat paket dan add-on yang tersedia untuk toko Anda" />
+        <PageHeader title="Paket & Fitur Tambahan" description="Lihat paket dan fitur tambahan yang tersedia untuk toko Anda" />
         {isLoading ? (
           <div className="h-96 animate-pulse rounded-[18px] border bg-muted/40" />
         ) : (
@@ -56,7 +56,7 @@ export function BillingSection() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Paket & Addon" description="Lihat dan beli paket serta add-on untuk toko Anda" />
+      <PageHeader title="Paket & Fitur Tambahan" description="Lihat dan beli paket serta fitur tambahan untuk toko Anda" />
       <CurrentPlanSummaryCard caps={caps} current={current.data} />
       <PlanComparisonGrid caps={caps} plans={plans.data} current={current.data} onBuy={setIntent} />
       <AddonList caps={caps} catalog={catalog.data} quota={quota.data} onBuy={setIntent} />

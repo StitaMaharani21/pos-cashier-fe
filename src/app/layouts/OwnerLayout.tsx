@@ -27,7 +27,7 @@ const DASHBOARD_ITEM = { to: "/app", label: "Dashboard", icon: LayoutGridIcon }
 // Ungated (routeAccess.ts's "billing" entry is {}) — every owner, on any
 // plan, needs to be able to find this page, so it sits as its own top-level
 // item next to Dashboard rather than inside a collapsible group.
-const BILLING_ITEM = { to: "/app/billing", label: "Paket & Addon", icon: PackageIcon }
+const BILLING_ITEM = { to: "/app/billing", label: "Paket & Fitur Tambahan", icon: PackageIcon }
 
 // Grouping/labels mirror the Figma sidenav (SideNavBar shared component).
 // "Meja" isn't shown in that particular screen, but it's an existing,
@@ -39,7 +39,7 @@ const NAV_GROUPS = [
     items: [
       // Kategori Menu + Menu are tabs of this one page.
       { to: "/app/menu", label: "Menu" },
-      { to: "/app/menu-addon", label: "Addon Menu" },
+      { to: "/app/menu-addon", label: "Tambahan Menu" },
       { to: "/app/ingredient", label: "Bahan Baku" },
       { to: "/app/payment-method", label: "Metode Pembayaran" },
       { to: "/app/order-type", label: "Jenis Order" },
@@ -69,7 +69,7 @@ const NAV_GROUPS = [
     label: "Pengaturan",
     icon: SettingsIcon,
     items: [
-      { to: "/app/profile", label: "Profile" },
+      { to: "/app/profile", label: "Profil" },
       { to: "/app/business-settings", label: "Bisnis" },
       { to: "/app/payment-gateway", label: "Pembayaran Online" },
     ],
@@ -238,7 +238,7 @@ export function OwnerLayout() {
             <button
               type="button"
               onClick={() => setCollapsed((value) => !value)}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={collapsed ? "Perluas menu samping" : "Ciutkan menu samping"}
               className={cn(
                 "flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted",
                 collapsed && "mx-auto"
@@ -319,14 +319,14 @@ export function OwnerLayout() {
           <button
             type="button"
             onClick={logout}
-            title={collapsed ? "Logout" : undefined}
+            title={collapsed ? "Keluar" : undefined}
             className={cn(
               "flex w-full items-center gap-4 rounded-lg px-4 py-2.5 text-sm font-semibold text-destructive hover:bg-destructive/5",
               collapsed && "justify-center px-0"
             )}
           >
             <LogOutIcon className="size-4 shrink-0" />
-            {!collapsed && "Logout"}
+            {!collapsed && "Keluar"}
           </button>
         </div>
       </aside>

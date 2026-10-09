@@ -17,7 +17,7 @@ export function describeSelection(group: Pick<AddonGroup, "is_required" | "max_s
 export const menuAddonColumns: CrudColumn<AddonGroup>[] = [
   {
     key: "name",
-    header: "Grup Addon",
+    header: "Grup Tambahan",
     render: (row) => (
       <TitleCell leading={<IconTile icon={ListPlusIcon} />} title={row.name} subtitle={describeSelection(row)} />
     ),

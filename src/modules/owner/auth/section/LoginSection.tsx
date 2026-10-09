@@ -5,9 +5,10 @@ import { toast } from "sonner"
 import type { LoginRequest, LoginResponse } from "@/entities/auth/model/auth.types"
 import { LoginForm } from "@/modules/owner/auth/components/LoginForm"
 import type { LoginFormValues } from "@/modules/owner/auth/schemas/login.schema"
-import { ApiError, NetworkError, apiClient } from "@/shared/api/client"
+import { ApiError, apiClient } from "@/shared/api/client"
 import type { SingleResponse } from "@/shared/api/crud/types"
 import { useAuthStore } from "@/shared/auth/store"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 async function loginWithPassword(payload: LoginRequest): Promise<LoginResponse> {
   const response = await apiClient.post<SingleResponse<LoginResponse>>(
@@ -25,18 +26,19 @@ export function LoginSection() {
     mutationFn: loginWithPassword,
     onSuccess: (data, variables) => {
       if (data.role !== "owner") {
-        toast.error("This app is for owner accounts only.")
+        toast.error("Aplikasi ini hanya untuk akun pemilik toko.")
         return
       }
       login({ ...data, email: variables.email })
       navigate("/app", { replace: true })
     },
     onError: (error) => {
-      if (error instanceof ApiError || error instanceof NetworkError) {
-        toast.error(error.message)
-      } else {
-        toast.error("Login failed")
+      // 401 di sini berarti email/kata sandi salah, bukan masa login habis.
+      if (error instanceof ApiError && error.status === 401) {
+        toast.error("Email atau kata sandi salah. Periksa lagi, lalu coba masuk kembali.")
+        return
       }
+      toast.error(friendlyErrorMessage(error, "Gagal masuk. Coba lagi."))
     },
   })
 

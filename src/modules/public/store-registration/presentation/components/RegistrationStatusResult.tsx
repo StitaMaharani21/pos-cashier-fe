@@ -108,7 +108,7 @@ export function RegistrationStatusResult({
           {result.status === "approved" && (
             <>
               Toko <strong className="text-neela-on-surface">{result.store_name}</strong> sudah disetujui dan
-              sedang disiapkan. Masuk ke portal dengan email{" "}
+              sedang disiapkan. Masuk dengan email{" "}
               <strong className="text-neela-on-surface">{email}</strong> dan kata sandi yang kamu buat. Jika
               belum bisa masuk, tunggu beberapa menit lalu coba lagi.
             </>
@@ -138,7 +138,7 @@ export function RegistrationStatusResult({
           <Step label="Ditolak" detail={processedAt} state="failed" />
         ) : (
           <Step
-            label={result.status === "approved" ? "Disetujui — toko disiapkan" : "Disetujui & toko aktif"}
+            label={result.status === "approved" ? "Disetujui — toko sedang disiapkan" : "Disetujui & toko aktif"}
             detail={processedAt}
             state={result.status === "approved" ? "done" : "todo"}
           />
@@ -148,7 +148,7 @@ export function RegistrationStatusResult({
       <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row">
         {result.status === "approved" && (
           <Link to="/login" className={linkPrimary}>
-            Masuk ke Portal
+            Masuk ke Akun
           </Link>
         )}
         {result.status === "rejected" && (

@@ -71,7 +71,7 @@ export const TESTIMONIALS: Testimonial[] = []
 // Opsi A — shown while SOCIAL_PROOF is null.
 export const EARLY_ACCESS_TRUST = {
   headline:
-    "Bergabung dalam gelombang pertama kafe & resto yang beralih ke sistem kasir offline-first",
+    "Bergabung dalam gelombang pertama kafe & resto yang beralih ke sistem kasir yang tetap jalan tanpa internet",
   subline: "Sedang membuka slot terbatas untuk toko pilot di Jakarta",
 }
 
@@ -118,20 +118,20 @@ export const HERO_TRUST_SIGNALS = [
 export const PAIN_POINTS: { icon: LucideIcon; title: string; body: string; impact: string }[] = [
   {
     icon: Ban,
-    title: "Limit Transaksi Tiba-Tiba",
-    body: "Kafe sedang ramai, kasir malah terkunci dan dipaksa upgrade.",
+    title: "Batas Transaksi Mendadak",
+    body: "Kafe sedang ramai, kasir malah terkunci dan dipaksa pindah paket.",
     impact: "Antrean macet, omset hangus.",
   },
   {
     icon: WifiOff,
     title: "WiFi Mati, Kasir Lumpuh",
-    body: "POS berbasis browser berhenti saat internet putus. Pesanan dicatat di kertas.",
+    body: "Kasir yang butuh internet berhenti saat WiFi putus. Pesanan dicatat di kertas.",
     impact: "Order salah, tamu komplain.",
   },
   {
     icon: Wallet,
-    title: "Biaya Tersembunyi & CS Lambat",
-    body: "Tambah printer atau kasir, tambah biaya. CS baru membalas berhari-hari.",
+    title: "Biaya Tersembunyi & Bantuan Lambat",
+    body: "Tambah printer atau kasir, tambah biaya. Tim bantuan baru membalas berhari-hari.",
     impact: "Biaya bengkak, masalah tak selesai.",
   },
 ]
@@ -152,9 +152,9 @@ export const PILLARS: {
     taglineClassName: "text-neela-primary",
     title: "Tetap Jalan Tanpa Internet",
     tagline: "WiFi mati, kasir tetap jualan.",
-    body: "Struk dan tiket dapur tetap tercetak. Data tersinkron otomatis begitu online.",
-    tags: ["Offline-First", "Nol Latensi"],
-    highlightTag: "Auto-Sync",
+    body: "Struk dan tiket dapur tetap tercetak. Data terkirim otomatis begitu internet kembali.",
+    tags: ["Tanpa Internet", "Tanpa Jeda"],
+    highlightTag: "Data Terkirim Otomatis",
   },
   {
     icon: InfinityIcon,
@@ -162,19 +162,19 @@ export const PILLARS: {
     taglineClassName: "text-neela-tertiary",
     title: "Checkout Tak Pernah Diblokir",
     tagline: "Batas harian Starter cuma pengingat, bukan pemblokir.",
-    body: "Lewat batas beberapa hari? Kami kirim notifikasi upgrade — kasir tetap jalan.",
-    tags: ["Grace Period 3 Hari"],
-    highlightTag: "Biaya Flat",
+    body: "Lewat batas beberapa hari? Kami kirim pemberitahuan untuk pindah paket — kasir tetap jalan.",
+    tags: ["Kelonggaran 3 Hari"],
+    highlightTag: "Biaya Tetap",
   },
   {
     icon: MessageCircle,
     iconClassName: "bg-neela-secondary-fixed text-neela-on-secondary-fixed",
     taglineClassName: "text-neela-secondary",
-    title: "Support Tim Lokal",
+    title: "Bantuan dari Tim Lokal",
     tagline: `WhatsApp ${SUPPORT_HOURS}.`,
-    body: "Tim Jakarta yang paham kafe & resto — dari setup menu sampai troubleshooting.",
+    body: "Tim Jakarta yang paham kafe & resto — dari menyiapkan menu sampai mengatasi kendala.",
     tags: ["Onboarding Dipandu"],
-    highlightTag: "Teknisi Jabodetabek",
+    highlightTag: "Tim Jabodetabek",
   },
 ]
 
@@ -193,7 +193,7 @@ export const MINI_FEATURES: { icon: LucideIcon; title: string; body: string; bad
   {
     icon: ChartColumn,
     title: "Omset & Stok dari HP",
-    body: "Laporan harian dan notifikasi stok menipis, real-time.",
+    body: "Laporan harian dan pemberitahuan stok menipis, langsung di HP.",
   },
 ]
 
@@ -238,16 +238,16 @@ export const PLANS: Plan[] = [
     },
     features: [
       "1 outlet, 2 perangkat (1 kasir + 1 admin)",
-      "Kasir offline-first penuh",
+      "Kasir lengkap, tetap jalan tanpa internet",
       "Order, keranjang & bayar tunai/digital",
       "Menu, kategori & metode pembayaran",
-      "Dashboard kasir, shift & manajemen kas",
-      "KPI dashboard dasar",
-      "Cetak struk (Bluetooth thermal)",
+      "Dashboard kasir, shift & pengelolaan kas",
+      "Ringkasan penjualan dasar",
+      "Cetak struk lewat printer Bluetooth",
       "Nomor antrian sederhana",
       "Support WhatsApp",
     ],
-    note: `Limit lunak ±${STARTER_SOFT_DAILY_LIMIT} transaksi/hari. Checkout tak pernah diblokir — pembatasan baru berlaku jika limit terlampaui 3 hari berturut-turut. Opsional: overage ${EXTRA_PRICING.overage.price}${EXTRA_PRICING.overage.unit}, ditagih akhir bulan.`,
+    note: `Batas sekitar ${STARTER_SOFT_DAILY_LIMIT} transaksi per hari. Kasir tidak pernah diblokir — pembatasan baru berlaku jika batas terlewati 3 hari berturut-turut. Opsional: transaksi di atas batas ${EXTRA_PRICING.overage.price}${EXTRA_PRICING.overage.unit}, ditagih akhir bulan.`,
     cta: "Mulai Uji Coba Gratis",
     ctaAction: "register",
     ownerCta: "Tanya Paket Starter",
@@ -266,21 +266,21 @@ export const PLANS: Plan[] = [
     includesPrevious: "Semua fitur Starter, plus:",
     features: [
       "Sampai 3 outlet, 4 perangkat",
-      "Transaksi unlimited",
-      "Halaman menu publik: self-order QR meja & antrian digital",
+      "Transaksi tanpa batas",
+      "Pelanggan pesan sendiri lewat QR di meja & antrian digital",
       "Manajemen & status meja",
       "Split bill & pindah meja",
       "Voucher & diskon otomatis per produk",
-      "Inventory penuh: stok in/out, opname, supplier & pembelian",
-      "Notifikasi stok hampir habis",
-      "Laporan penjualan, kas & untung rugi (HPP otomatis)",
-      "Analisa menu terlaris & margin",
+      "Stok lengkap: barang masuk/keluar, cek stok fisik, supplier & pembelian",
+      "Pemberitahuan stok hampir habis",
+      "Laporan penjualan, kas & untung rugi (modal per menu dihitung otomatis)",
+      "Menu terlaris & keuntungan per menu",
       "Integrasi QRIS & e-wallet",
     ],
     note: `Perangkat tambahan ${EXTRA_PRICING.extraDevice.price}${EXTRA_PRICING.extraDevice.unit}.`,
     cta: "Pilih Paket Pro Dine-In",
     ctaAction: "register",
-    ownerCta: "Upgrade ke Pro Dine-In",
+    ownerCta: "Naik ke Pro Dine-In",
   },
   {
     id: "enterprise",
@@ -295,13 +295,13 @@ export const PLANS: Plan[] = [
     },
     includesPrevious: "Semua fitur Pro, plus:",
     features: [
-      "Outlet unlimited, device sesuai kesepakatan",
-      "Dashboard konsolidasi lintas cabang",
+      "Cabang tanpa batas, jumlah perangkat sesuai kesepakatan",
+      "Dashboard gabungan semua cabang",
       "Transfer stok antar cabang",
-      "Role supervisor & otorisasi void",
-      "Hak akses granular per modul",
-      "Integrasi akuntansi via REST API",
-      "Backup otomatis terjadwal",
+      "Peran supervisor & persetujuan pembatalan pesanan",
+      "Hak akses diatur per bagian aplikasi",
+      "Terhubung ke software akuntansi",
+      "Cadangan data otomatis terjadwal",
       "Support prioritas & onboarding khusus",
     ],
     cta: "Konsultasi Tim Enterprise",
@@ -318,14 +318,14 @@ export const PRICING_TERMS = ANNUAL_BILLING_ENABLED
 export const PRICING_FOOTNOTE = "Batalkan kapan saja. Tanpa kontrak."
 
 export const FOOTER_TAGLINE =
-  "Kasir cloud offline-first untuk UMKM kuliner Indonesia — tangguh tanpa sinyal, siap QRIS."
+  "Aplikasi kasir untuk UMKM kuliner Indonesia — tetap jalan tanpa sinyal, siap QRIS."
 
 // Final CTA banner lead — the sign-up pitch only makes sense to visitors.
 export const FINAL_CTA_LEAD = {
   visitor:
     "Daftar sekarang untuk gratis 14 hari penuh. Tim Neela bantu migrasi menu dan printer tanpa biaya tambahan.",
   owner:
-    "Kelola menu, stok, dan laporan toko kamu dari dashboard owner. Butuh upgrade paket atau bantuan setup? Tim Neela siap membantu.",
+    "Kelola menu, stok, dan laporan toko kamu dari dashboard. Butuh pindah paket atau bantuan menyiapkan toko? Tim Neela siap membantu.",
 }
 
 // Footer: product/solution links point at the matching on-page section —

@@ -35,7 +35,7 @@ export function ConfirmScreen({ tableNumber, order, items, onNewOrder }: Confirm
         ? "Pesanan sedang diproses"
         : "Pesanan terkirim"
   const body = rejected
-    ? "Kasir membatalkan pesanan ini. Silakan hubungi staff untuk bantuan."
+    ? "Kasir membatalkan pesanan ini. Silakan hubungi staf untuk bantuan."
     : order.status === "pending"
       ? `Pesanan meja ${tableNumber} sudah diteruskan dan menunggu konfirmasi kasir.`
       : order.status === "selesai"

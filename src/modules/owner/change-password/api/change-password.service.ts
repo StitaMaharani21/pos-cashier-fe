@@ -1,6 +1,7 @@
 import type { ChangePasswordPayload } from "@/entities/auth/model/profile.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Wrong current password comes back as 400 INVALID_CURRENT_PASSWORD (not
 // 401 — a 401 would trip the api client's auto-logout), and reusing the
@@ -11,11 +12,11 @@ export async function changePassword(payload: ChangePasswordPayload): Promise<vo
     await apiClient.put("/me/password", payload)
   } catch (error) {
     if (error instanceof ApiError) {
-      throw new CrudServiceError(error.code, error.message)
+      throw new CrudServiceError(error.code, friendlyErrorMessage(error))
     }
     throw new CrudServiceError(
       "UNKNOWN",
-      error instanceof Error ? error.message : "Unexpected error"
+      friendlyErrorMessage(error)
     )
   }
 }

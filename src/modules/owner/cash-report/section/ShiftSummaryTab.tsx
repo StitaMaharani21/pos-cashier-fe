@@ -57,7 +57,7 @@ export function ShiftSummaryTab({ from, to }: ShiftSummaryTabProps) {
           // outcome, not something to warn about).
           tone={anomalyCount > 0 ? "warning" : "default"}
           iconTone={anomalyCount > 0 ? "warning" : "neutral"}
-          label="Jumlah Shift Anomali"
+          label="Shift dengan Selisih Tak Wajar"
           value={
             <>
               {anomalyCount} <span className="text-sm font-normal text-muted-foreground">Shift</span>
@@ -92,7 +92,7 @@ export function ShiftSummaryTab({ from, to }: ShiftSummaryTabProps) {
         getRowId={(row) => row.shift_id}
         isLoading={isLoading}
         isError={isError}
-        errorHint="Laporan kas mungkin memerlukan paket Pro atau addon Laporan."
+        errorHint="Laporan kas mungkin memerlukan paket Pro atau fitur tambahan Laporan."
         onRetry={() => refetch()}
         onRowClick={(row) => setSelectedShiftId(row.shift_id)}
         minWidth="min-w-[1080px]"

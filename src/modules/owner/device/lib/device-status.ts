@@ -22,7 +22,7 @@ export const DEVICE_STATE_META: Record<DeviceState, { label: string; className: 
     dot: "bg-emerald-500",
   },
   pending: {
-    label: "Menunggu scan",
+    label: "Menunggu dipindai",
     className: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
     dot: "bg-amber-500",
   },
@@ -37,7 +37,7 @@ export const DEVICE_STATE_META: Record<DeviceState, { label: string; className: 
 export const DEVICE_FILTER_OPTIONS = [
   { value: "all", label: "Semua" },
   { value: "bound", label: "Terhubung" },
-  { value: "pending", label: "Menunggu scan" },
+  { value: "pending", label: "Menunggu dipindai" },
   { value: "expired", label: "Kedaluwarsa" },
   { value: "revoked", label: "Dicabut" },
 ]

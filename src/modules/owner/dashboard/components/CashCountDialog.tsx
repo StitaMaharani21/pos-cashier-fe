@@ -6,7 +6,6 @@ import {
   cashCountSchema,
   type CashCountFormValues,
 } from "@/modules/owner/dashboard/schemas/cash-count.schema"
-import { ApiError, NetworkError } from "@/shared/api/client"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
@@ -27,6 +26,7 @@ import {
   FormMessage,
 } from "@/shared/ui/form"
 import { Input } from "@/shared/ui/input"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 interface CashCountDialogProps {
   open: boolean
@@ -51,11 +51,7 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
           onOpenChange(false)
         },
         onError: (error) => {
-          if (error instanceof ApiError || error instanceof NetworkError) {
-            toast.error(error.message)
-          } else {
-            toast.error("Gagal menyimpan hitungan kas")
-          }
+          toast.error(friendlyErrorMessage(error, "Gagal menyimpan hitungan kas"))
         },
       }
     )

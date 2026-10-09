@@ -10,9 +10,9 @@ export function TransactionLimitCard() {
   return (
     <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold text-foreground">Limit</h2>
+        <h2 className="text-xl font-semibold text-foreground">Batas Pemakaian</h2>
         <p className="text-sm text-muted-foreground">
-          Penggunaan harian vs batas maksimum
+          Pemakaian hari ini dibanding batas paket
         </p>
       </div>
 

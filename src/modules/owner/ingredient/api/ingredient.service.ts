@@ -7,6 +7,7 @@ import type {
 import { ApiError, apiClient } from "@/shared/api/client"
 import { createCrudService } from "@/shared/api/crud/createCrudService"
 import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 const RESOURCE = "/master/ingredients"
 
@@ -70,11 +71,11 @@ export async function adjustIngredientStock(
     return response.data.data
   } catch (error) {
     if (error instanceof ApiError) {
-      throw new CrudServiceError(error.code, error.message)
+      throw new CrudServiceError(error.code, friendlyErrorMessage(error))
     }
     throw new CrudServiceError(
       "UNKNOWN",
-      error instanceof Error ? error.message : "Unexpected error"
+      friendlyErrorMessage(error)
     )
   }
 }

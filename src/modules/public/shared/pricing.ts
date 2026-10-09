@@ -37,15 +37,15 @@ export const PRICE_PREFIX = {
 // published price — see owner/billing/content/billingAddons.ts.
 export const EXTRA_PRICING = {
   extraDevice: {
-    title: "Device Tambahan",
-    description: "Tablet kasir atau admin tambahan di luar jumlah device paket. Berlaku untuk Starter dan Pro.",
+    title: "Perangkat Tambahan",
+    description: "Tablet kasir atau admin tambahan di luar jumlah perangkat paket. Berlaku untuk Starter dan Pro.",
     price: "Rp30.000",
-    unit: "/bulan per device",
+    unit: "/bulan per perangkat",
   },
   overage: {
-    title: "Overage Transaksi",
+    title: "Transaksi di Atas Batas",
     description:
-      "Opsional, hanya Starter. Dikenakan per transaksi setelah melewati limit harian, ditagih akhir bulan.",
+      "Opsional, hanya Starter. Dikenakan per transaksi setelah melewati batas harian, ditagih akhir bulan.",
     price: "Rp300",
     unit: "/transaksi",
   },

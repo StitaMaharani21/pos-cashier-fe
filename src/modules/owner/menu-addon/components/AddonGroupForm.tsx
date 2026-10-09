@@ -39,7 +39,7 @@ interface AddonGroupFormProps {
 const EMPTY_OPTION = { optionId: undefined, name: "", price: "", isActive: true }
 
 // The "Tambah Grup Addon" drawer: a named set of choices (e.g. "Tambahan":
-// Gula +Rp5.000), how many a customer may pick, and which menus offer it.
+// Gula +Rp5.000), how many a pelanggan may pick, and which menus offer it.
 export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete, isDeleting }: AddonGroupFormProps) {
   const form = useCrudForm<MenuAddonFormValues>({
     schema: menuAddonSchema,
@@ -88,7 +88,7 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
           <FormSection
             icon={ListPlusIcon}
             title="Informasi Grup"
-            description="Nama yang dilihat customer saat memilih tambahan"
+            description="Nama yang dilihat pelanggan saat memilih tambahan"
           >
             <FormField
               control={form.control}
@@ -120,7 +120,7 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
                   <div className="flex-1">
                     <FormLabel className="text-sm font-semibold">{field.value ? "Aktif" : "Nonaktif"}</FormLabel>
                     <p className="text-xs text-muted-foreground">
-                      Grup nonaktif tidak muncul saat customer atau kasir memilih menu
+                      Grup nonaktif tidak muncul saat pelanggan atau kasir memilih menu
                     </p>
                   </div>
                   <FormControl>
@@ -192,7 +192,7 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
                         placeholder="Tanpa batas"
                       />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground">Kosongkan jika customer boleh memilih semuanya</p>
+                    <p className="text-xs text-muted-foreground">Kosongkan jika pelanggan boleh memilih semuanya</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -207,7 +207,7 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
                   <div className="flex-1">
                     <FormLabel className="text-sm font-semibold">Wajib dipilih</FormLabel>
                     <p className="text-xs text-muted-foreground">
-                      Customer harus memilih minimal satu opsi sebelum menambah menu ke pesanan
+                      Pelanggan harus memilih minimal satu opsi sebelum menambah menu ke pesanan
                     </p>
                   </div>
                   <FormControl>
@@ -310,7 +310,7 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
           <FormSection
             icon={UtensilsIcon}
             title="Berlaku untuk Menu"
-            description="Menu yang menawarkan grup ini kepada customer"
+            description="Menu yang menawarkan grup ini kepada pelanggan"
           >
             <FormField
               control={form.control}

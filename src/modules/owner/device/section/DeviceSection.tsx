@@ -70,7 +70,7 @@ export function DeviceSection() {
       setRevoking(null)
       queryClient.invalidateQueries({ queryKey: DEVICES_KEY })
     },
-    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Terjadi kesalahan"),
+    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Terjadi kesalahan. Coba lagi."),
   })
 
   const canManage = can("user", "edit")
@@ -85,8 +85,7 @@ export function DeviceSection() {
         <TitleCell
           leading={<IconTile icon={TabletSmartphoneIcon} />}
           title={label(device)}
-          subtitle={<span className="font-mono">ID {device.device_id?.slice(0, 8)}</span>}
-        />
+                  />
       ),
     },
     {
@@ -156,11 +155,11 @@ export function DeviceSection() {
           className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
         >
           <span>
-            Kuota perangkat penuh ({quota.used} dari {quota.limit}). Beli device tambahan, atau cabut perangkat yang tidak
-            dipakai.
+            Jumlah perangkat sudah penuh ({quota.used} dari {quota.limit}). Tambah perangkat di menu Paket & Fitur Tambahan, atau
+            cabut perangkat yang tidak dipakai.
           </span>
           <Link to="/app/billing" className="shrink-0 font-semibold underline underline-offset-2">
-            Beli device tambahan
+            Tambah perangkat
           </Link>
         </div>
       )}
@@ -168,7 +167,7 @@ export function DeviceSection() {
       <TableToolbar
         search={table.search}
         onSearchChange={table.setSearch}
-        searchPlaceholder="Cari nama atau ID perangkat..."
+        searchPlaceholder="Cari nama perangkat..."
         filtering={table.filtering}
         onReset={table.reset}
         action={

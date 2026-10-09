@@ -50,7 +50,7 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
       setPairing(code)
       setNow(Date.now())
     },
-    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Gagal membuat QR"),
+    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Gagal membuat QR. Coba lagi."),
   })
 
   const expiresAt = pairing?.expires_at ? new Date(pairing.expires_at).getTime() : 0
@@ -168,7 +168,7 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
       </DialogHeader>
 
       <div className="relative mx-auto rounded-2xl border bg-white p-4">
-        <QRCodeSVG value={payload} size={232} level="M" aria-label="QR pairing perangkat kasir" />
+        <QRCodeSVG value={payload} size={232} level="M" aria-label="QR untuk menghubungkan perangkat kasir" />
         {expired && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/95 text-center">
             <p className="font-semibold text-foreground">QR kedaluwarsa</p>
@@ -195,9 +195,9 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
 
       {!expired && pairing.pairing_token && (
         <div className="flex flex-col gap-2">
-          <CopyRow label="Store ID" value={storeCode} message="Store ID disalin" />
-          <CopyRow label="Pairing Token" value={pairing.pairing_token} message="Pairing token disalin" />
-          <p className="text-xs text-muted-foreground">Perangkat tanpa kamera: salin lalu tempel di app kasir.</p>
+          <CopyRow label="Kode Toko (Store ID)" value={storeCode} message="Kode toko disalin" />
+          <CopyRow label="Kode Pasangan (Pairing Token)" value={pairing.pairing_token} message="Kode pasangan disalin" />
+          <p className="text-xs text-muted-foreground">Perangkat tanpa kamera: salin kedua kode di atas, lalu tempel di aplikasi kasir.</p>
         </div>
       )}
 
@@ -205,8 +205,8 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
         <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
           <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
           <span>
-            Alamat server di QR adalah <b>{api}</b> — perangkat kasir tidak bisa menjangkau localhost. Isi{" "}
-            <code>VITE_CASHIER_API_URL</code> dengan alamat LAN/publik server.
+            QR ini memakai alamat yang hanya bisa dibuka dari komputer ini, jadi perangkat kasir tidak akan bisa
+            terhubung. Hubungi tim Neela untuk bantuan.
           </span>
         </p>
       )}
@@ -217,7 +217,7 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
           disabled={expired}
           onClick={() =>
             copyText(payload)
-              .then(() => toast.success("Kode pairing disalin"))
+              .then(() => toast.success("Kode disalin"))
               .catch(() => toast.error("Gagal menyalin kode"))
           }
         >

@@ -56,7 +56,7 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
               <SummaryRow label="Kas Masuk">{formatRupiah(shift.kas_masuk ?? 0)}</SummaryRow>
               <SummaryRow label="Kas Keluar">{formatRupiah(shift.kas_keluar ?? 0)}</SummaryRow>
               <SummaryRow label="Penjualan Tunai">{formatRupiah(shift.penjualan_tunai ?? 0)}</SummaryRow>
-              <SummaryRow label="Estimasi Saldo Akhir (live)">
+              <SummaryRow label="Perkiraan Saldo Akhir (sementara)">
                 {formatRupiah(shift.estimasi_saldo_akhir ?? 0)}
               </SummaryRow>
               <SummaryRow label="Saldo Akhir">

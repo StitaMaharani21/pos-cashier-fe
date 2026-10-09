@@ -93,7 +93,7 @@ export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: Ben
             <Info className="mt-px size-4 shrink-0" />
             <span>
               Paket {requestedPlan.name} belum bisa dipilih saat pendaftaran. Toko kamu aktif di paket{" "}
-              {plan.name} dulu — upgrade ke {requestedPlan.name} dibantu tim kami setelah toko aktif.
+              {plan.name} dulu — pindah ke {requestedPlan.name} dibantu tim kami setelah toko aktif.
             </span>
           </p>
         )}

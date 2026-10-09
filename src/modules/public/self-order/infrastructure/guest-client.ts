@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from "axios"
 
 import { ApiError, NetworkError, type ApiErrorPayload } from "@/shared/api/client"
+import { friendlyErrorMessage } from "@/shared/api/error-message"
 import { env } from "@/shared/config/env"
 
 // Who is calling: the store comes from the QR link, the guest token from
@@ -24,7 +25,7 @@ export function createGuestClient({ storeCode, guestToken }: GuestContext) {
     (response) => response,
     (error: AxiosError<ApiErrorPayload | { error?: string }>) => {
       if (!error.response) {
-        return Promise.reject(new NetworkError("Tidak dapat terhubung ke server."))
+        return Promise.reject(new NetworkError("Tidak bisa terhubung. Periksa koneksi internet kamu."))
       }
       const { status, data } = error.response
       // The outer dispatcher answers an unknown X-Store-Code with a bare 404.
@@ -42,7 +43,7 @@ export function createGuestClient({ storeCode, guestToken }: GuestContext) {
       // unmapped error comes back as a generic INTERNAL): one code so the
       // screens can say so, instead of echoing "Internal server error".
       if (status >= 500) {
-        return Promise.reject(new ApiError({ code: "SERVER_ERROR", message: "Server sedang bermasalah." }, status))
+        return Promise.reject(new ApiError({ code: "SERVER_ERROR", message: "Sedang ada gangguan." }, status))
       }
       if (payload?.code && payload.message) {
         return Promise.reject(new ApiError({ code: payload.code, message: payload.message }, status))
@@ -79,9 +80,9 @@ export function guestErrorMessage(error: unknown): string {
       case "QTY_LIMIT":
         return "Jumlah pesanan melebihi batas. Kurangi jumlahnya atau panggil staf."
       case "SERVER_ERROR":
-        return "Server sedang bermasalah. Coba lagi sebentar lagi."
+        return "Sedang ada gangguan. Coba lagi sebentar lagi."
       default:
-        return error.message
+        return friendlyErrorMessage(error)
     }
   }
   return "Terjadi kesalahan. Coba lagi."

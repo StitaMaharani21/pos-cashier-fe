@@ -29,8 +29,8 @@ export const CHANNEL_TYPE_FOR: Partial<Record<PaymentMethodType, PaymentChannelT
 }
 
 export const CARD_TYPE_OPTIONS: { value: CardType; label: string }[] = [
-  { value: "debit", label: "Debit Card" },
-  { value: "credit", label: "Credit Card" },
+  { value: "debit", label: "Kartu Debit" },
+  { value: "credit", label: "Kartu Kredit" },
 ]
 
 export const CARD_NETWORK_OPTIONS: { value: CardNetwork; label: string }[] = [
