@@ -27,7 +27,9 @@ Sublayers:
   1. Optional device name.
   2. QR (`qrcode.react`) with a countdown.
   3. It polls `GET /devices` every 3 s (also while the tab is in the background) until that `device_id` is BOUND, then shows "Perangkat terhubung".
-  4. When expired, "Buat QR baru"; "Salin kode" copies the payload.
+  4. When expired, "Buat QR baru". Until then, **Store ID** and **Pairing Token** each have their own copy button (`CopyRow`), and "Salin kode lengkap" copies the whole payload. All copying goes through `shared/lib/clipboard.ts` (`copyText`), which falls back to `execCommand` on plain-http origins where `navigator.clipboard` doesn't exist.
+
+  For a device without a camera (Windows/Linux desktop) the cashier app shows a Store ID + Pairing Token form. Either copy each value, or paste the whole payload into either field — the app splits it (`parsePairingPayload` in `pos_kasir_mobile`) and fills both.
 - `section/DeviceSection.tsx` — the standard table (see `shared/ui/README.md` "Tabel"):
   - Search and a status filter.
   - Columns: Perangkat, Status, Terhubung Sejak, Terakhir Aktif.

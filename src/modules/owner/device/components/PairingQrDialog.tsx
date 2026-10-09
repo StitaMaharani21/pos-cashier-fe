@@ -9,6 +9,7 @@ import { DEVICES_KEY, generatePairingCode, listDevices } from "@/modules/owner/d
 import { buildPairingPayload, cashierApiUrl, isLocalOnlyUrl } from "@/modules/owner/device/lib/pairing-payload"
 import { CrudServiceError } from "@/shared/api/crud/types"
 import { useAuthStore } from "@/shared/auth/store"
+import { copyText } from "@/shared/lib/clipboard"
 import { Button } from "@/shared/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
 import { Input } from "@/shared/ui/input"
@@ -27,7 +28,9 @@ interface PairingQrDialogProps {
 export function PairingQrDialog({ open, onOpenChange }: PairingQrDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      {/* DialogContent is fixed and vertically centred with no height cap, so the
+          QR step (QR + copy rows + banner) is clipped on short windows. */}
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
         {/* Mounted only while open: every open starts from the name step. */}
         {open && <PairingFlow onClose={() => onOpenChange(false)} />}
       </DialogContent>
@@ -153,7 +156,9 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
   const seconds = String(secondsLeft % 60).padStart(2, "0")
 
   return (
-    <div className="flex flex-col gap-5">
+    // min-w-0: DialogContent is a grid, whose items default to min-width:auto,
+    // so the unbreakable pairing token would otherwise stretch the whole dialog.
+    <div className="flex min-w-0 flex-col gap-5">
       <DialogHeader>
         <DialogTitle className="text-xl font-bold">Pindai dari aplikasi kasir</DialogTitle>
         <DialogDescription>
@@ -188,6 +193,14 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
+      {!expired && pairing.pairing_token && (
+        <div className="flex flex-col gap-2">
+          <CopyRow label="Store ID" value={storeCode} message="Store ID disalin" />
+          <CopyRow label="Pairing Token" value={pairing.pairing_token} message="Pairing token disalin" />
+          <p className="text-xs text-muted-foreground">Perangkat tanpa kamera: salin lalu tempel di app kasir.</p>
+        </div>
+      )}
+
       {isLocalOnlyUrl(api) && (
         <p className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
           <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
@@ -203,19 +216,42 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
           variant="ghost"
           disabled={expired}
           onClick={() =>
-            navigator.clipboard
-              .writeText(payload)
+            copyText(payload)
               .then(() => toast.success("Kode pairing disalin"))
               .catch(() => toast.error("Gagal menyalin kode"))
           }
         >
           <CopyIcon />
-          Salin kode
+          Salin kode lengkap
         </Button>
         <Button variant="outline" onClick={onClose}>
           Tutup
         </Button>
       </div>
+    </div>
+  )
+}
+
+function CopyRow({ label, value, message }: { label: string; value: string; message: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="font-mono text-sm break-all select-all">{value}</p>
+      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label={`Salin ${label}`}
+        onClick={() =>
+          copyText(value)
+            .then(() => toast.success(message))
+            .catch(() => toast.error("Gagal menyalin"))
+        }
+      >
+        <CopyIcon />
+      </Button>
     </div>
   )
 }
