@@ -6,6 +6,7 @@ import {
   businessSettingsSchema,
   type BusinessSettingsFormValues,
 } from "@/modules/owner/business-settings/schemas/business-settings.schema"
+import { useCapabilities } from "@/shared/access/useCapabilities"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { Button } from "@/shared/ui/button"
 import {
@@ -58,6 +59,11 @@ export function BusinessSettingsForm({
   })
   const [locating, setLocating] = useState(false)
   const [locationError, setLocationError] = useState<string | null>(null)
+  // The cafe-location block is Pro/Enterprise only (QR-table orders). Starter
+  // owners don't see it, and its fields aren't sent, so the PUT leaves any
+  // saved location untouched.
+  const { caps } = useCapabilities()
+  const showLocation = caps?.plan === "pro" || caps?.plan === "enterprise"
 
   // Fill the coordinates from this device — meant to be pressed at the cafe.
   function useMyLocation() {
@@ -89,10 +95,12 @@ export function BusinessSettingsForm({
       email: values.email ?? "",
       tax_percentage: values.taxPercentage ? Number(values.taxPercentage) : 0,
       receipt_footer: values.receiptFooter ?? "",
-      ...(values.latitude?.trim() && values.longitude?.trim()
+      ...(showLocation && values.latitude?.trim() && values.longitude?.trim()
         ? { latitude: Number(values.latitude), longitude: Number(values.longitude) }
         : {}),
-      ...(values.selfOrderRadiusM?.trim() ? { self_order_radius_m: Number(values.selfOrderRadiusM) } : {}),
+      ...(showLocation && values.selfOrderRadiusM?.trim()
+        ? { self_order_radius_m: Number(values.selfOrderRadiusM) }
+        : {}),
     })
   }
 
@@ -195,66 +203,68 @@ export function BusinessSettingsForm({
           )}
         />
 
-        <div className="flex flex-col gap-3.5 rounded-xl border bg-muted/30 p-4">
-          <div>
-            <h3 className="text-sm font-extrabold text-foreground">Lokasi Kafe (Pesan dari Meja)</h3>
-            <p className="text-xs text-muted-foreground">
-              Dipakai untuk memberi tanda pada pesanan dari QR meja yang dikirim dari luar kafe, supaya kasir tahu. Pesanan
-              tetap diterima. Tekan tombol "Gunakan lokasi saya sekarang" saat Anda sedang berada di kafe.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3.5">
+        {showLocation && (
+          <div className="flex flex-col gap-3.5 rounded-xl border bg-muted/30 p-4">
+            <div>
+              <h3 className="text-sm font-extrabold text-foreground">Lokasi Kafe (Pesan dari Meja)</h3>
+              <p className="text-xs text-muted-foreground">
+                Dipakai untuk memberi tanda pada pesanan dari QR meja yang dikirim dari luar kafe, supaya kasir tahu. Pesanan
+                tetap diterima. Tekan tombol "Gunakan lokasi saya sekarang" saat Anda sedang berada di kafe.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3.5">
+              <FormField
+                control={form.control}
+                name="latitude"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Garis lintang (Latitude)</FormLabel>
+                    <FormControl>
+                      <Input inputMode="decimal" placeholder="-6.175392" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="longitude"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Garis bujur (Longitude)</FormLabel>
+                    <FormControl>
+                      <Input inputMode="decimal" placeholder="106.827153" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
-              name="latitude"
+              name="selfOrderRadiusM"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Garis lintang (Latitude)</FormLabel>
+                  <FormLabel>Jarak dari kafe (meter)</FormLabel>
                   <FormControl>
-                    <Input inputMode="decimal" placeholder="-6.175392" {...field} />
+                    <Input type="number" min={10} max={2000} className="max-w-40" {...field} />
                   </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    Standarnya 100 meter. Lokasi di dalam ruangan sering kurang tepat, jadi jangan diisi terlalu kecil.
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="longitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Garis bujur (Longitude)</FormLabel>
-                  <FormControl>
-                    <Input inputMode="decimal" placeholder="106.827153" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" variant="outline" size="sm" disabled={locating} onClick={useMyLocation}>
+                <LocateFixedIcon />
+                {locating ? "Membaca lokasi..." : "Gunakan lokasi saya sekarang"}
+              </Button>
+              {locationError && <span className="text-xs text-destructive">{locationError}</span>}
+            </div>
           </div>
-          <FormField
-            control={form.control}
-            name="selfOrderRadiusM"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jarak dari kafe (meter)</FormLabel>
-                <FormControl>
-                  <Input type="number" min={10} max={2000} className="max-w-40" {...field} />
-                </FormControl>
-                <p className="text-xs text-muted-foreground">
-                  Standarnya 100 meter. Lokasi di dalam ruangan sering kurang tepat, jadi jangan diisi terlalu kecil.
-                </p>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" variant="outline" size="sm" disabled={locating} onClick={useMyLocation}>
-              <LocateFixedIcon />
-              {locating ? "Membaca lokasi..." : "Gunakan lokasi saya sekarang"}
-            </Button>
-            {locationError && <span className="text-xs text-destructive">{locationError}</span>}
-          </div>
-        </div>
+        )}
 
         <div className="flex gap-2.5">
           <Button
