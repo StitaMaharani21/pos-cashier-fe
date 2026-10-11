@@ -1,6 +1,6 @@
 # modules/owner/menu-addon
 
-"Addon Menu" (`/app/menu-addon`, sidebar → Master Data): paid extras a customer can pick on a menu, e.g. a "Tambahan" group with *Gula +Rp5.000*. A group is created once and attached to as many menus as needed; the QR self-order page (`modules/public/self-order`'s `ItemSheet`) and the cashier app read the groups from the menu detail and add the picked options' prices to the line total.
+"Tambahan" — the third tab of `/app/menu` (`?tab=tambahan`; `/app/menu-addon` redirects there) — plus the "Tambahan Menu" card inside the menu form: paid extras a customer can pick on a menu, e.g. a "Tambahan" group with *Gula +Rp5.000*. Groups are normally created and attached while adding/editing a menu (`components/MenuAddonsField.tsx`, state in `lib/use-menu-addons.ts`, applied by `commitMenuAddons` after the menu is saved); the tab lists every group for review and for editing/deleting one that many menus share (its form keeps the "Berlaku untuk Menu" picker). A group is created once and attached to as many menus as needed; the QR self-order page (`modules/public/self-order`'s `ItemSheet`) and the cashier app read the groups from the menu detail and add the picked options' prices to the line total.
 
 Backed by `pos-kasir-be`'s `internal/master/menu_addon` (owner only):
 
@@ -17,6 +17,6 @@ Backed by `pos-kasir-be`'s `internal/master/menu_addon` (owner only):
 
 Types are hand-written in `entities/menu-addon` (the generator's allow-list in `scripts/generate-owner-types.mjs` doesn't include `/master/addon-groups`; adding it and regenerating also renames several shared `dto.*` types, so that's a separate change).
 
-Gated by `routeAccess["menu-addon"]` = `pos` feature + `menu` module (same as Menu).
+Access follows `routeAccess.menu` (`pos` feature + `menu` module); there is no separate route entry any more.
 
-Sublayers: `api/` (`menu-addon.service.ts` — a `CrudService` whose create/update fan out to the option and menu endpoints, plus `listAllMenus` for the picker), `columns/`, `components/` (`AddonGroupForm.tsx` — drawer with the group, selection rules, options and the menu picker), `schemas/` (zod), `section/` (`MenuAddonSection.tsx`).
+Sublayers: `api/` (`menu-addon.service.ts` — a `CrudService` whose create/update fan out to the option and menu endpoints, `commitMenuAddons` for the menu form, plus `listAllMenus` for the picker), `columns/`, `components/` (`AddonGroupForm.tsx` — drawer with the group, selection rules, options and the menu picker, which the menu form hides via `showMenuPicker={false}`; `MenuAddonsField.tsx` — the card and its editor drawer, rendered beside the menu's `<form>` so a submit in the editor doesn't bubble to it through the portal), `lib/` (`use-menu-addons.ts`), `schemas/` (zod), `section/` (`MenuAddonSection.tsx`).

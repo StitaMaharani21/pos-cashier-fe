@@ -9,6 +9,19 @@
       content="Neela POS — aplikasi kasir yang tetap jalan tanpa internet, untuk kafe & restoran di Indonesia."
     />
     <title>Neela POS — Aplikasi Kasir untuk Kafe & Restoran</title>
+    <!-- Dark theme exists only in the owner area (/app/*). Apply it before
+         first paint so a reload doesn't flash white. Key and values mirror
+         src/shared/theme/theme.ts. -->
+    <script>
+      try {
+        if (location.pathname === "/app" || location.pathname.indexOf("/app/") === 0) {
+          var pref = localStorage.getItem("neela-theme");
+          if (pref === "dark" || ((pref === null || pref === "system") && matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+          }
+        }
+      } catch (e) {}
+    </script>
     <!-- Plus Jakarta Sans: the landing page's typeface (--font-neela in
          modules/public/landing/presentation/landing.css). -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

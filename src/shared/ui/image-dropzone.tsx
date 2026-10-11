@@ -79,9 +79,9 @@ export function ImageDropzone({
           </>
         ) : (
           <>
-            <UploadCloudIcon className="size-7 text-primary" />
+            <UploadCloudIcon className="size-7 text-primary-strong" />
             <span className="text-sm text-foreground">
-              Tarik &amp; lepas foto atau <span className="font-semibold text-primary">klik untuk unggah</span>
+              Tarik &amp; lepas foto atau <span className="font-semibold text-primary-strong">klik untuk unggah</span>
             </span>
             <span className="text-xs text-muted-foreground">{hint}</span>
           </>

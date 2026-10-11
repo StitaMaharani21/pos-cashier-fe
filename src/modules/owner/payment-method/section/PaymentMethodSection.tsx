@@ -210,20 +210,20 @@ export function PaymentMethodSection() {
           </p>
         </div>
         <p className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-foreground">
-          <InfoIcon className="size-4 shrink-0 text-primary" />
+          <InfoIcon className="size-4 shrink-0 text-primary-strong" />
           Metode nonaktif tidak akan muncul di kasir &amp; aplikasi pelanggan
         </p>
       </div>
 
       {managedMidtrans && (
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-foreground">
-          <InfoIcon className="size-4 shrink-0 text-primary" />
+          <InfoIcon className="size-4 shrink-0 text-primary-strong" />
           <span>
             "{managedMidtrans.name}" dikelola otomatis (
             {managedMidtrans.status === "active" ? "aktif" : "nonaktif"}) dan tidak muncul di
             daftar ini.
           </span>
-          <Link to="/app/payment-gateway" className="font-semibold text-primary underline">
+          <Link to="/app/payment-gateway" className="font-semibold text-primary-strong underline">
             Atur di Pembayaran Online
           </Link>
         </p>

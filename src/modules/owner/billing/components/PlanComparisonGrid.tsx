@@ -86,7 +86,7 @@ export function PlanComparisonGrid({ caps, plans, current, onBuy }: PlanComparis
                 <ul className="flex flex-col gap-1.5">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
-                      <CircleCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+                      <CircleCheck className="mt-0.5 size-4 shrink-0 text-primary-strong" />
                       <span>{feature}</span>
                     </li>
                   ))}

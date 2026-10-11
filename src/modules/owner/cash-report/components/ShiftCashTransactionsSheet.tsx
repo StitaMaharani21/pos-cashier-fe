@@ -1,8 +1,9 @@
-import type { ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { format } from "date-fns"
-import { InboxIcon, TriangleAlertIcon } from "lucide-react"
+import { InboxIcon, LockIcon, TriangleAlertIcon } from "lucide-react"
 
 import { useShiftCashTransactions } from "@/modules/owner/cash-report/cash-report.queries"
+import { CloseShiftDialog } from "@/modules/owner/dashboard/components/CloseShiftDialog"
 import type { ShiftCashRow } from "@/modules/owner/cash-report/cash-report.types"
 import { formatSelisih, selisihToneClassName } from "@/modules/owner/cash-report/lib/selisih"
 import { cn, formatRupiah } from "@/shared/lib/utils"
@@ -37,6 +38,7 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
   const shiftId = shift?.shift_id ?? null
   const { data, isLoading, isError, refetch } = useShiftCashTransactions(shiftId)
   const transactions = data?.data ?? []
+  const [closing, setClosing] = useState(false)
 
   return (
     <Sheet open={shift !== null} onOpenChange={(open) => !open && onClose()}>
@@ -78,6 +80,18 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
                 )}
               </SummaryRow>
             </div>
+
+            {shift.is_open && (
+              <div className="flex flex-col gap-2 border-b bg-muted/30 px-6 py-4">
+                <p className="text-sm text-muted-foreground">
+                  Shift ini masih berjalan. Anda bisa menutupnya jika kasir lupa atau tidak bisa menutup sendiri.
+                </p>
+                <Button type="button" variant="outline" className="self-start" onClick={() => setClosing(true)}>
+                  <LockIcon />
+                  Tutup Shift
+                </Button>
+              </div>
+            )}
 
             <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-6 py-5">
               {isLoading ? (
@@ -147,6 +161,15 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
           </>
         )}
       </SheetContent>
+
+      <CloseShiftDialog
+        shift={
+          closing && shift?.is_open
+            ? { id: shift.shift_id, cashierName: shift.kasir_name, expectedAmount: shift.estimasi_saldo_akhir ?? 0 }
+            : null
+        }
+        onOpenChange={setClosing}
+      />
     </Sheet>
   )
 }

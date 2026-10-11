@@ -37,14 +37,12 @@ const NAV_GROUPS = [
     label: "Master Data",
     icon: FolderIcon,
     items: [
-      // Kategori Menu + Menu are tabs of this one page.
+      // Kategori Menu + Menu + Tambahan are tabs of this one page.
       { to: "/app/menu", label: "Menu" },
-      { to: "/app/menu-addon", label: "Tambahan Menu" },
       { to: "/app/ingredient", label: "Bahan Baku" },
       { to: "/app/payment-method", label: "Metode Pembayaran" },
       { to: "/app/order-type", label: "Jenis Order" },
       { to: "/app/table", label: "Meja" },
-      { to: "/app/users", label: "Pengguna" },
     ],
   },
   {
@@ -71,6 +69,8 @@ const NAV_GROUPS = [
     items: [
       { to: "/app/profile", label: "Profil" },
       { to: "/app/business-settings", label: "Bisnis" },
+      // Cashier accounts + devices belong with the business, not master data.
+      { to: "/app/users", label: "Pengguna" },
       { to: "/app/payment-gateway", label: "Pembayaran Online" },
     ],
   },
@@ -206,7 +206,7 @@ export function OwnerLayout() {
           options.indent
             ? cn(
                 "rounded-md py-1.5 text-xs",
-                isActive ? "font-semibold text-primary" : "text-muted-foreground hover:text-foreground"
+                isActive ? "font-semibold text-primary-strong" : "text-muted-foreground hover:text-foreground"
               )
             : cn(
                 "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold",
@@ -233,7 +233,7 @@ export function OwnerLayout() {
         <div className="flex flex-col">
           <div className="mb-8 flex items-center justify-between px-2">
             {!collapsed && (
-              <span className="text-3xl font-bold tracking-wide text-primary">Neela</span>
+              <span className="text-3xl font-bold tracking-wide text-primary-strong">Neela</span>
             )}
             <button
               type="button"

@@ -26,6 +26,7 @@ import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { useRowReorder } from "@/shared/hooks/useRowReorder"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { DragHandle } from "@/shared/ui/drag-handle"
 import { FilterSelect } from "@/shared/ui/filter-select"
 import { PageHeader } from "@/shared/ui/page-header"
@@ -37,6 +38,8 @@ import { TitleCell } from "@/shared/ui/table-cells"
 import { TablePagination } from "@/shared/ui/table-pagination"
 import { TableEmptyRow, TableErrorRow, TableSkeletonRows } from "@/shared/ui/table-states"
 import { TableToolbar } from "@/shared/ui/table-toolbar"
+
+type CommitAddons = (menuId: number) => Promise<void>
 
 const PER_PAGE = TABLE_PER_PAGE
 const COLUMNS = 9
@@ -69,6 +72,13 @@ export function MenuSection() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingRow, setEditingRow] = useState<Menu | null>(null)
   const [previewing, setPreviewing] = useState<Menu | null>(null)
+  // Bumped to remount the form after a partial save, so it reloads the
+  // addon groups from the server instead of replaying its local edits.
+  const [formSession, setFormSession] = useState(0)
+  // Unsaved edits in the open form; closing then asks first (an accidental
+  // click on the backdrop or Esc would otherwise throw the form away).
+  const [formDirty, setFormDirty] = useState(false)
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 400)
@@ -111,6 +121,13 @@ export function MenuSection() {
   function closeSheet() {
     setSheetOpen(false)
     setEditingRow(null)
+    setFormDirty(false)
+    setConfirmDiscard(false)
+  }
+
+  function requestClose() {
+    if (formDirty) setConfirmDiscard(true)
+    else closeSheet()
   }
 
   const reorderMutation = useMutation({
@@ -144,15 +161,33 @@ export function MenuSection() {
     onError: (error) => toast.error(errorMessage(error)),
   })
 
+  // The menu is saved first; its addon groups (attached by id) right after.
+  // A failed addon step doesn't undo the menu — it comes back as `addonError`.
+  async function saveAddons(menuId: number, commitAddons?: CommitAddons): Promise<unknown> {
+    if (!commitAddons) return undefined
+    try {
+      await commitAddons(menuId)
+    } catch (error) {
+      return error
+    }
+    return undefined
+  }
+
   const createMutation = useMutation({
-    mutationFn: createMenu,
-    onSuccess: (menu) => {
-      toast.success("Menu ditambahkan")
+    mutationFn: async ({ payload, commitAddons }: { payload: CreateMenuFormPayload; commitAddons?: CommitAddons }) => {
+      const menu = await createMenu(payload)
+      const addonError = menu.id != null ? await saveAddons(menu.id, commitAddons) : undefined
+      return { menu, addonError }
+    },
+    onSuccess: ({ menu, addonError }) => {
+      if (addonError) toast.error(errorMessage(addonError))
+      else toast.success("Menu ditambahkan")
       invalidate()
-      if (menu.stock_deduction_method === "by_ingredient") {
+      if (addonError || menu.stock_deduction_method === "by_ingredient") {
         // Keep the sheet open and switch to edit mode on the row that was
         // just created, so RecipeManager (which needs a menu id) becomes
-        // usable immediately instead of requiring a second create/edit trip.
+        // usable immediately instead of requiring a second create/edit trip,
+        // and a failed addon save can be retried from the same form.
         setEditingRow(menu)
       } else {
         closeSheet()
@@ -162,11 +197,29 @@ export function MenuSection() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: UpdateMenuFormPayload }) => updateMenu(id, payload),
-    onSuccess: () => {
+    mutationFn: async ({
+      id,
+      payload,
+      commitAddons,
+    }: {
+      id: number
+      payload: UpdateMenuFormPayload
+      commitAddons?: CommitAddons
+    }) => {
+      const menu = await updateMenu(id, payload)
+      return { menu, addonError: await saveAddons(id, commitAddons) }
+    },
+    onSuccess: ({ menu, addonError }) => {
+      invalidate()
+      if (addonError) {
+        // Stay open on this menu: the form reloads from the server state.
+        toast.error(errorMessage(addonError))
+        setEditingRow(menu)
+        setFormSession((value) => value + 1)
+        return
+      }
       toast.success("Menu diperbarui")
       closeSheet()
-      invalidate()
     },
     onError: (error) => toast.error(errorMessage(error)),
   })
@@ -287,7 +340,7 @@ export function MenuSection() {
                         row.image_url ? (
                           <img src={row.image_url} alt="" className="size-11 shrink-0 rounded-lg object-cover" />
                         ) : (
-                          <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                          <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary-strong">
                             {initials(row.name ?? "")}
                           </span>
                         )
@@ -368,7 +421,7 @@ export function MenuSection() {
         onDelete={(menu) => menu.id != null && deleteMutation.mutate(menu.id)}
       />
 
-      <Sheet open={sheetOpen} onOpenChange={(open) => (open ? setSheetOpen(true) : closeSheet())}>
+      <Sheet open={sheetOpen} onOpenChange={(open) => (open ? setSheetOpen(true) : requestClose())}>
         <SheetContent className="flex max-w-xl flex-col p-0">
           <SheetHeader className="pr-14">
             <SheetTitle className="text-xl font-bold">{editingRow ? "Edit Menu" : "Tambah Menu"}</SheetTitle>
@@ -379,21 +432,32 @@ export function MenuSection() {
           {/* MenuForm owns the scrolling body and the fixed footer. Keyed so
               switching between rows (or to "Tambah") starts a fresh form. */}
           <MenuForm
-            key={editingRow?.id ?? "new"}
+            key={`${editingRow?.id ?? "new"}-${formSession}`}
             row={editingRow}
             categories={categories}
             isSubmitting={createMutation.isPending || updateMutation.isPending}
-            onCancel={closeSheet}
-            onSubmit={(payload) => {
+            onCancel={requestClose}
+            onDirtyChange={setFormDirty}
+            onSubmit={(payload, commitAddons) => {
               if (editingRow?.id != null) {
-                updateMutation.mutate({ id: editingRow.id, payload: payload as UpdateMenuFormPayload })
+                updateMutation.mutate({ id: editingRow.id, payload: payload as UpdateMenuFormPayload, commitAddons })
               } else {
-                createMutation.mutate(payload as CreateMenuFormPayload)
+                createMutation.mutate({ payload: payload as CreateMenuFormPayload, commitAddons })
               }
             }}
           />
         </SheetContent>
       </Sheet>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Tutup tanpa menyimpan?"
+        description="Perubahan pada menu ini belum disimpan dan akan hilang jika Anda menutupnya."
+        confirmLabel="Buang Perubahan"
+        cancelLabel="Lanjut Mengedit"
+        onConfirm={closeSheet}
+      />
     </div>
   )
 }

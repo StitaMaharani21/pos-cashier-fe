@@ -261,7 +261,7 @@ export function ProductDiscountForm({
                             <FormLabel>Hari berlaku</FormLabel>
                             <button
                               type="button"
-                              className="text-xs font-medium text-primary hover:underline"
+                              className="text-xs font-medium text-primary-strong hover:underline"
                               onClick={() => field.onChange(field.value.length === ALL_DAYS.length ? [] : ALL_DAYS)}
                             >
                               {field.value.length === ALL_DAYS.length ? "Kosongkan" : "Pilih semua"}
@@ -410,7 +410,7 @@ export function ProductDiscountForm({
                         <button
                           type="button"
                           onClick={() => setPickerOpen(true)}
-                          className="rounded-full border border-dashed bg-card px-3 py-1 text-sm font-medium text-primary hover:border-primary/40"
+                          className="rounded-full border border-dashed bg-card px-3 py-1 text-sm font-medium text-primary-strong hover:border-primary/40"
                         >
                           +{chips.length - CHIP_LIMIT} lainnya
                         </button>

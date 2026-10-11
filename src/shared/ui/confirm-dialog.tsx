@@ -8,6 +8,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = "Hapus",
+  cancelLabel = "Batal",
   pendingLabel = "Menghapus...",
   isPending = false,
   disabled = false,
@@ -18,6 +19,7 @@ export function ConfirmDialog({
   title: string
   description?: string
   confirmLabel?: string
+  cancelLabel?: string
   pendingLabel?: string
   isPending?: boolean
   // e.g. a category that still has menus.
@@ -33,7 +35,7 @@ export function ConfirmDialog({
       footer={
         <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Batal
+            {cancelLabel}
           </Button>
           <Button variant="destructive" disabled={isPending || disabled} onClick={onConfirm}>
             {isPending ? pendingLabel : confirmLabel}

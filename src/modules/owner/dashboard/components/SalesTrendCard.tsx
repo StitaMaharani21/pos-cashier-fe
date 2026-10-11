@@ -17,8 +17,8 @@ import { cn, formatRupiah } from "@/shared/lib/utils"
 
 // Mirrors index.css's --primary — recharts renders raw SVG attributes, so a
 // literal color is more reliable here than `var(--primary)`.
-const PRIMARY_COLOR = "oklch(0.38 0.16 260)"
-const LIGHT_BAR_COLOR = "oklch(0.38 0.16 260 / 12%)"
+const PRIMARY_COLOR = "oklch(0.76 0.116 241)"
+const LIGHT_BAR_COLOR = "oklch(0.76 0.116 241 / 25%)"
 
 function formatCompactRupiah(value: number): string {
   if (value === 0) return "Rp0"
@@ -43,7 +43,7 @@ export function SalesTrendCard() {
             <h2 className="text-xl font-bold text-foreground">
               Penjualan {days} Hari Terakhir
             </h2>
-            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary-strong">
               Aktif
             </span>
           </div>

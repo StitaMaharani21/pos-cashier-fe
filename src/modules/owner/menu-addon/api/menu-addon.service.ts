@@ -16,6 +16,9 @@ const RESOURCE = "/master/addon-groups"
 
 export const ADDON_GROUPS_KEY = "addon-groups"
 
+// A store has a handful of groups, so one page of 100 is fetched and the list
+// screen, the tab badge and the menu form all share this one query.
+export const ADDON_LIST_PARAMS = { page: 1, per_page: 100 } as const
 export interface AddonOptionDraft {
   // Absent for an option added in this edit.
   id?: number
@@ -147,6 +150,44 @@ export const menuAddonService: CrudService<AddonGroup, AddonGroupDraft, AddonGro
   ...base,
   create,
   update,
+}
+
+// What the menu form changed about the groups on one menu, applied after the
+// menu itself is saved (a new menu has no id before that).
+export interface MenuAddonChanges {
+  // Brand-new groups, created already attached to the menu.
+  created: AddonGroupDraft[]
+  // Existing groups edited in the form. `draft.original` is the server copy.
+  edited: { groupId: number; draft: AddonGroupDraft }[]
+  // Existing groups newly attached / detached without edits.
+  attach: number[]
+  detach: number[]
+}
+
+export function hasMenuAddonChanges(changes: MenuAddonChanges): boolean {
+  return changes.created.length + changes.edited.length + changes.attach.length + changes.detach.length > 0
+}
+
+// Every step is tried even if an earlier one fails; the menu is already saved,
+// so the error says how many addon changes didn't make it.
+export async function commitMenuAddons(menuId: number, changes: MenuAddonChanges): Promise<void> {
+  const steps: Promise<unknown>[] = [
+    ...changes.created.map((draft) => create({ ...draft, menu_ids: [menuId] })),
+    ...changes.edited.map(({ groupId, draft }) => {
+      const current = draft.original?.menu_ids ?? []
+      return update(groupId, { ...draft, menu_ids: current.includes(menuId) ? current : [...current, menuId] })
+    }),
+    ...changes.attach.map((groupId) => apiClient.post(`${RESOURCE}/${groupId}/menus`, { menu_id: menuId })),
+    ...changes.detach.map((groupId) => apiClient.delete(`${RESOURCE}/${groupId}/menus/${menuId}`)),
+  ]
+  const results = await Promise.allSettled(steps)
+  const failed = results.filter((result) => result.status === "rejected").length
+  if (failed > 0) {
+    throw new CrudServiceError(
+      "ADDON_SYNC_FAILED",
+      `Menu tersimpan, tetapi ${failed} perubahan tambahan gagal disimpan. Buka lagi menu ini dan simpan ulang.`
+    )
+  }
 }
 
 // Every menu, for the "Berlaku untuk menu" picker — the list endpoint is

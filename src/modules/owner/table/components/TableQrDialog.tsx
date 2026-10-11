@@ -124,7 +124,7 @@ function QrFlow({ table, storeName }: { table: Table; storeName: string }) {
             </div>
             {/* A phone can't open the owner's own machine through localhost. */}
             {isLocalHost(url) && (
-              <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-700">
+              <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-700 dark:text-amber-400">
                 QR ini memakai alamat yang hanya bisa dibuka dari komputer ini, jadi HP pelanggan tidak akan bisa
                 membukanya. Hubungi tim Neela sebelum mencetak.
               </p>

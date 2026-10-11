@@ -7,50 +7,53 @@
 
 :root {
   --radius: 0.625rem;
-  /* Palette below is lifted from the Figma design ("Asta Studio" file,
-     dashboard node 1615:1271): Primary Pos #0042A3, Tertinary Pos #001B3D,
-     /800 #6B6B6B, red pos #BA1A1A — plus the neutral grays used
-     consistently across every card (#e5e7eb borders, #4b5563 muted text,
-     #f8f9fb page canvas). */
-  --background: oklch(0.984 0.003 260);
-  --foreground: oklch(0.21 0.035 260);
+  color-scheme: light;
+  /* Brand palette: Bold Blue #1E466B, Light Blue #67BAF4, Soft White #FAFAFA,
+     Jet Black #0D0D0D. Light Blue is too bright for white text (~2:1), so
+     --primary-foreground is Jet Black, and blue text/icons on light surfaces
+     use --primary-strong (Bold Blue) instead of --primary. */
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.2 0.03 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.035 260);
+  --card-foreground: oklch(0.2 0.03 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.035 260);
-  --primary: oklch(0.38 0.16 260);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --popover-foreground: oklch(0.2 0.03 250);
+  --primary: oklch(0.76 0.116 241);
+  --primary-foreground: oklch(0.16 0 0);
+  --primary-strong: oklch(0.384 0.078 249);
+  --secondary: oklch(0.97 0.003 250);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.446 0.02 260);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0.003 250);
+  --muted-foreground: oklch(0.446 0.02 255);
+  --accent: oklch(0.96 0.025 241);
+  --accent-foreground: oklch(0.384 0.078 249);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0.005 260);
-  --input: oklch(0.922 0.005 260);
-  --ring: oklch(0.6 0.1 260);
+  --border: oklch(0.922 0.005 255);
+  --input: oklch(0.922 0.005 255);
+  --ring: oklch(0.76 0.116 241);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  color-scheme: dark;
+  --background: oklch(0.16 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.2 0.015 250);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.22 0.018 250);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.7 0.13 260);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.269 0 0);
+  --primary: oklch(0.76 0.116 241);
+  --primary-foreground: oklch(0.16 0 0);
+  --primary-strong: oklch(0.76 0.116 241);
+  --secondary: oklch(0.269 0.01 250);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --muted: oklch(0.269 0.01 250);
+  --muted-foreground: oklch(0.72 0.01 250);
+  --accent: oklch(0.3 0.06 249);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.12 260);
+  --ring: oklch(0.76 0.116 241);
 }
 
 @theme inline {
@@ -62,6 +65,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-strong: var(--primary-strong);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);

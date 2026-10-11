@@ -99,7 +99,7 @@ export function PeriodFields({ children }: { children?: ReactNode }) {
                 >
                   <InfinityIcon className="size-4 shrink-0" />
                   Tanpa batas
-                  <span className="ml-auto text-xs text-primary">Atur tanggal</span>
+                  <span className="ml-auto text-xs text-primary-strong">Atur tanggal</span>
                 </button>
               ) : (
                 <DateBox invalid={!!fieldState.error}>

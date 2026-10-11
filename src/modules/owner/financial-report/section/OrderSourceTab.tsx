@@ -7,7 +7,7 @@ import { useCapabilities } from "@/shared/access/useCapabilities"
 import { LockedTile } from "@/shared/access/LockedTile"
 import { Card } from "@/shared/ui/card"
 
-const SLICE_COLORS = { qr: "#0042A3", manual: "#F59E0B" }
+const SLICE_COLORS = { qr: "#67BAF4", manual: "#F59E0B" }
 
 // pos-kasir-be has no self-serve checkout for plan changes (see
 // upsellContent.ts's contactLink) — same WhatsApp-handoff idiom, but built

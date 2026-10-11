@@ -77,7 +77,7 @@ export function InitialBadge({ label, active }: { label: string; active: boolean
       aria-hidden
       className={cn(
         "flex size-7 items-center justify-center rounded-full text-xs font-bold",
-        active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+        active ? "bg-primary/10 text-primary-strong" : "bg-muted text-muted-foreground"
       )}
     >
       {label.charAt(0).toUpperCase()}

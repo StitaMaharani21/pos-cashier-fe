@@ -5,7 +5,7 @@ import { formatRupiah } from "@/shared/lib/utils"
 
 // Cycled by index — the backend returns a dynamic list of active payment
 // methods, so colors can't be hardcoded per-method like the Figma mock did.
-const SLICE_COLORS = ["#0042A3", "#001B3D", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"]
+const SLICE_COLORS = ["#67BAF4", "#2D6FA8", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"]
 
 function formatCompact(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toLocaleString("id-ID", { maximumFractionDigits: 2 })}M`

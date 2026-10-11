@@ -86,7 +86,7 @@ export function OrderTypeSection() {
               className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-muted/30 p-4"
             >
               <div className="flex items-center gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-strong">
                   <Icon className="size-4" />
                 </span>
                 <p className="text-sm font-bold text-foreground">{meta.label}</p>

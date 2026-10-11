@@ -4,17 +4,20 @@ import {
   CreditCardIcon,
   ReceiptIcon,
   TrendingUpIcon,
+  LockIcon,
   UndoIcon,
   WalletIcon,
 } from "lucide-react"
 
 import { CashCountDialog } from "@/modules/owner/dashboard/components/CashCountDialog"
+import { CloseShiftDialog } from "@/modules/owner/dashboard/components/CloseShiftDialog"
 import {
   useCashSummary,
   useDashboardSummary,
   useRefundSummaryToday,
 } from "@/modules/owner/dashboard/dashboard.queries"
 import { formatRupiah } from "@/shared/lib/utils"
+import { Button } from "@/shared/ui/button"
 import { KpiCard } from "@/shared/ui/kpi-card"
 
 function DeltaFooter({ percent, label }: { percent: number; label: string }) {
@@ -45,6 +48,7 @@ function SkeletonCard() {
 
 export function KpiCardsGrid() {
   const [cashDialogOpen, setCashDialogOpen] = useState(false)
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false)
   const summary = useDashboardSummary()
   const cashSummary = useCashSummary()
   const refundSummary = useRefundSummaryToday()
@@ -60,7 +64,11 @@ export function KpiCardsGrid() {
   }
 
   const data = summary.data
-  const hasMismatch = cashSummary.data?.has_mismatch ?? false
+  // Setelah refetch gagal (404 = tidak ada shift aktif, mis. baru saja ditutup),
+  // TanStack Query tetap menyimpan data sukses terakhir di `.data` — jadi
+  // `.data` saja tidak cukup untuk tahu ada shift aktif.
+  const activeCash = cashSummary.isError ? undefined : cashSummary.data
+  const hasMismatch = activeCash?.has_mismatch ?? false
 
   return (
     <>
@@ -121,19 +129,39 @@ export function KpiCardsGrid() {
           value={
             cashSummary.isPending
               ? "—"
-              : cashSummary.isError || !cashSummary.data
+              : !activeCash
                 ? "Tidak ada shift aktif"
-                : formatRupiah(cashSummary.data.counted_amount ?? 0)
+                : formatRupiah(activeCash.counted_amount ?? 0)
           }
           footer={
-            cashSummary.data?.has_count &&
-            (hasMismatch ? (
-              <span className="inline-flex items-center gap-1 rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
-                Selisih {formatRupiah(cashSummary.data.difference ?? 0)}
-              </span>
-            ) : (
-              <span className="text-xs text-muted-foreground">Sesuai sistem</span>
-            ))
+            activeCash && (
+              <div className="flex items-center justify-between gap-2">
+                {activeCash.has_count ? (
+                  hasMismatch ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
+                      Selisih {formatRupiah(activeCash.difference ?? 0)}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Sesuai sistem</span>
+                  )
+                ) : (
+                  <span className="text-xs text-muted-foreground">Klik untuk catat hitungan kas</span>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(event) => {
+                    // The card itself opens the cash-count dialog.
+                    event.stopPropagation()
+                    setCloseDialogOpen(true)
+                  }}
+                >
+                  <LockIcon />
+                  Tutup Shift
+                </Button>
+              </div>
+            )
           }
         />
         <KpiCard
@@ -151,10 +179,19 @@ export function KpiCardsGrid() {
         />
       </div>
 
+      <CloseShiftDialog
+        shift={
+          closeDialogOpen && activeCash?.shift_id
+            ? { id: activeCash.shift_id, expectedAmount: activeCash.expected_amount ?? 0 }
+            : null
+        }
+        onOpenChange={setCloseDialogOpen}
+      />
+
       <CashCountDialog
         open={cashDialogOpen}
         onOpenChange={setCashDialogOpen}
-        cashSummary={cashSummary.data}
+        cashSummary={activeCash}
       />
     </>
   )

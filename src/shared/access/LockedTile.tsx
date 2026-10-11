@@ -27,11 +27,11 @@ export function LockedTile({ badge, title, description, cta, href, className }: 
         className
       )}
     >
-      <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+      <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary-strong">
         <LockIcon className="size-6" />
       </span>
       <div>
-        <span className="text-xs font-medium text-primary">{badge}</span>
+        <span className="text-xs font-medium text-primary-strong">{badge}</span>
         <p className="mt-1 text-xl font-semibold text-foreground">{title}</p>
         {description && <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{description}</p>}
       </div>

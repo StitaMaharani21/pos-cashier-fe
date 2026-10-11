@@ -1,13 +1,32 @@
-import { BellIcon, KeyRoundIcon, RefreshCwIcon, UserIcon } from "lucide-react"
+import {
+  BellIcon,
+  CheckIcon,
+  KeyRoundIcon,
+  type LucideIcon,
+  MonitorIcon,
+  MoonIcon,
+  RefreshCwIcon,
+  SunIcon,
+  UserIcon,
+} from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { useAuthStore } from "@/shared/auth/store"
+import { type ThemePreference, useThemePreference } from "@/shared/theme/theme"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
+
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: LucideIcon }[] = [
+  { value: "light", label: "Terang", icon: SunIcon },
+  { value: "dark", label: "Gelap", icon: MoonIcon },
+  { value: "system", label: "Sistem", icon: MonitorIcon },
+]
 
 const TODAY_LABEL = new Date().toLocaleDateString("id-ID", {
   weekday: "long",
@@ -24,6 +43,7 @@ const TODAY_LABEL = new Date().toLocaleDateString("id-ID", {
 export function OwnerHeader() {
   const name = useAuthStore((state) => state.name) ?? "Owner"
   const email = useAuthStore((state) => state.email)
+  const { preference, setPreference } = useThemePreference()
 
   return (
     <div className="flex items-center justify-between">
@@ -90,6 +110,15 @@ export function OwnerHeader() {
                 Ganti Password
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground">Tampilan</DropdownMenuLabel>
+            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <DropdownMenuItem key={value} onSelect={() => setPreference(value)}>
+                <Icon />
+                {label}
+                {preference === value && <CheckIcon className="ml-auto text-primary-strong" />}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

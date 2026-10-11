@@ -15,7 +15,7 @@ interface KpiCardProps {
 }
 
 const ICON_TONE_CLASSES: Record<NonNullable<KpiCardProps["iconTone"]>, string> = {
-  primary: "bg-primary/10 text-primary",
+  primary: "bg-primary/10 text-primary-strong",
   neutral: "bg-muted text-foreground",
   warning: "bg-destructive/15 text-destructive",
 }

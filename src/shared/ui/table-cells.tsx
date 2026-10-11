@@ -6,7 +6,7 @@ import { cn } from "@/shared/lib/utils"
 // Square icon tile for a table's first column (category, voucher, ...).
 export function IconTile({ icon: Icon, className }: { icon: LucideIcon; className?: string }) {
   return (
-    <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary", className)}>
+    <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-strong", className)}>
       <Icon className="size-4" />
     </span>
   )

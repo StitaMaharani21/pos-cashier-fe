@@ -5,7 +5,7 @@ import type { CrudColumn } from "@/shared/api/crud/types"
 import { cn, formatRupiah } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 
-// Soft-tint pill per status, same "bg-X-50 text-X-600" convention as
+// Soft-tint pill per status, same "bg-X-50 text-X-600 dark:bg-X-950/50 dark:text-X-400" convention as
 // sales-report's financial-report.columns.tsx ORDER_TYPE_META. Values match
 // the raw status strings the backend actually stores/returns verbatim
 // (internal/transaction/order/order_service.go: StatusPending="pending",
@@ -14,9 +14,9 @@ import { Badge } from "@/shared/ui/badge"
 // future status strings fall back to a muted badge with the raw value
 // instead of disappearing.
 const STATUS_META: Record<string, { label: string; className: string }> = {
-  selesai: { label: "Selesai", className: "bg-emerald-50 text-emerald-600" },
-  diproses: { label: "Diproses", className: "bg-blue-50 text-blue-600" },
-  pending: { label: "Menunggu", className: "bg-amber-50 text-amber-600" },
+  selesai: { label: "Selesai", className: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400" },
+  diproses: { label: "Diproses", className: "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" },
+  pending: { label: "Menunggu", className: "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400" },
   dibatalkan: { label: "Dibatalkan", className: "bg-destructive/10 text-destructive" },
 }
 

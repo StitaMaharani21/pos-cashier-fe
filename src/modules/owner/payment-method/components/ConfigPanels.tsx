@@ -62,7 +62,7 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
                 label={option.label}
                 checked={draft.cardTypes.includes(option.value)}
                 onToggle={() => onChange((d) => ({ cardTypes: toggle<CardType>(d.cardTypes, option.value) }))}
-                leading={<Icon className="size-5 text-primary" />}
+                leading={<Icon className="size-5 text-primary-strong" />}
               />
             )
           })}
@@ -73,7 +73,7 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
         <SectionLabel
           action={
             <span className="flex items-center gap-3 text-xs">
-              <button type="button" className="font-semibold text-primary hover:underline" onClick={() => onChange(() => ({ cardNetworks: allNetworks }))}>
+              <button type="button" className="font-semibold text-primary-strong hover:underline" onClick={() => onChange(() => ({ cardNetworks: allNetworks }))}>
                 Pilih semua
               </button>
               <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => onChange(() => ({ cardNetworks: [] }))}>
@@ -158,7 +158,7 @@ export function ChannelConfigPanel({ type, channels, draft, onChange }: ChannelP
         <SectionLabel
           action={
             <span className="flex items-center gap-3 text-xs">
-              <button type="button" className="font-semibold text-primary hover:underline" onClick={() => setAll(true)}>
+              <button type="button" className="font-semibold text-primary-strong hover:underline" onClick={() => setAll(true)}>
                 Pilih semua
               </button>
               <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setAll(false)}>

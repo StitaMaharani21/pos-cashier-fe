@@ -116,7 +116,7 @@ function PickerBody({
         <div className="flex-1">
           <DialogTitle className="text-xl font-bold">Pilih Menu</DialogTitle>
           <DialogDescription>
-            <span className="font-semibold text-primary">{selected.size} dipilih</span> · Menu yang otomatis kena diskon
+            <span className="font-semibold text-primary-strong">{selected.size} dipilih</span> · Menu yang otomatis kena diskon
           </DialogDescription>
         </div>
         <button

@@ -32,7 +32,7 @@ export function PageTabs<T extends string>({
             onClick={() => onChange(item.id)}
             className={cn(
               "-mb-px flex items-center gap-2 border-b-2 px-3 pt-1 pb-3 text-sm font-semibold transition-colors",
-              selected ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              selected ? "border-primary text-primary-strong" : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
             {item.label}
@@ -40,7 +40,7 @@ export function PageTabs<T extends string>({
               <span
                 className={cn(
                   "rounded-full px-2 py-0.5 text-xs font-bold",
-                  selected ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                  selected ? "bg-primary/10 text-primary-strong" : "bg-muted text-muted-foreground"
                 )}
               >
                 {item.count}

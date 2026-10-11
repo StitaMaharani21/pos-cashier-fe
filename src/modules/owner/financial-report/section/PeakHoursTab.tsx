@@ -9,7 +9,7 @@ import { Card } from "@/shared/ui/card"
 // Mirrors index.css's --primary — recharts/plain divs both need a literal
 // color value for inline styles, so this can't rely on `var(--primary)`
 // (same idiom as dashboard/components/SalesTrendCard's PRIMARY_COLOR).
-const PRIMARY_HUE = "oklch(0.38 0.16 260"
+const PRIMARY_HUE = "oklch(0.76 0.116 241"
 
 // day_of_week from the backend is 1=Senin..7=Minggu (not JS's
 // Date#getDay(), where 0=Sunday) — this fixes the row order regardless of

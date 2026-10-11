@@ -27,7 +27,7 @@ export function LowStockCard() {
     <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">Stok Hampir Habis</h2>
-        <span className="flex size-9 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+        <span className="flex size-9 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
           <TriangleAlertIcon className="size-4" />
         </span>
       </div>

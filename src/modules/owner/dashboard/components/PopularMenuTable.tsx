@@ -23,7 +23,7 @@ export function PopularMenuTable() {
         <h2 className="text-lg font-bold text-foreground">Menu Terpopuler Minggu Ini</h2>
         <Link
           to="/app/financial-report?tab=top-products"
-          className="text-sm font-medium text-primary hover:underline"
+          className="text-sm font-medium text-primary-strong hover:underline"
         >
           Lihat Laporan
         </Link>

@@ -44,7 +44,7 @@ export function OrderCompositionCard() {
               key={orderType || index}
               className="flex items-center gap-3 rounded-xl border bg-muted/30 p-4"
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-strong">
                 <Icon className="size-4" />
               </span>
               <div>

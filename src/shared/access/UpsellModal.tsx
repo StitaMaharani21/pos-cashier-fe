@@ -26,7 +26,7 @@ export function UpsellModal() {
     <Dialog open onOpenChange={(open) => !open && close()}>
       <DialogContent>
         <DialogHeader>
-          <span className="text-xs font-medium text-primary">{hintCopy[hint].badge}</span>
+          <span className="text-xs font-medium text-primary-strong">{hintCopy[hint].badge}</span>
           <DialogTitle>{copy?.title ?? feature}</DialogTitle>
           <DialogDescription>{copy?.description}</DialogDescription>
         </DialogHeader>

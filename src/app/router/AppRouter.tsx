@@ -13,7 +13,6 @@ import { UsersSection } from "@/modules/owner/cashier/section/UsersSection"
 import { DashboardSection } from "@/modules/owner/dashboard/section/DashboardSection"
 import { FinancialReportSection } from "@/modules/owner/financial-report/section/FinancialReportSection"
 import { IngredientSection } from "@/modules/owner/ingredient/section/IngredientSection"
-import { MenuAddonSection } from "@/modules/owner/menu-addon/section/MenuAddonSection"
 import { MenuCatalogSection } from "@/modules/owner/menu/section/MenuCatalogSection"
 import { OrderTypeSection } from "@/modules/owner/order-type/section/OrderTypeSection"
 import { PaymentGatewaySection } from "@/modules/owner/payment-gateway/section/PaymentGatewaySection"
@@ -31,6 +30,7 @@ import { RegistrationStatusPage } from "@/modules/public/store-registration/pres
 import { StoreRegistrationPage } from "@/modules/public/store-registration/presentation/StoreRegistrationPage"
 import { RequireAccess } from "@/shared/access/RequireAccess"
 import { SELF_ORDER_ROUTE } from "@/shared/lib/self-order-url"
+import { ThemeScope } from "@/shared/theme/ThemeScope"
 
 // Two trees: the public pages ("/" landing, "/daftar" store registration,
 // "/status-pendaftaran" approval status — modules/public) and the owner console ("/login" + "/app/*", modules/owner).
@@ -38,6 +38,7 @@ import { SELF_ORDER_ROUTE } from "@/shared/lib/self-order-url"
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <ThemeScope />
       <Routes>
         {/* Public landing page — the first thing any visitor sees. The owner
             console (/app) only opens after logging in as owner. */}
@@ -62,7 +63,7 @@ export function AppRouter() {
               category URL lands on its tab. */}
           <Route path="menu" element={guarded("menu", <MenuCatalogSection />)} />
           <Route path="menu-category" element={<Navigate to="/app/menu" replace />} />
-          <Route path="menu-addon" element={guarded("menu-addon", <MenuAddonSection />)} />
+          <Route path="menu-addon" element={<Navigate to="/app/menu?tab=tambahan" replace />} />
           <Route path="ingredient" element={guarded("ingredient", <IngredientSection />)} />
           <Route
             path="payment-method"

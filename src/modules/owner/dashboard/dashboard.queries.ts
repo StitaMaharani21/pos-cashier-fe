@@ -167,3 +167,22 @@ export function useRecordCashCount(shiftId: number | undefined) {
     },
   })
 }
+
+// Owner menutup shift yang masih terbuka. Backend: PATCH /shifts/:id/close
+// (owner maupun kasir, semua paket), body { closing_balance }. Setelah berhasil,
+// kartu "Aktual Cash Laci" kembali ke "Tidak ada shift aktif" dan laporan kas
+// dimuat ulang karena shift ini berubah dari "berjalan" menjadi "selesai".
+export function useCloseShift(shiftId: number | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (closingBalance: number) => {
+      if (!shiftId) throw new Error("Shift tidak ditemukan.")
+      await apiClient.patch(`/shifts/${shiftId}/close`, { closing_balance: closingBalance })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CASH_SUMMARY_KEY })
+      queryClient.invalidateQueries({ queryKey: ["cash-report"] })
+    },
+  })
+}

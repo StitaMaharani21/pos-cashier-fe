@@ -19,18 +19,11 @@ export const menuSchema = z
     isAvailable: z.boolean(),
     isFeatured: z.boolean(),
     stockDeductionMethod: z.enum(["none", "by_menu", "by_ingredient"]),
-    // Only required when stockDeductionMethod === "by_menu" — see the
-    // .refine() below.
+    // Digits only. Required for a NEW by_menu menu (MenuForm checks that on
+    // create); on edit, empty keeps the stock as it is — a menu whose stock
+    // was never set, or went negative from overselling, must still be
+    // savable.
     stockQty: z.string().optional(),
   })
-  .refine(
-    (values) =>
-      values.stockDeductionMethod !== "by_menu" ||
-      (values.stockQty != null &&
-        values.stockQty !== "" &&
-        !Number.isNaN(Number(values.stockQty)) &&
-        Number(values.stockQty) >= 0),
-    { message: "Jumlah stok wajib diisi", path: ["stockQty"] }
-  )
 
 export type MenuFormValues = z.infer<typeof menuSchema>

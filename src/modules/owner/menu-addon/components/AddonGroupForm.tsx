@@ -34,13 +34,29 @@ interface AddonGroupFormProps {
   onCancel: () => void
   onDelete?: () => void
   isDeleting: boolean
+  // False when the group is edited from a menu's form: which menus use it is
+  // decided there, so the picker is left out (and the group's menus kept).
+  showMenuPicker?: boolean
+  // Shown above the fields, e.g. a warning that the group is shared.
+  notice?: string
+  submitLabel?: string
 }
 
 const EMPTY_OPTION = { optionId: undefined, name: "", price: "", isActive: true }
 
 // The "Tambah Grup Addon" drawer: a named set of choices (e.g. "Tambahan":
 // Gula +Rp5.000), how many a pelanggan may pick, and which menus offer it.
-export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete, isDeleting }: AddonGroupFormProps) {
+export function AddonGroupForm({
+  row,
+  isSubmitting,
+  onSubmit,
+  onCancel,
+  onDelete,
+  isDeleting,
+  showMenuPicker = true,
+  notice,
+  submitLabel = "Simpan Grup",
+}: AddonGroupFormProps) {
   const form = useCrudForm<MenuAddonFormValues>({
     schema: menuAddonSchema,
     defaultValues: {
@@ -85,6 +101,9 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex min-h-0 flex-1 flex-col">
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5">
+          {notice && (
+            <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">{notice}</p>
+          )}
           <FormSection
             icon={ListPlusIcon}
             title="Informasi Grup"
@@ -307,21 +326,23 @@ export function AddonGroupForm({ row, isSubmitting, onSubmit, onCancel, onDelete
             </div>
           </FormSection>
 
-          <FormSection
-            icon={UtensilsIcon}
-            title="Berlaku untuk Menu"
-            description="Menu yang menawarkan grup ini kepada pelanggan"
-          >
-            <FormField
-              control={form.control}
-              name="menuIds"
-              render={({ field }) => <MenuPicker value={field.value} onChange={field.onChange} />}
-            />
-          </FormSection>
+          {showMenuPicker && (
+            <FormSection
+              icon={UtensilsIcon}
+              title="Berlaku untuk Menu"
+              description="Menu yang menawarkan grup ini kepada pelanggan"
+            >
+              <FormField
+                control={form.control}
+                name="menuIds"
+                render={({ field }) => <MenuPicker value={field.value} onChange={field.onChange} />}
+              />
+            </FormSection>
+          )}
         </div>
 
         <DrawerFooter
-          submitLabel="Simpan Grup"
+          submitLabel={submitLabel}
           isSubmitting={isSubmitting}
           onCancel={onCancel}
           onDelete={onDelete}

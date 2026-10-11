@@ -9,8 +9,8 @@ import { Card } from "@/shared/ui/card"
 // (the backend returns a dynamic list of categories, so colors can't be
 // hardcoded per-category).
 const SLICE_COLORS = [
-  "#0042A3",
-  "#001B3D",
+  "#67BAF4",
+  "#2D6FA8",
   "#10B981",
   "#F59E0B",
   "#8B5CF6",

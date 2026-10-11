@@ -98,7 +98,7 @@ export function PaymentGatewaySection() {
             <p className="text-xs text-muted-foreground">
               Metode "QRIS Midtrans" dikelola otomatis dan tidak bisa diubah manual. Lihat statusnya
               di{" "}
-              <Link to="/app/payment-method" className="font-semibold text-primary underline">
+              <Link to="/app/payment-method" className="font-semibold text-primary-strong underline">
                 Metode Pembayaran
               </Link>
               .

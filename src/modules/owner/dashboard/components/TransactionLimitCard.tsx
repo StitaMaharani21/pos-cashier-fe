@@ -40,7 +40,7 @@ export function TransactionLimitCard() {
               <span className="text-muted-foreground">
                 Penggunaan: {data?.used ?? 0} transaksi
               </span>
-              <span className="font-semibold text-primary">
+              <span className="font-semibold text-primary-strong">
                 {(data?.percent ?? 0).toFixed(0)}%
               </span>
             </div>

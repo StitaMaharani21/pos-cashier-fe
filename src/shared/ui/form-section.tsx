@@ -24,7 +24,7 @@ export function FormSection({
   return (
     <section className={cn("flex flex-col gap-4 rounded-2xl border bg-muted/40 p-5", className)}>
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary-strong">
           <Icon className="size-5" />
         </span>
         <div className="min-w-0 flex-1">

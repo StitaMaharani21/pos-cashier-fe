@@ -24,7 +24,7 @@ import { formatSelisih } from "@/modules/owner/cash-report/lib/selisih"
 // lib/selisih.ts).
 const NEGATIVE_COLOR = "oklch(0.577 0.245 27.325)" // mirrors --destructive
 const POSITIVE_COLOR = "#F59E0B" // amber-600, same literal as PaymentMethodDonutCard/CategoryBreakdownTab
-const NEUTRAL_COLOR = "oklch(0.446 0.02 260)" // mirrors --muted-foreground
+const NEUTRAL_COLOR = "oklch(0.62 0.02 255)" // neutral gray, readable in light and dark
 
 function colorFor(selisih: number): string {
   if (selisih < 0) return NEGATIVE_COLOR

@@ -61,7 +61,7 @@ export function BusinessLogoCard({
         {logoUrl ? (
           <img src={logoUrl} alt="" className="size-full object-cover" />
         ) : (
-          <span className="text-2xl font-extrabold text-primary">
+          <span className="text-2xl font-extrabold text-primary-strong">
             {businessName ? getInitials(businessName) : "?"}
           </span>
         )}

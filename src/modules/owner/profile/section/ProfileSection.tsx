@@ -66,7 +66,7 @@ export function ProfileSection() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-4 rounded-[18px] border bg-card px-7 py-5">
-        <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-lg font-extrabold text-primary">
+        <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-lg font-extrabold text-primary-strong">
           {getInitials(profile.name ?? "")}
         </div>
         <div className="min-w-0">
