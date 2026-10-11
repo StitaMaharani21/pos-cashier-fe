@@ -46,7 +46,7 @@ export function LockedTile({ badge, title, description, cta, href, className }: 
           kept visually quiet so the WhatsApp CTA above stays the fast path
           for someone who already knows what they want. */}
       <Link
-        to="/app/billing"
+        to="/app/business-settings?tab=paket"
         className="text-sm text-muted-foreground underline-offset-4 hover:underline"
       >
         Lihat semua paket & addon

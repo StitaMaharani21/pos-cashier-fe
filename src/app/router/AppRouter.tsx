@@ -5,8 +5,8 @@ import { OwnerLayout } from "@/app/layouts/OwnerLayout"
 import { RequireAuth } from "@/app/router/RequireAuth"
 import { routeAccess } from "@/app/router/routeAccess"
 import { LoginSection } from "@/modules/owner/auth/section/LoginSection"
-import { BillingSection } from "@/modules/owner/billing/section/BillingSection"
-import { BusinessSettingsSection } from "@/modules/owner/business-settings/section/BusinessSettingsSection"
+
+import { BusinessSection } from "@/modules/owner/business-settings/section/BusinessSection"
 import { CashReportSection } from "@/modules/owner/cash-report/section/CashReportSection"
 import { ChangePasswordSection } from "@/modules/owner/change-password/section/ChangePasswordSection"
 import { UsersSection } from "@/modules/owner/cashier/section/UsersSection"
@@ -58,7 +58,7 @@ export function AppRouter() {
           }
         >
           <Route index element={guarded("", <DashboardSection />)} />
-          <Route path="billing" element={guarded("billing", <BillingSection />)} />
+          <Route path="billing" element={<Navigate to="/app/business-settings?tab=paket" replace />} />
           {/* Categories + menus share one page with tabs; the old
               category URL lands on its tab. */}
           <Route path="menu" element={guarded("menu", <MenuCatalogSection />)} />
@@ -100,7 +100,7 @@ export function AppRouter() {
           />
           <Route
             path="business-settings"
-            element={guarded("business-settings", <BusinessSettingsSection />)}
+            element={guarded("business-settings", <BusinessSection />)}
           />
           <Route
             path="payment-gateway"

@@ -6,7 +6,6 @@ import {
   LockIcon,
   LogOutIcon,
   type LucideIcon,
-  PackageIcon,
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
   PercentIcon,
@@ -24,10 +23,6 @@ import { useAuthStore } from "@/shared/auth/store"
 import { cn } from "@/shared/lib/utils"
 
 const DASHBOARD_ITEM = { to: "/app", label: "Dashboard", icon: LayoutGridIcon }
-// Ungated (routeAccess.ts's "billing" entry is {}) — every owner, on any
-// plan, needs to be able to find this page, so it sits as its own top-level
-// item next to Dashboard rather than inside a collapsible group.
-const BILLING_ITEM = { to: "/app/billing", label: "Paket & Fitur Tambahan", icon: PackageIcon }
 
 // Grouping/labels mirror the Figma sidenav (SideNavBar shared component).
 // "Meja" isn't shown in that particular screen, but it's an existing,
@@ -96,11 +91,9 @@ function useItemState() {
   }
 }
 
-// Dashboard and Billing are both single top-level items (not inside a
-// collapsible NAV_GROUPS entry), so they share this one component instead
-// of each hardcoding their own copy. Billing's routeAccess rule is {},
-// so `state` is always "open" for it today — still goes through the same
-// ItemState branches as Dashboard for consistency, in case that ever changes.
+// Dashboard is the single top-level item (not inside a collapsible
+// NAV_GROUPS entry). Kept as its own component so it goes through the same
+// ItemState branches (locked/hidden) as the grouped items.
 function TopLevelNavItem({
   item,
   collapsed,
@@ -261,12 +254,6 @@ export function OwnerLayout() {
                 collapsed={collapsed}
                 state={stateOf(DASHBOARD_ITEM.to)}
                 onLockedClick={() => openUpsell(DASHBOARD_ITEM.to)}
-              />
-              <TopLevelNavItem
-                item={BILLING_ITEM}
-                collapsed={collapsed}
-                state={stateOf(BILLING_ITEM.to)}
-                onLockedClick={() => openUpsell(BILLING_ITEM.to)}
               />
 
               {NAV_GROUPS.map((group) => {

@@ -1,5 +1,3 @@
-import { CreditCardIcon, InfoIcon, WalletCardsIcon } from "lucide-react"
-
 import type {
   CardNetwork,
   CardType,
@@ -11,25 +9,29 @@ import {
   CARD_TYPE_OPTIONS,
 } from "@/modules/owner/payment-method/constants/payment-providers"
 import { channelKey, channelOptions, type MethodDraft } from "@/modules/owner/payment-method/components/method-draft"
-import { InitialBadge, OptionCard } from "@/modules/owner/payment-method/components/OptionCard"
+import { OptionChip } from "@/modules/owner/payment-method/components/OptionChip"
 import { ImageUpload } from "@/shared/ui/image-upload"
 import { Input } from "@/shared/ui/input"
 
 function SectionLabel({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <h3 className="text-xs font-bold tracking-wide text-foreground uppercase">{children}</h3>
+      <h3 className="text-sm font-semibold text-foreground">{children}</h3>
       {action}
     </div>
   )
 }
 
-function Hint({ children }: { children: React.ReactNode }) {
+// "Pilih semua" until everything is selected, then "Hapus semua".
+function SelectAllToggle({ allSelected, onChange }: { allSelected: boolean; onChange: (next: boolean) => void }) {
   return (
-    <p className="flex items-start gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-      <InfoIcon className="mt-px size-3.5 shrink-0" />
-      <span>{children}</span>
-    </p>
+    <button
+      type="button"
+      className="text-xs font-semibold text-primary-strong hover:underline"
+      onClick={() => onChange(!allSelected)}
+    >
+      {allSelected ? "Hapus semua" : "Pilih semua"}
+    </button>
   )
 }
 
@@ -51,60 +53,47 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
-        <SectionLabel>Tipe kartu yang diterima</SectionLabel>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {CARD_TYPE_OPTIONS.map((option) => {
-            const Icon = option.value === "debit" ? WalletCardsIcon : CreditCardIcon
-            return (
-              <OptionCard
-                key={option.value}
-                layout="row"
-                label={option.label}
-                checked={draft.cardTypes.includes(option.value)}
-                onToggle={() => onChange((d) => ({ cardTypes: toggle<CardType>(d.cardTypes, option.value) }))}
-                leading={<Icon className="size-5 text-primary-strong" />}
-              />
-            )
-          })}
+        <SectionLabel>Tipe kartu</SectionLabel>
+        <div className="flex flex-wrap gap-2">
+          {CARD_TYPE_OPTIONS.map((option) => (
+            <OptionChip
+              key={option.value}
+              label={option.label}
+              checked={draft.cardTypes.includes(option.value)}
+              onToggle={() => onChange((d) => ({ cardTypes: toggle<CardType>(d.cardTypes, option.value) }))}
+            />
+          ))}
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
         <SectionLabel
           action={
-            <span className="flex items-center gap-3 text-xs">
-              <button type="button" className="font-semibold text-primary-strong hover:underline" onClick={() => onChange(() => ({ cardNetworks: allNetworks }))}>
-                Pilih semua
-              </button>
-              <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => onChange(() => ({ cardNetworks: [] }))}>
-                Hapus pilihan
-              </button>
-            </span>
+            <SelectAllToggle
+              allSelected={draft.cardNetworks.length === allNetworks.length}
+              onChange={(next) => onChange(() => ({ cardNetworks: next ? allNetworks : [] }))}
+            />
           }
         >
-          Jaringan kartu yang diterima
+          Jaringan kartu
         </SectionLabel>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          {CARD_NETWORK_OPTIONS.map((option) => {
-            const checked = draft.cardNetworks.includes(option.value)
-            return (
-              <OptionCard
-                key={option.value}
-                label={option.label}
-                checked={checked}
-                onToggle={() => onChange((d) => ({ cardNetworks: toggle<CardNetwork>(d.cardNetworks, option.value) }))}
-                leading={<InitialBadge label={option.label} active={checked} />}
-              />
-            )
-          })}
+        <div className="flex flex-wrap gap-2">
+          {CARD_NETWORK_OPTIONS.map((option) => (
+            <OptionChip
+              key={option.value}
+              label={option.label}
+              checked={draft.cardNetworks.includes(option.value)}
+              onToggle={() => onChange((d) => ({ cardNetworks: toggle<CardNetwork>(d.cardNetworks, option.value) }))}
+            />
+          ))}
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="credit-surcharge" className="text-xs font-bold tracking-wide text-foreground uppercase">
+        <label htmlFor="credit-surcharge" className="text-sm font-semibold text-foreground">
           Biaya tambahan kartu kredit (%)
         </label>
-        <div className="relative">
+        <div className="relative max-w-40">
           <Input
             id="credit-surcharge"
             type="number"
@@ -127,15 +116,9 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
         {surchargeError ? (
           <p className="text-xs text-destructive">{surchargeError}</p>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            {acceptsCredit
-              ? "Ditambahkan ke total saat pelanggan bayar pakai kartu kredit. Kosongkan jika tidak ada biaya tambahan."
-              : "Aktifkan Kartu Kredit untuk mengatur biaya tambahan."}
-          </p>
+          !acceptsCredit && <p className="text-xs text-muted-foreground">Pilih tipe Kredit untuk mengatur biaya tambahan.</p>
         )}
       </div>
-
-      <Hint>Saat pelanggan bayar pakai kartu, kasir memilih bank dari mesin kartu (EDC) yang dipakai. Daftar banknya diatur di Transfer Bank.</Hint>
     </div>
   )
 }
@@ -149,47 +132,28 @@ export function ChannelConfigPanel({ type, channels, draft, onChange }: ChannelP
   const options = channelOptions(type, channels)
   const isBank = type === "transfer"
   const keys = options.map((option) => channelKey(option.name))
+  const allSelected = keys.length > 0 && keys.every((key) => draft.channels[key] ?? false)
   const setAll = (value: boolean) =>
     onChange(() => ({ channels: Object.fromEntries(keys.map((key) => [key, value])) }))
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <SectionLabel
-          action={
-            <span className="flex items-center gap-3 text-xs">
-              <button type="button" className="font-semibold text-primary-strong hover:underline" onClick={() => setAll(true)}>
-                Pilih semua
-              </button>
-              <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setAll(false)}>
-                Hapus pilihan
-              </button>
-            </span>
-          }
-        >
-          {isBank ? "Bank yang diterima" : "E-wallet yang diterima"}
-        </SectionLabel>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          {options.map((option) => {
-            const key = channelKey(option.name)
-            const checked = draft.channels[key] ?? false
-            return (
-              <OptionCard
-                key={key}
-                label={option.name}
-                checked={checked}
-                onToggle={() => onChange((d) => ({ channels: { ...d.channels, [key]: !(d.channels[key] ?? false) } }))}
-                leading={<InitialBadge label={option.name} active={checked} />}
-              />
-            )
-          })}
-        </div>
+    <div className="flex flex-col gap-3">
+      <SectionLabel action={<SelectAllToggle allSelected={allSelected} onChange={setAll} />}>
+        {isBank ? "Bank yang diterima" : "E-wallet yang diterima"}
+      </SectionLabel>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const key = channelKey(option.name)
+          return (
+            <OptionChip
+              key={key}
+              label={option.name}
+              checked={draft.channels[key] ?? false}
+              onToggle={() => onChange((d) => ({ channels: { ...d.channels, [key]: !(d.channels[key] ?? false) } }))}
+            />
+          )
+        })}
       </div>
-      <Hint>
-        {isBank
-          ? "Kasir memilih bank tujuan saat pelanggan transfer. Daftar bank ini juga dipakai untuk pembayaran kartu."
-          : "Kasir memilih e-wallet yang dipakai pelanggan saat membayar."}
-      </Hint>
     </div>
   )
 }

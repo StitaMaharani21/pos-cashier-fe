@@ -1,9 +1,10 @@
 # Billing ("Paket & Addon")
 
-`/app/billing` — the store's current plan (with its end date and active add-ons), the
-3-tier plan comparison, and the add-ons. Not feature-gated (`routeAccess.ts`'s
-`"billing"` entry is `{}`) since every owner, regardless of current plan, needs to be
-able to see what unlocks what.
+The "Paket & Fitur Tambahan" tab of Bisnis (`/app/business-settings?tab=paket`; the old
+`/app/billing` URL redirects there, and it has no sidebar item of its own) — the store's
+current plan (with its end date and active add-ons), the 3-tier plan comparison, and the
+add-ons. It rides on the Bisnis route's gate (`pos` feature + `settings` module), which
+every plan includes, so any owner can see what unlocks what.
 
 **Owners pay here with QRIS** (Midtrans Core API, `PaymentQrDialog`). Everything the
 backend sells is bought from this page; everything else keeps the WhatsApp-to-sales

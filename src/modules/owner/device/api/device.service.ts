@@ -15,7 +15,7 @@ export const DEVICE_QUOTA_KEY = ["devices", "quota"]
 // The backend refuses a new pairing once the plan's device allowance (plus any
 // Device Tambahan add-on) is used up.
 export const DEVICE_LIMIT_MESSAGE =
-  "Jumlah perangkat sudah mencapai batas. Tambah perangkat di menu Paket & Fitur Tambahan, atau cabut perangkat yang tidak dipakai."
+  "Jumlah perangkat sudah mencapai batas. Tambah perangkat di tab Paket & Fitur Tambahan pada menu Bisnis, atau cabut perangkat yang tidak dipakai."
 
 function toServiceError(error: unknown): CrudServiceError {
   if (error instanceof ApiError) {

@@ -16,10 +16,9 @@ import { useCapabilities } from "@/shared/access/useCapabilities"
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/ui/page-header"
 
-// /app/billing — "Paket & Addon". Not feature-gated (routeAccess.ts's
-// "billing" entry is {}): every owner, on any plan, needs to be able to see
-// this page to find out what to upgrade to — gating it would lock an owner
-// out of the one page that explains how to unlock everything else.
+// "Paket & Fitur Tambahan" — the second tab of /app/business-settings
+// (?tab=paket; /app/billing redirects there). Rides on that route's gate
+// (pos feature + settings module), which every plan includes.
 //
 // An owner can pay for an upgrade/renewal, the Laporan/Inventori add-ons and
 // extra devices right here with QRIS (PaymentQrDialog). What the backend does

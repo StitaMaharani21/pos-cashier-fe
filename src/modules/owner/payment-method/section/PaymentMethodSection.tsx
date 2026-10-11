@@ -202,16 +202,10 @@ export function PaymentMethodSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Metode Pembayaran</h1>
-          <p className="text-sm text-muted-foreground">
-            {activeCount} dari {METHOD_TYPES.length} metode aktif
-          </p>
-        </div>
-        <p className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-foreground">
-          <InfoIcon className="size-4 shrink-0 text-primary-strong" />
-          Metode nonaktif tidak akan muncul di kasir &amp; aplikasi pelanggan
+      <div>
+        <h1 className="text-xl font-bold text-foreground">Metode Pembayaran</h1>
+        <p className="text-sm text-muted-foreground">
+          {activeCount} dari {METHOD_TYPES.length} metode aktif. Metode nonaktif tidak muncul di kasir &amp; aplikasi pelanggan.
         </p>
       </div>
 
@@ -231,9 +225,6 @@ export function PaymentMethodSection() {
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)]">
         <div className="flex flex-col gap-3">
-          <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">
-            Daftar Metode Pembayaran
-          </p>
           {rows.map(({ config, method, active }) => (
             <MethodListItem
               key={config.type}

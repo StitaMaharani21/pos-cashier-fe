@@ -51,7 +51,7 @@ export function UpsellModal() {
             )}
           </div>
           <Link
-            to="/app/billing"
+            to="/app/business-settings?tab=paket"
             onClick={close}
             className="text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
           >

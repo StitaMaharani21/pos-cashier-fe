@@ -25,12 +25,9 @@ export const routeAccess: Record<string, AccessRule> = {
   "stock-history": { feature: "inventory_full", module: "inventory" },
   "stock-reconciliation": { feature: "inventory_full", module: "inventory" },
   profile: {},
-  // Deliberately ungated — every owner, on any plan, needs to be able to
-  // see this page to find out what to upgrade to. Gating it would lock an
-  // owner out of the one page that explains how to unlock everything else.
-  billing: {},
   // Header avatar menu only (not in the sidebar) — any logged-in owner.
   "change-password": {},
+  // Informasi Bisnis + Paket & Fitur Tambahan tabs (the old /app/billing redirects here).
   "business-settings": { feature: "pos", module: "settings" },
   // Owner's own Midtrans account (Pro+). No RBAC module: the backend route is
   // owner-only (JWT) + the online_payment feature, nothing finer.
