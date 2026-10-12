@@ -36,6 +36,11 @@ function channelFormData(payload: PaymentChannelPayload): FormData {
   formData.append("name", payload.name)
   formData.append("status", payload.status)
   formData.append("sort_order", String(payload.sort_order ?? 0))
+  // Omitted (not "") when there is no own fee: the backend reads an empty value
+  // as 0%, which would mean "free" instead of "use the standard fee".
+  if (payload.credit_surcharge_percent != null) {
+    formData.append("credit_surcharge_percent", String(payload.credit_surcharge_percent))
+  }
   return formData
 }
 

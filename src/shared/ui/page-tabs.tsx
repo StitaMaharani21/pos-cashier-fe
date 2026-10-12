@@ -20,7 +20,11 @@ export function PageTabs<T extends string>({
   onChange: (id: T) => void
 }) {
   return (
-    <div role="tablist" aria-label={label} className="-mb-2 flex gap-2 border-b">
+    <div
+      role="tablist"
+      aria-label={label}
+      className="-mb-2 flex gap-2 overflow-x-auto border-b [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
       {tabs.map((item) => {
         const selected = item.id === active
         return (
@@ -31,7 +35,7 @@ export function PageTabs<T extends string>({
             aria-selected={selected}
             onClick={() => onChange(item.id)}
             className={cn(
-              "-mb-px flex items-center gap-2 border-b-2 px-3 pt-1 pb-3 text-sm font-semibold transition-colors",
+              "-mb-px flex shrink-0 cursor-pointer items-center gap-2 border-b-2 px-3 pt-1 pb-3 text-sm font-semibold whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
               selected ? "border-primary text-primary-strong" : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >

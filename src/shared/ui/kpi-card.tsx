@@ -34,29 +34,51 @@ export function KpiCard({
 
   return (
     <div
-      onClick={onClick}
       className={cn(
-        "relative flex flex-col justify-between overflow-hidden rounded-xl border bg-card p-[21px] shadow-sm",
-        isWarning && "border-destructive/30 shadow-[0_2px_8px_-2px_rgba(186,26,26,0.15)]",
-        onClick && "cursor-pointer transition-colors hover:border-primary/40",
+        "group relative flex min-h-[8.75rem] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-5 shadow-sm",
+        isWarning && "border-destructive/40",
+        onClick &&
+          "transition-[border-color,box-shadow] focus-within:border-primary/50 hover:border-primary/50 hover:shadow-md",
         className
       )}
     >
       {isWarning && (
-        <div className="absolute top-0 right-0 size-16 rounded-bl-full bg-destructive/5" />
+        <div aria-hidden className="absolute top-0 right-0 size-16 rounded-bl-full bg-destructive/5" />
       )}
 
-      <div className="relative flex items-center justify-between pb-3">
+      {/* A card that does something gets a real <button> stretched over it,
+          rather than an onClick on the div: that way it's keyboard-reachable
+          and announced, and the footer can still hold its own buttons (the
+          cash card's "Tutup Shift") without nesting one button in another. */}
+      {onClick && (
+        <button
+          type="button"
+          onClick={onClick}
+          aria-label={`${label} — buka detail`}
+          className="absolute inset-0 cursor-pointer rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        />
+      )}
+
+      <div
+        className={cn(
+          "relative flex items-start justify-between gap-2 pb-3",
+          // The overlay button sits behind these positioned siblings, so the
+          // content has to let clicks through for the whole card to be the
+          // hit area. Re-enabled per-control below.
+          onClick && "pointer-events-none"
+        )}
+      >
         <span
           className={cn(
             "flex items-center gap-1.5 text-xs font-medium tracking-wide",
             isWarning ? "text-destructive" : "text-muted-foreground"
           )}
         >
-          {isWarning && <span className="size-2 rounded-full bg-destructive" />}
+          {isWarning && <span aria-hidden className="size-2 shrink-0 rounded-full bg-destructive" />}
           {label}
         </span>
         <span
+          aria-hidden
           className={cn(
             "flex size-8 shrink-0 items-center justify-center rounded-full",
             ICON_TONE_CLASSES[iconTone]
@@ -66,8 +88,13 @@ export function KpiCard({
         </span>
       </div>
 
-      <div className="relative flex flex-col gap-1 pt-1">
-        <div className="text-xl font-semibold text-foreground">{value}</div>
+      <div
+        className={cn(
+          "relative flex flex-col gap-1 pt-1",
+          onClick && "pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
+        )}
+      >
+        <div className="text-xl font-bold tracking-tight text-foreground tabular-nums">{value}</div>
         {footer}
       </div>
     </div>

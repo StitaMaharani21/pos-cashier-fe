@@ -8,7 +8,12 @@ import {
   CARD_NETWORK_OPTIONS,
   CARD_TYPE_OPTIONS,
 } from "@/modules/owner/payment-method/constants/payment-providers"
-import { channelKey, channelOptions, type MethodDraft } from "@/modules/owner/payment-method/components/method-draft"
+import {
+  channelKey,
+  channelOptions,
+  surchargeError as surchargeErrorOf,
+  type MethodDraft,
+} from "@/modules/owner/payment-method/components/method-draft"
 import { OptionChip } from "@/modules/owner/payment-method/components/OptionChip"
 import { ImageUpload } from "@/shared/ui/image-upload"
 import { Input } from "@/shared/ui/input"
@@ -46,9 +51,16 @@ interface PanelProps {
   onChange: (update: (draft: MethodDraft) => Partial<MethodDraft>) => void
 }
 
-export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps & { surchargeError: string | null }) {
+export function CardConfigPanel({
+  draft,
+  onChange,
+  surchargeError,
+  channels,
+}: PanelProps & { surchargeError: string | null; channels: PaymentChannel[] }) {
   const allNetworks = CARD_NETWORK_OPTIONS.map((option) => option.value)
   const acceptsCredit = draft.cardTypes.includes("credit")
+  // The banks the store accepts (the same list as Transfer Bank).
+  const banks = channels.filter((channel) => channel.type === "bank" && channel.status === "active")
 
   return (
     <div className="flex flex-col gap-6">
@@ -91,7 +103,7 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
 
       <div className="flex flex-col gap-2">
         <label htmlFor="credit-surcharge" className="text-sm font-semibold text-foreground">
-          Biaya tambahan kartu kredit (%)
+          Biaya tambahan standar kartu kredit (%)
         </label>
         <div className="relative max-w-40">
           <Input
@@ -116,7 +128,64 @@ export function CardConfigPanel({ draft, onChange, surchargeError }: PanelProps 
         {surchargeError ? (
           <p className="text-xs text-destructive">{surchargeError}</p>
         ) : (
-          !acceptsCredit && <p className="text-xs text-muted-foreground">Pilih tipe Kredit untuk mengatur biaya tambahan.</p>
+          <p className="text-xs text-muted-foreground">
+            {acceptsCredit
+              ? "Dipakai untuk bank yang tidak punya biaya sendiri di bawah."
+              : "Pilih tipe Kredit untuk mengatur biaya tambahan."}
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <SectionLabel>Biaya tambahan per bank</SectionLabel>
+        <p className="-mt-1 text-xs text-muted-foreground">
+          Tiap bank penerbit kartu bisa punya biaya sendiri. Kosongkan untuk memakai biaya standar
+          {draft.surcharge ? ` (${draft.surcharge}%)` : ""}; isi 0 untuk bank tanpa biaya.
+        </p>
+        {banks.length === 0 ? (
+          <p className="rounded-xl bg-muted/50 px-4 py-4 text-sm text-muted-foreground">
+            Belum ada bank aktif. Aktifkan bank di pengaturan Transfer Bank, lalu atur biayanya di sini.
+          </p>
+        ) : (
+          <div className="flex flex-col divide-y rounded-xl border">
+            {banks.map((bank) => {
+              const key = channelKey(bank.name ?? "")
+              const value = draft.bankSurcharges[key] ?? ""
+              const problem = surchargeErrorOf(value)
+              return (
+                <div key={bank.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                  <label htmlFor={`bank-surcharge-${bank.id}`} className="text-sm font-medium text-foreground">
+                    {bank.name}
+                  </label>
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="relative w-32">
+                      <Input
+                        id={`bank-surcharge-${bank.id}`}
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        max={100}
+                        step="0.1"
+                        placeholder="Standar"
+                        value={value}
+                        disabled={!acceptsCredit}
+                        aria-invalid={problem ? true : undefined}
+                        onChange={(event) => {
+                          const next = event.target.value
+                          onChange((d) => ({ bankSurcharges: { ...d.bankSurcharges, [key]: next } }))
+                        }}
+                        className="pr-8"
+                      />
+                      <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
+                        %
+                      </span>
+                    </div>
+                    {problem && <p className="text-xs text-destructive">{problem}</p>}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
     </div>

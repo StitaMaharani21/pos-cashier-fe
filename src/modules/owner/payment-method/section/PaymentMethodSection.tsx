@@ -134,6 +134,23 @@ export function PaymentMethodSection() {
         await (method?.id != null ? updatePaymentMethod(method.id, payload) : createPaymentMethod(payload))
       }
 
+      // Each bank's own credit-card fee lives on the bank (payment channel).
+      if (config.type === "card") {
+        for (const channel of channels) {
+          if (channel.type !== "bank" || channel.id == null) continue
+          const typed = (draft.bankSurcharges[channelKey(channel.name ?? "")] ?? "").trim()
+          const wanted = typed === "" ? null : Number(typed)
+          if ((channel.credit_surcharge_percent ?? null) === wanted) continue
+          await updatePaymentChannel(channel.id, {
+            type: "bank",
+            name: channel.name ?? "",
+            status: channel.status === "inactive" ? "inactive" : "active",
+            sort_order: channel.sort_order,
+            credit_surcharge_percent: wanted,
+          })
+        }
+      }
+
       const channelType = CHANNEL_TYPE_FOR[config.type]
       if (channelType && config.type !== "card") {
         const options = channelOptions(config.type, channels)
@@ -147,6 +164,8 @@ export function PaymentMethodSection() {
                 name: existing.name ?? option.name,
                 status: wanted ? "active" : "inactive",
                 sort_order: existing.sort_order,
+                // PUT replaces every field: keep the bank's own card fee.
+                credit_surcharge_percent: existing.credit_surcharge_percent ?? null,
               })
             }
           } else if (wanted) {

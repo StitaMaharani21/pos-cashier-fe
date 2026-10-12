@@ -222,7 +222,7 @@ export function CrudSection<T, TCreate, TUpdate>({
             <div className="flex flex-wrap gap-2">
               {toolbarActions}
               {canCreate && (
-                <Button className="h-10" onClick={() => openForm(null)}>
+                <Button className="h-11 sm:h-10" onClick={() => openForm(null)}>
                   <PlusIcon />
                   Tambah {title}
                 </Button>

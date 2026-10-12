@@ -9,6 +9,7 @@ import {
 } from "@/modules/owner/payment-method/components/ConfigPanels"
 import {
   initialDraft,
+  hasBankSurchargeError,
   isDraftDirty,
   surchargeError,
   type MethodDraft,
@@ -55,6 +56,7 @@ export function MethodDetailPanel({
   const [draft, setDraft] = useState<MethodDraft>(initial)
   const dirty = isDraftDirty(draft, initial)
   const surchargeProblem = type === "card" ? surchargeError(draft.surcharge) : null
+  const bankProblem = type === "card" && hasBankSurchargeError(draft)
   const hasSettings = type !== "cash"
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export function MethodDetailPanel({
       </div>
 
       <div className="px-6 py-6">
-        {type === "card" && <CardConfigPanel draft={draft} onChange={change} surchargeError={surchargeProblem} />}
+        {type === "card" && <CardConfigPanel draft={draft} onChange={change} surchargeError={surchargeProblem} channels={channels} />}
         {(type === "transfer" || type === "ewallet") && (
           <ChannelConfigPanel type={type} channels={channels} draft={draft} onChange={change} />
         )}
@@ -116,7 +118,7 @@ export function MethodDetailPanel({
             </Button>
             <Button
               type="button"
-              disabled={!dirty || isSaving || surchargeProblem !== null}
+              disabled={!dirty || isSaving || surchargeProblem !== null || bankProblem}
               onClick={() => onSave(draft)}
             >
               {isSaving ? "Menyimpan..." : "Simpan Perubahan"}

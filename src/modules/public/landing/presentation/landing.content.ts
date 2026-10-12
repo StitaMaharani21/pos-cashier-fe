@@ -1,50 +1,351 @@
 import {
   Armchair,
-  Ban,
+  BadgeCheck,
+  BanknoteIcon,
   ChartColumn,
+  CreditCard,
   Headset,
-  Infinity as InfinityIcon,
+  type LucideIcon,
   Lock,
-  MessageCircle,
+  Monitor,
   MessageSquarePlus,
-  ScanQrCode,
+  PackageSearch,
+  QrCode,
+  Receipt,
+  Smartphone,
   Timer,
   Wallet,
   WifiOff,
-  type LucideIcon,
 } from "lucide-react"
 
+import orderScreen from "@/assets/landing/order-screen.webp"
+import payCash from "@/assets/landing/pay-cash.webp"
+import payQris from "@/assets/landing/pay-qris.webp"
+import shiftStart from "@/assets/landing/shift-start.webp"
 import { REGISTER_PATH, SUPPORT_HOURS } from "@/modules/public/shared/contact"
-import {
-  ANNUAL_BILLING_ENABLED,
-  ANNUAL_PRICE,
-  EXTRA_PRICING,
-  MONTHLY_PRICE,
-  PRICE_PREFIX,
-  STARTER_SOFT_DAILY_LIMIT,
-} from "@/modules/public/shared/pricing"
+import { EXTRA_PRICING, MONTHLY_PRICE, PRICE_PREFIX, STARTER_SOFT_DAILY_LIMIT } from "@/modules/public/shared/pricing"
 
-// All landing copy in one place — per the "Konten Landing Page — Neela POS"
-// brief, laid over the Stitch design's section order, then tightened to
-// short, one-idea lines. Static marketing content: pos-kasir-be has no
-// CMS/promotion backend (see ARCHITECTURE.md), so editing the page means
+// All landing copy in one place. Static marketing content: pos-kasir-be has
+// no CMS/promotion backend (see ARCHITECTURE.md), so editing the page means
 // editing this file.
 //
-// The page is in "early access" mode (the brief's Opsi A) while Neela has
-// no live customers yet: no customer logos, no testimonials. Filling in
-// SOCIAL_PROOF / TESTIMONIALS below switches those sections to the brief's
-// Opsi B automatically — only do that with real, owner-approved content.
+// Content is grounded against three sources of truth so nothing here claims
+// more than the product does:
+// - pos-kasir-be's internal/entitlement/feature.go (Starter vs Pro feature
+//   gate — POS/Shift/Discount vs +Reports/+Inventory/+QRSelfOrder/+OnlinePayment)
+// - pos-kasir-be's internal/common/plan/plan.go (cashier/device limits)
+// - docs/proses-bisnis-landing-page.md (the landing page's business rules —
+//   registration/approval flow, subscription timing, what must never be
+//   promised)
+//
+// The page is in "early access" mode while Neela has no live customers yet:
+// no customer logos, no testimonials. Filling in SOCIAL_PROOF / TESTIMONIALS
+// below switches EarlyAccessSection to real social proof — only with real,
+// owner-approved content.
 
-// The primary CTA (components/PrimaryCta.tsx): visitors go to the store
-// registration page, a logged-in owner gets a way back into the console
-// instead — never a "sign up" prompt for someone who already has a store.
+// ---------------------------------------------------------------------------
+// Primary conversion actions
+
+// Visitors go to registration; a logged-in owner gets a way back into the
+// console instead — never a "sign up" prompt for someone who already has a
+// store (components/PrimaryCta.tsx).
 export const PRIMARY_CTA = {
-  visitor: { label: "Daftar Early Access", to: REGISTER_PATH },
+  visitor: { label: "Daftar", to: REGISTER_PATH },
   owner: { label: "Buka Dashboard", to: "/app" },
 } as const
 
+export const WHATSAPP_CTA_LABEL = "Konsultasi via WhatsApp"
+
+export const NAV_LINKS: { href: string; label: string }[] = [
+  { href: "#fitur", label: "Fitur" },
+  { href: "#cara-kerja", label: "Cara Kerja" },
+  { href: "#harga", label: "Paket Harga" },
+  { href: "#faq", label: "FAQ" },
+]
+
 // ---------------------------------------------------------------------------
-// Social proof — Opsi B content. Leave empty/null until it's real.
+// Hero (section 2)
+
+export const HERO_HEADLINE = "Kasir tetap berjalan saat internet putus."
+export const HERO_SUBHEAD =
+  "Neela POS mencatat pesanan tunai dan mengelola shift kasir walau WiFi mati. Begitu internet kembali, data langsung terkirim — tanpa kamu harus input ulang."
+
+export const HERO_BADGE = "Dibuat untuk kafe, resto & kedai di Indonesia"
+
+// ---------------------------------------------------------------------------
+// Quick product facts (section 3) — platform/payment/printing facts a
+// visitor needs before reading further. Kept factual, no marketing adjectives.
+
+export interface QuickFact {
+  icon: LucideIcon
+  label: string
+  body: string
+}
+
+export const QUICK_FACTS: QuickFact[] = [
+  {
+    icon: Smartphone,
+    label: "Android & Windows",
+    body: "Kasir berjalan di tablet/HP Android dan di PC/laptop Windows.",
+  },
+  {
+    icon: Receipt,
+    label: "Cetak struk Bluetooth & USB",
+    body: "Tersedia di Android. Printer di Windows memakai jalur cetak Windows sendiri.",
+  },
+  {
+    icon: WifiOff,
+    label: "Offline: tunai & shift",
+    body: "Pesanan tunai, buka/tutup shift, dan hitung kas tetap jalan tanpa internet.",
+  },
+  {
+    icon: QrCode,
+    label: "QRIS & nontunai perlu internet",
+    body: "Pembayaran QRIS, kartu, dan transfer butuh koneksi internet aktif.",
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Problems → solutions (section 4) — three concrete operational problems,
+// each answered by a real, shipped capability (not a promised outcome).
+
+// `visual` picks the product mock drawn inside the solution card
+// (ProblemSection); `kicker` is the feature name on that card.
+export interface ProblemSolution {
+  problem: string
+  solution: string
+  explanation: string
+}
+
+export const PROBLEMS: ProblemSolution[] = [
+  {
+    problem: "Internet putus, kasir berhenti",
+    solution: "Pesanan tunai dan shift tetap jalan tanpa internet",
+    explanation: "Data tersimpan di perangkat dan terkirim otomatis saat internet kembali.",
+  },
+  {
+    problem: "Catatan transaksi berantakan",
+    solution: "Setiap transaksi tercatat rapi di satu tempat",
+    explanation: "Riwayat pesanan, metode bayar, dan shift bisa dicek kapan saja dari akun owner.",
+  },
+  {
+    problem: "Kas dan stok sering tidak cocok",
+    solution: "Hitung kas per shift, cek selisih stok per bahan",
+    explanation: "Selisih kas langsung terlihat saat tutup shift. Stok per bahan baku tersedia di paket Pro.",
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Product tour (section 5) — real screens where a screenshot exists;
+// a plain description where it doesn't (never a fabricated mockup).
+
+export interface TourStep {
+  title: string
+  body: string
+  badge?: "Pro"
+}
+
+export const TOUR_CASHIER: TourStep & { image: string; imageAlt: string } = {
+  title: "Pilih menu, buat pesanan",
+  body: "Katalog menu dan panel pesanan dalam satu layar. Kasir menambah item, mencatat catatan khusus, dan menerapkan diskon dalam hitungan detik.",
+  image: orderScreen,
+  imageAlt: "Layar Buat Pesanan Neela POS: katalog menu di kiri, panel pesanan di kanan",
+}
+
+export const TOUR_PAYMENT: TourStep & { images: { src: string; alt: string }[] } = {
+  title: "Bayar tunai atau QRIS",
+  body: "Tunai dicatat dengan kembalian otomatis. QRIS menampilkan kode pembayaran langsung di layar kasir — keduanya tercatat sebagai satu transaksi yang sama.",
+  images: [
+    { src: payCash, alt: "Modal pembayaran tunai: jumlah diterima dan kembalian dihitung otomatis" },
+    { src: payQris, alt: "Modal pembayaran QRIS dengan kode QR toko" },
+  ],
+}
+
+export const TOUR_SHIFT: TourStep & { image: string; imageAlt: string } = {
+  title: "Buka shift, hitung kas",
+  body: "Kasir mencatat saldo kas awal saat buka shift, lalu menghitung uang fisik saat tutup shift. Sistem menunjukkan selisihnya, kalau ada.",
+  image: shiftStart,
+  imageAlt: "Layar Mulai Shift: kasir memasukkan saldo kas awal",
+}
+
+// No screenshot asset exists for these yet — described plainly rather than
+// faked. Each maps to a real, shipped screen in the owner console.
+export const TOUR_OTHER: TourStep[] = [
+  {
+    title: "Riwayat transaksi",
+    body: "Setiap pesanan, metode bayar, dan kasir yang menangani tersimpan dan bisa dicari dari dashboard owner.",
+  },
+  {
+    title: "Laporan penjualan & kas",
+    body: "Rekap omset, metode pembayaran, dan arus kas per shift — dilihat dari dashboard, kapan saja.",
+    badge: "Pro",
+  },
+  {
+    title: "Stok per bahan & resep",
+    body: "Catat bahan baku per resep menu, pantau stok menipis, dan cek selisih stok fisik terhadap sistem.",
+    badge: "Pro",
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Offline explanation (section 6) — the central differentiator, explained
+// honestly: what keeps working, what needs a connection.
+
+export const OFFLINE_WORKS: { icon: LucideIcon; label: string }[] = [
+  { icon: Receipt, label: "Pesanan & pembayaran tunai" },
+  { icon: Timer, label: "Buka dan tutup shift" },
+  { icon: BanknoteIcon, label: "Hitung kas di laci" },
+]
+
+export const OFFLINE_NEEDS_INTERNET: { icon: LucideIcon; label: string }[] = [
+  { icon: QrCode, label: "Pembayaran QRIS" },
+  { icon: CreditCard, label: "Pembayaran kartu" },
+  { icon: Wallet, label: "Transfer bank" },
+]
+
+export const OFFLINE_NOTE =
+  "Neela POS tidak berjalan sepenuhnya offline — fitur di luar pesanan tunai dan shift (termasuk sinkronisasi laporan ke server) butuh internet begitu tersedia lagi."
+
+// ---------------------------------------------------------------------------
+// Features & supported devices (section 7)
+
+export interface FeatureItem {
+  icon: LucideIcon
+  label: string
+}
+
+// Starter, per entitlement.go's starterFeatures(): POS, Shift, Discount.
+export const STARTER_FEATURES: FeatureItem[] = [
+  { icon: Receipt, label: "Kasir: pesanan, keranjang, bayar" },
+  { icon: Timer, label: "Manajemen shift & hitung kas" },
+  { icon: BadgeCheck, label: "Voucher & diskon" },
+  { icon: WifiOff, label: "Offline untuk pesanan tunai" },
+]
+
+// Pro-exclusive, per entitlement.go's proFeatures() beyond Starter: Reports,
+// Inventory, QRSelfOrder, OnlinePayment (+ table management, gated on the
+// same qr_self_order feature flag — see app/router/routeAccess.ts).
+export const PRO_FEATURES: FeatureItem[] = [
+  { icon: ChartColumn, label: "Laporan penjualan & kas" },
+  { icon: PackageSearch, label: "Stok per bahan baku & resep" },
+  { icon: QrCode, label: "Self-order QR pelanggan" },
+  { icon: Armchair, label: "Kelola meja" },
+  { icon: Wallet, label: "QRIS dinamis (pembayaran online)" },
+]
+
+export const PLATFORM_FACTS: { icon: LucideIcon; title: string; body: string }[] = [
+  {
+    icon: Smartphone,
+    title: "Android",
+    body: "Kasir lengkap di tablet atau HP. Cetak struk lewat printer Bluetooth atau USB.",
+  },
+  {
+    icon: Monitor,
+    title: "Windows",
+    body: "Kasir lengkap di PC atau laptop, dengan jalur cetak struk Windows sendiri.",
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Self-order QR (section 8) — Pro upsell reason.
+
+export const SELF_ORDER = {
+  eyebrow: "Fitur Pro",
+  title: "Pelanggan pesan sendiri lewat QR di meja",
+  body: "Pelanggan memindai kode QR di meja, melihat menu, dan memesan langsung dari HP mereka — pesanan masuk ke kasir tanpa perlu dicatat ulang. Mengurangi antrean di jam sibuk dan membebaskan kasir untuk fokus menyiapkan pesanan.",
+  bullets: [
+    "Satu kode QR per meja, dicetak dari dashboard",
+    "Pesanan masuk langsung ke layar kasir",
+    "Jadi satu paket dengan Kelola Meja di paket Pro",
+  ],
+} as const
+
+// ---------------------------------------------------------------------------
+// Pricing (section 9) — numbers from shared/pricing.ts (the single source of
+// truth, kept in sync with pos-kasir-be's subscription_plan table per that
+// file's own header comment). Limits below are cross-checked against
+// pos-kasir-be's internal/common/plan/plan.go.
+
+export type PlanId = "starter" | "pro" | "enterprise"
+
+export interface Plan {
+  id: PlanId
+  name: string
+  description: string
+  pricePrefix?: string
+  price: string
+  cashiers: string
+  devices: string
+  includesPrevious?: string
+  features: string[]
+  note?: string
+  cta: string
+  ctaAction: "register" | "sales"
+  ownerCta?: string
+}
+
+export const PLANS: Plan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    description: "Untuk kedai kecil atau booth dengan satu kasir.",
+    pricePrefix: PRICE_PREFIX.starter,
+    price: MONTHLY_PRICE.starter,
+    cashiers: "1 kasir",
+    devices: "2 perangkat",
+    features: [
+      "Kasir lengkap: pesanan, keranjang, bayar",
+      "Manajemen shift & hitung kas",
+      "Voucher & diskon",
+      "Offline untuk pesanan tunai",
+    ],
+    note: `Sekitar ${STARTER_SOFT_DAILY_LIMIT} transaksi/hari sebagai acuan kapasitas paket ini.`,
+    cta: "Daftar Starter",
+    ctaAction: "register",
+    ownerCta: "Tanya Paket Starter",
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    description: "Untuk kafe & resto dine-in yang butuh laporan dan stok.",
+    pricePrefix: PRICE_PREFIX.pro,
+    price: MONTHLY_PRICE.pro,
+    cashiers: "2 kasir",
+    devices: "4 perangkat",
+    includesPrevious: "Semua fitur Starter, plus:",
+    features: [
+      "Laporan penjualan & kas",
+      "Stok per bahan baku & resep",
+      "Self-order QR pelanggan",
+      "Kelola meja",
+      "QRIS dinamis (pembayaran online)",
+    ],
+    cta: "Daftar Pro",
+    ctaAction: "register",
+    ownerCta: "Naik ke Pro",
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    description: "Untuk kebutuhan kasir dalam jumlah besar.",
+    pricePrefix: PRICE_PREFIX.enterprise,
+    price: MONTHLY_PRICE.enterprise,
+    cashiers: "5 kasir",
+    devices: "Perangkat tanpa batas",
+    includesPrevious: "Semua fitur Pro, plus:",
+    features: ["Penawaran disesuaikan lewat tim sales"],
+    cta: "Konsultasi Enterprise",
+    ctaAction: "sales",
+  },
+]
+
+export const EXTRA_DEVICE_NOTE = `Perangkat tambahan ${EXTRA_PRICING.extraDevice.price}${EXTRA_PRICING.extraDevice.unit} — berlaku untuk Starter dan Pro.`
+
+export const PRICING_TERMS = "Harga per toko per bulan, belum termasuk PPN."
+
+// ---------------------------------------------------------------------------
+// Social proof — empty until there's something real to show (see
+// EarlyAccessSection / TestimonialSection).
 
 export interface TrustedBrand {
   name: string
@@ -68,288 +369,118 @@ export interface Testimonial {
 // Only publish quotes verified with the store owner in question.
 export const TESTIMONIALS: Testimonial[] = []
 
-// Opsi A — shown while SOCIAL_PROOF is null.
-export const EARLY_ACCESS_TRUST = {
-  headline:
-    "Bergabung dalam gelombang pertama kafe & resto yang beralih ke sistem kasir yang tetap jalan tanpa internet",
-  subline: "Sedang membuka slot terbatas untuk toko pilot di Jakarta",
-}
+// ---------------------------------------------------------------------------
+// Early access program (section 10) — stands in for testimonials; no
+// customer names, logos, or numbers until there's something real to cite.
 
-// Opsi A — shown while TESTIMONIALS is empty.
-export const EARLY_ACCESS_PERKS: { icon: LucideIcon; iconClassName: string; title: string; body: string }[] = [
-  {
-    icon: Lock,
-    iconClassName: "bg-neela-primary-fixed text-neela-primary",
-    title: "Harga terkunci 6 bulan",
-    body: "Harga langganan tidak naik selama 6 bulan pertama.",
-  },
+export const EARLY_ACCESS = {
+  eyebrow: "Program Early Access",
+  title: "Belum ada pelanggan yang bisa kami kutip — jadi kami jujur saja",
+  description:
+    "Neela POS masih di tahap awal. Daripada testimoni yang belum ada, berikut yang kamu dapat kalau bergabung sekarang.",
+} as const
+
+export const EARLY_ACCESS_PERKS: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: Headset,
-    iconClassName: "bg-neela-tertiary-fixed text-neela-tertiary",
-    title: "Setup dibantu tim kami",
-    body: "Input menu dan printer, sampai toko siap jualan.",
+    title: "Dibantu setup dari awal",
+    body: "Tim kami bantu input menu dan menyiapkan printer sampai toko siap jualan.",
   },
   {
     icon: MessageSquarePlus,
-    iconClassName: "bg-neela-secondary-fixed text-neela-on-secondary-fixed",
-    title: "Request fitur diprioritaskan",
-    body: "Masukan toko pilot masuk roadmap lebih dulu.",
+    title: "Masukanmu menentukan prioritas",
+    body: "Permintaan fitur dari toko early access masuk ke antrean pengembangan lebih dulu.",
+  },
+  {
+    icon: Lock,
+    title: "Dukungan WhatsApp",
+    body: `Tim support bisa dihubungi lewat WhatsApp, ${SUPPORT_HOURS}.`,
   },
 ]
 
 // ---------------------------------------------------------------------------
+// FAQ (section 11) — only answers backed by the implementation or the
+// business rules in docs/proses-bisnis-landing-page.md.
 
-export const NAV_LINKS: { href: string; label: string }[] = [
-  { href: "#fitur", label: "Fitur" },
-  { href: "#keunggulan", label: "Keunggulan" },
-  { href: "#harga", label: "Harga" },
-  TESTIMONIALS.length > 0
-    ? { href: "#testimoni", label: "Testimoni" }
-    : { href: "#pilot", label: "Cerita Pilot" },
-  { href: "#kontak", label: "Kontak" },
-]
-
-export const HERO_TRUST_SIGNALS = [
-  "Tanpa kartu kredit",
-  "Setup dibantu tim",
-  `Support WhatsApp ${SUPPORT_HOURS}`,
-] as const
-
-export const PAIN_POINTS: { icon: LucideIcon; title: string; body: string; impact: string }[] = [
-  {
-    icon: Ban,
-    title: "Batas Transaksi Mendadak",
-    body: "Kafe sedang ramai, kasir malah terkunci dan dipaksa pindah paket.",
-    impact: "Antrean macet, omset hangus.",
-  },
-  {
-    icon: WifiOff,
-    title: "WiFi Mati, Kasir Lumpuh",
-    body: "Kasir yang butuh internet berhenti saat WiFi putus. Pesanan dicatat di kertas.",
-    impact: "Order salah, tamu komplain.",
-  },
-  {
-    icon: Wallet,
-    title: "Biaya Tersembunyi & Bantuan Lambat",
-    body: "Tambah printer atau kasir, tambah biaya. Tim bantuan baru membalas berhari-hari.",
-    impact: "Biaya bengkak, masalah tak selesai.",
-  },
-]
-
-export const PILLARS: {
-  icon: LucideIcon
-  iconClassName: string
-  taglineClassName: string
-  title: string
-  tagline: string
-  body: string
-  tags: string[]
-  highlightTag: string
-}[] = [
-  {
-    icon: Timer,
-    iconClassName: "bg-neela-primary-fixed text-neela-primary",
-    taglineClassName: "text-neela-primary",
-    title: "Tetap Jalan Tanpa Internet",
-    tagline: "WiFi mati, kasir tetap jualan.",
-    body: "Struk dan tiket dapur tetap tercetak. Data terkirim otomatis begitu internet kembali.",
-    tags: ["Tanpa Internet", "Tanpa Jeda"],
-    highlightTag: "Data Terkirim Otomatis",
-  },
-  {
-    icon: InfinityIcon,
-    iconClassName: "bg-neela-tertiary-fixed text-neela-tertiary",
-    taglineClassName: "text-neela-tertiary",
-    title: "Checkout Tak Pernah Diblokir",
-    tagline: "Batas harian Starter cuma pengingat, bukan pemblokir.",
-    body: "Lewat batas beberapa hari? Kami kirim pemberitahuan untuk pindah paket — kasir tetap jalan.",
-    tags: ["Kelonggaran 3 Hari"],
-    highlightTag: "Biaya Tetap",
-  },
-  {
-    icon: MessageCircle,
-    iconClassName: "bg-neela-secondary-fixed text-neela-on-secondary-fixed",
-    taglineClassName: "text-neela-secondary",
-    title: "Bantuan dari Tim Lokal",
-    tagline: `WhatsApp ${SUPPORT_HOURS}.`,
-    body: "Tim Jakarta yang paham kafe & resto — dari menyiapkan menu sampai mengatasi kendala.",
-    tags: ["Onboarding Dipandu"],
-    highlightTag: "Tim Jabodetabek",
-  },
-]
-
-export const MINI_FEATURES: { icon: LucideIcon; title: string; body: string; badge?: string }[] = [
-  {
-    icon: Armchair,
-    title: "Meja & Split Bill",
-    body: "Gabung, pindah meja, atau split bill dalam 2 detik.",
-    badge: "Pro ke atas",
-  },
-  {
-    icon: ScanQrCode,
-    title: "QRIS Semua E-Wallet",
-    body: "BCA, Mandiri, GoPay, OVO, ShopeePay & Dana.",
-  },
-  {
-    icon: ChartColumn,
-    title: "Omset & Stok dari HP",
-    body: "Laporan harian dan pemberitahuan stok menipis, langsung di HP.",
-  },
-]
-
-export type BillingCycle = "monthly" | "annual"
-
-export interface Plan {
-  id: "starter" | "pro" | "enterprise"
-  name: string
-  description: string
-  badge?: string
-  // "Mulai " for a price that is only a starting point (Enterprise quote).
-  pricePrefix?: string
-  price: Record<BillingCycle, string>
-  subtext: Record<BillingCycle, string>
-  // "Semua fitur X, plus:" line above the list.
-  includesPrevious?: string
-  features: string[]
-  // Rendered below the list as an ℹ️ note rather than a ✅ feature.
-  note?: string
-  cta: string
-  // "register" → the store registration page (a logged-in owner gets
-  // `ownerCta` via sales instead, since upgrades go through the sales team);
-  // "sales" → always a WhatsApp chat.
-  ctaAction: "register" | "sales"
-  ownerCta?: string
+export interface FaqItem {
+  question: string
+  answer: string
 }
 
-// Annual = pay 10 months, use 12 (price list). The annual price is a yearly
-// total, so PricingSection swaps the "/ outlet / bln" unit for "/ tahun".
-// Feature lists follow the "Price List POS Kasir — Asta Studio" comparison table.
-export const PLANS: Plan[] = [
+export const FAQ_ITEMS: FaqItem[] = [
   {
-    id: "starter",
-    name: "Starter",
-    badge: "14 HARI COBA GRATIS",
-    description: "Untuk kedai kecil, booth, atau stand.",
-    pricePrefix: PRICE_PREFIX.starter,
-    price: { monthly: MONTHLY_PRICE.starter, annual: ANNUAL_PRICE.starter },
-    subtext: {
-      monthly: "Gratis 14 hari, lalu bulanan flat",
-      annual: "Bayar 10 bulan, pakai 12 bulan",
-    },
-    features: [
-      "1 outlet, 2 perangkat (1 kasir + 1 admin)",
-      "Kasir lengkap, tetap jalan tanpa internet",
-      "Order, keranjang & bayar tunai/digital",
-      "Menu, kategori & metode pembayaran",
-      "Dashboard kasir, shift & pengelolaan kas",
-      "Ringkasan penjualan dasar",
-      "Cetak struk lewat printer Bluetooth",
-      "Nomor antrian sederhana",
-      "Support WhatsApp",
-    ],
-    note: `Batas sekitar ${STARTER_SOFT_DAILY_LIMIT} transaksi per hari. Kasir tidak pernah diblokir — pembatasan baru berlaku jika batas terlewati 3 hari berturut-turut. Opsional: transaksi di atas batas ${EXTRA_PRICING.overage.price}${EXTRA_PRICING.overage.unit}, ditagih akhir bulan.`,
-    cta: "Mulai Uji Coba Gratis",
-    ctaAction: "register",
-    ownerCta: "Tanya Paket Starter",
+    question: "Apa yang terjadi kalau internet putus?",
+    answer:
+      "Pesanan tunai dan manajemen shift (buka/tutup shift, hitung kas) tetap berjalan di perangkat kasir. Pembayaran QRIS, kartu, dan transfer butuh internet aktif karena diproses lewat penyedia pembayaran. Data yang tersimpan selama offline terkirim otomatis begitu internet kembali.",
   },
   {
-    id: "pro",
-    name: "Pro Dine-In",
-    badge: "PALING POPULER UNTUK KAFE DINE-IN",
-    description: "Untuk kafe dan resto dine-in yang ramai.",
-    pricePrefix: PRICE_PREFIX.pro,
-    price: { monthly: MONTHLY_PRICE.pro, annual: ANNUAL_PRICE.pro },
-    subtext: {
-      monthly: "Fitur kasir resto lengkap",
-      annual: "Bayar 10 bulan, pakai 12 bulan",
-    },
-    includesPrevious: "Semua fitur Starter, plus:",
-    features: [
-      "Sampai 3 outlet, 4 perangkat",
-      "Transaksi tanpa batas",
-      "Pelanggan pesan sendiri lewat QR di meja & antrian digital",
-      "Manajemen & status meja",
-      "Split bill & pindah meja",
-      "Voucher & diskon otomatis per produk",
-      "Stok lengkap: barang masuk/keluar, cek stok fisik, supplier & pembelian",
-      "Pemberitahuan stok hampir habis",
-      "Laporan penjualan, kas & untung rugi (modal per menu dihitung otomatis)",
-      "Menu terlaris & keuntungan per menu",
-      "Integrasi QRIS & e-wallet",
-    ],
-    note: `Perangkat tambahan ${EXTRA_PRICING.extraDevice.price}${EXTRA_PRICING.extraDevice.unit}.`,
-    cta: "Pilih Paket Pro Dine-In",
-    ctaAction: "register",
-    ownerCta: "Naik ke Pro Dine-In",
+    question: "Platform dan perangkat apa saja yang didukung?",
+    answer:
+      "Android (tablet atau HP) dan Windows (PC atau laptop). Cetak struk lewat printer Bluetooth atau USB tersedia di Android; Windows memakai jalur cetak Windows sendiri.",
   },
   {
-    id: "enterprise",
-    name: "Enterprise",
-    badge: "MULTI-CABANG",
-    description: "Untuk franchise dan multi-outlet.",
-    pricePrefix: PRICE_PREFIX.enterprise,
-    price: { monthly: MONTHLY_PRICE.enterprise, annual: ANNUAL_PRICE.enterprise },
-    subtext: {
-      monthly: "Custom quote sesuai jumlah cabang",
-      annual: "Bayar 10 bulan, pakai 12 bulan · custom quote",
-    },
-    includesPrevious: "Semua fitur Pro, plus:",
-    features: [
-      "Cabang tanpa batas, jumlah perangkat sesuai kesepakatan",
-      "Dashboard gabungan semua cabang",
-      "Transfer stok antar cabang",
-      "Peran supervisor & persetujuan pembatalan pesanan",
-      "Hak akses diatur per bagian aplikasi",
-      "Terhubung ke software akuntansi",
-      "Cadangan data otomatis terjadwal",
-      "Support prioritas & onboarding khusus",
-    ],
-    cta: "Konsultasi Tim Enterprise",
-    ctaAction: "sales",
+    question: "Fitur apa saja yang khusus paket Pro?",
+    answer:
+      "Laporan penjualan & kas, stok per bahan baku & resep, self-order QR untuk pelanggan, kelola meja, dan QRIS dinamis (pembayaran online langsung dari toko). Semua fitur Starter tetap ada di Pro.",
+  },
+  {
+    question: "Berapa kasir dan perangkat yang didapat per paket?",
+    answer:
+      "Starter: 1 kasir, 2 perangkat. Pro: 2 kasir, 4 perangkat. Enterprise: 5 kasir, perangkat tanpa batas. Perangkat tambahan di luar kuota bisa ditambah dengan biaya per bulan per perangkat.",
+  },
+  {
+    question: "Bagaimana proses pendaftaran dan persetujuannya?",
+    answer:
+      "Setiap toko baru yang mendaftar diperiksa dan disetujui dulu oleh tim admin sebelum aktif. Kamu bisa mengecek status pendaftaran kapan saja dengan email dan kata sandi yang didaftarkan.",
+  },
+  {
+    question: "Kapan masa langganan mulai dihitung?",
+    answer:
+      "Masa langganan 30 hari dihitung sejak toko disetujui admin, bukan sejak pembayaran dilakukan. Perpanjangan juga memakai siklus 30 hari.",
+  },
+  {
+    question: "Bagaimana pembayaran QRIS dan perpanjangan langganan bekerja?",
+    answer:
+      "Starter dan Pro dibayar lewat QRIS. Naik paket tidak menghitung sisa hari paket lama (mulai periode baru), dan turun paket saat ini belum didukung.",
+  },
+  {
+    question: "Bagaimana cara minta penawaran Enterprise?",
+    answer: `Hubungi tim sales lewat WhatsApp (${SUPPORT_HOURS}). Paket Enterprise disesuaikan dengan kebutuhan toko dan tidak dibeli sendiri lewat halaman ini.`,
   },
 ]
 
-// Shown under the plan cards. Terms come from the price list's "Ketentuan".
-export const PRICING_TERMS = ANNUAL_BILLING_ENABLED
-  ? "Harga per toko, belum termasuk PPN (jika berlaku). Tagihan tahunan = bayar 10 bulan untuk pemakaian 12 bulan."
-  : "Harga per toko, belum termasuk PPN (jika berlaku)."
+// ---------------------------------------------------------------------------
+// Closing CTA (section 12)
 
-// The brief's fallback for the unconfirmed 30-day refund guarantee.
-export const PRICING_FOOTNOTE = "Batalkan kapan saja. Tanpa kontrak."
-
-export const FOOTER_TAGLINE =
-  "Aplikasi kasir untuk UMKM kuliner Indonesia — tetap jalan tanpa sinyal, siap QRIS."
-
-// Final CTA banner lead — the sign-up pitch only makes sense to visitors.
 export const FINAL_CTA_LEAD = {
-  visitor:
-    "Daftar sekarang untuk gratis 14 hari penuh. Tim Neela bantu migrasi menu dan printer tanpa biaya tambahan.",
-  owner:
-    "Kelola menu, stok, dan laporan toko kamu dari dashboard. Butuh pindah paket atau bantuan menyiapkan toko? Tim Neela siap membantu.",
-}
+  visitor: "Daftar sekarang, atau ngobrol dulu dengan tim kami lewat WhatsApp kalau masih ada yang ingin ditanyakan.",
+  owner: "Butuh pindah paket atau bantuan menyiapkan toko? Tim Neela siap membantu lewat WhatsApp.",
+} as const
 
-// Footer: product/solution links point at the matching on-page section —
-// the Stitch export had them as dead `href="#"` placeholders.
-export const FOOTER_COLUMNS: { title: string; span: string; links: { label: string; href: string }[] }[] = [
+export const FINAL_CTA_TITLE = "Siap kasir yang tidak takut internet putus?"
+
+// ---------------------------------------------------------------------------
+// Footer (section 13)
+
+export const FOOTER_TAGLINE = "Aplikasi kasir untuk kafe, resto & kedai di Indonesia — tetap jalan tanpa internet untuk pesanan tunai."
+
+// Legal entity name, office address, privacy policy and terms of service are
+// not settled yet (no such pages exist in this repo) — reported as a launch
+// dependency rather than fabricated. See the implementation report.
+export const FOOTER_COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "Produk",
-    span: "lg:col-span-3",
     links: [
-      { label: "Kasir Tablet & HP", href: "#fitur" },
-      { label: "Meja & Dine-In", href: "#keunggulan" },
-      { label: "Menu & Stok", href: "#harga" },
-      { label: "Split Bill & QRIS", href: "#keunggulan" },
-      { label: "Laporan Omset", href: "#keunggulan" },
+      { label: "Fitur", href: "#fitur" },
+      { label: "Cara Kerja", href: "#cara-kerja" },
+      { label: "Paket Harga", href: "#harga" },
     ],
   },
   {
-    title: "Solusi",
-    span: "lg:col-span-2",
+    title: "Bantuan",
     links: [
-      { label: "Kedai Kopi & Kafe", href: "#harga" },
-      { label: "Restoran Dine-in", href: "#harga" },
-      { label: "Fast Food & Booth", href: "#harga" },
-      { label: "Cloud Kitchen", href: "#harga" },
+      { label: "FAQ", href: "#faq" },
+      { label: "Status Pendaftaran", href: "/status-pendaftaran" },
     ],
   },
 ]

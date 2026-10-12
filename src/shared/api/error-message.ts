@@ -10,6 +10,10 @@ export function friendlyErrorMessage(error: unknown, fallback: string = DEFAULT_
   if (error instanceof NetworkError) return NETWORK_ERROR_MESSAGE
   if (!(error instanceof ApiError)) return fallback
 
+  if (error.code === "VOUCHER_START_DATE_PAST") {
+    return "Tanggal mulai tidak boleh sebelum hari ini."
+  }
+
   if (/DUPLICATE|ALREADY_EXISTS|CONFLICT|IN_USE/.test(error.code)) {
     return "Data ini sudah ada atau sedang dipakai."
   }

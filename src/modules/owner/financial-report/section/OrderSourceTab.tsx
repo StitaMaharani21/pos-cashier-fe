@@ -5,9 +5,16 @@ import { useOrderSource } from "@/modules/owner/financial-report/financial-repor
 import { hintCopy } from "@/shared/access/upsellContent"
 import { useCapabilities } from "@/shared/access/useCapabilities"
 import { LockedTile } from "@/shared/access/LockedTile"
+import { SEMANTIC_CHART_COLORS } from "@/shared/lib/chart-colors"
 import { Card } from "@/shared/ui/card"
 
-const SLICE_COLORS = { qr: "#67BAF4", manual: "#F59E0B" }
+// "Pesan Sendiri (QR)" is the app's own channel and "Input Manual" is
+// off-system entry — the two meanings shared/lib/chart-colors keeps stable
+// across every screen that charts them.
+const SLICE_COLORS = {
+  qr: SEMANTIC_CHART_COLORS.primary,
+  manual: SEMANTIC_CHART_COLORS.manual,
+}
 
 // pos-kasir-be has no self-serve checkout for plan changes (see
 // upsellContent.ts's contactLink) — same WhatsApp-handoff idiom, but built
@@ -37,7 +44,7 @@ export function OrderSourceTab({ from, to }: { from: string; to: string }) {
   const query = useOrderSource({ from, to }, isPro)
 
   if (capsLoading) {
-    return <div className="h-[280px] animate-pulse rounded-xl border bg-muted/40" />
+    return <div className="h-70 animate-pulse rounded-2xl border bg-muted/40" />
   }
 
   if (!isPro) {
@@ -54,7 +61,7 @@ export function OrderSourceTab({ from, to }: { from: string; to: string }) {
   }
 
   if (query.isPending) {
-    return <div className="h-[280px] animate-pulse rounded-xl border bg-muted/40" />
+    return <div className="h-70 animate-pulse rounded-2xl border bg-muted/40" />
   }
 
   if (query.isError || !query.data) {

@@ -43,7 +43,7 @@ function cnDelta(positive: boolean) {
 }
 
 function SkeletonCard() {
-  return <div className="h-[141px] animate-pulse rounded-xl border bg-muted/40" />
+  return <div className="h-35 animate-pulse rounded-2xl border bg-muted/40" />
 }
 
 export function KpiCardsGrid() {
@@ -55,7 +55,7 @@ export function KpiCardsGrid() {
 
   if (summary.isPending) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
@@ -72,7 +72,7 @@ export function KpiCardsGrid() {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard
           icon={WalletIcon}
           label="Total Pendapatan"

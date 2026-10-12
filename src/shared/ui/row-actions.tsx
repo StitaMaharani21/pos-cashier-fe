@@ -32,7 +32,10 @@ export function RowActionButton({
       aria-label={label}
       title={label}
       disabled={disabled}
-      className={cn(tone === "danger" && "text-destructive hover:text-destructive")}
+      className={cn(
+        "size-10 cursor-pointer sm:size-9",
+        tone === "danger" && "text-destructive hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+      )}
       onClick={(event) => {
         event.stopPropagation()
         onClick()

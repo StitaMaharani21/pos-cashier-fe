@@ -36,11 +36,11 @@ export function SalesTrendCard() {
   const todayDate = points.at(-1)?.date
 
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border bg-card p-[33px] shadow-sm">
+    <div className="flex flex-col gap-6 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-lg font-bold text-foreground sm:text-xl">
               Penjualan {days} Hari Terakhir
             </h2>
             <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary-strong">
@@ -52,14 +52,15 @@ export function SalesTrendCard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1 rounded-xl border bg-muted/50 p-1">
+        <div role="group" aria-label="Rentang waktu" className="flex items-center gap-1 rounded-xl border bg-muted/50 p-1">
           {([7, 30] as const).map((option) => (
             <button
               key={option}
               type="button"
+              aria-pressed={days === option}
               onClick={() => setDays(option)}
               className={cn(
-                "rounded-lg px-4 py-1.5 text-xs font-semibold transition-colors",
+                "min-h-9 cursor-pointer rounded-lg px-4 text-xs font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 days === option
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -71,8 +72,8 @@ export function SalesTrendCard() {
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-card p-[25px]">
-        <div className="flex flex-wrap items-center gap-8 border-b pb-3.5">
+      <div className="rounded-xl border bg-muted/20 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center gap-4 border-b pb-3.5 sm:gap-8">
           <div>
             <p className="text-xs font-medium text-muted-foreground">
               Puncak Tertinggi{data?.peak_date === todayDate ? " (Hari Ini)" : ""}
@@ -81,7 +82,7 @@ export function SalesTrendCard() {
               {data ? formatRupiah(data.peak_amount ?? 0) : "—"}
             </p>
           </div>
-          <div className="h-8 w-px bg-border" />
+          <div aria-hidden className="hidden h-8 w-px bg-border sm:block" />
           <div>
             <p className="text-xs font-medium text-muted-foreground">
               Rata-rata {days} Hari
@@ -94,9 +95,7 @@ export function SalesTrendCard() {
 
         <div className="h-64 w-full pt-4">
           {isPending ? (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              Memuat...
-            </div>
+            <div className="h-full animate-pulse rounded-lg bg-muted/60" />
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={points} margin={{ top: 28, right: 8, bottom: 0, left: 0 }}>

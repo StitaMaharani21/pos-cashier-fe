@@ -21,6 +21,16 @@ interface ItemSheetProps {
   onClose: () => void
 }
 
+const isSingleSelect = (group: GuestAddonGroup) => group.max_select === 1
+const isUnlimited = (group: GuestAddonGroup) => group.max_select <= 0
+
+/** Same wording as the owner console (describeSelection) and the cashier app. */
+function selectionHint(group: GuestAddonGroup) {
+  if (isSingleSelect(group)) return "pilih 1"
+  if (isUnlimited(group)) return "pilih bebas"
+  return `maks. ${group.max_select}`
+}
+
 export function ItemSheet({ menu, initialName, isSubmitting, error, onSubmit, onClose }: ItemSheetProps) {
   const [qty, setQty] = useState(1)
   const [notes, setNotes] = useState("")
@@ -47,9 +57,10 @@ export function ItemSheet({ menu, initialName, isSubmitting, error, onSubmit, on
       if (current.includes(optionId)) return current.filter((id) => id !== optionId)
       const inGroup = group.options.map((option) => option.id)
       const chosenHere = current.filter((id) => inGroup.includes(id))
-      // One choice (or a full group) swaps the oldest pick instead of blocking.
-      if (group.max_select <= 1) return [...current.filter((id) => !inGroup.includes(id)), optionId]
-      if (chosenHere.length >= group.max_select) {
+      // max_select (backend): 1 = pick one, N >= 2 = up to N, 0 = no limit ("Pilih bebas").
+      // One choice (or a full capped group) swaps the oldest pick instead of blocking.
+      if (isSingleSelect(group)) return [...current.filter((id) => !inGroup.includes(id)), optionId]
+      if (!isUnlimited(group) && chosenHere.length >= group.max_select) {
         return [...current.filter((id) => id !== chosenHere[0]), optionId]
       }
       return [...current, optionId]
@@ -84,13 +95,13 @@ export function ItemSheet({ menu, initialName, isSubmitting, error, onSubmit, on
           <div key={group.id} className="so-field" role="group" aria-label={group.name}>
             <span className="lbl">
               {group.name}
-              {group.is_required ? " · wajib dipilih" : " · opsional"}
+              {group.is_required ? " · wajib dipilih" : " · opsional"} · {selectionHint(group)}
             </span>
             {group.options.map((option) => (
               <label key={option.id} className="so-opt">
                 <span>
                   <input
-                    type={group.max_select <= 1 ? "radio" : "checkbox"}
+                    type={isSingleSelect(group) ? "radio" : "checkbox"}
                     name={`addon-${group.id}`}
                     checked={picked.includes(option.id)}
                     // Radios can't be unchecked by clicking — the click handler

@@ -10,7 +10,8 @@ import { Badge } from "@/shared/ui/badge"
 // the raw status strings the backend actually stores/returns verbatim
 // (internal/transaction/order/order_service.go: StatusPending="pending",
 // StatusProcessing="diproses", StatusCompleted="selesai",
-// StatusCancelled="dibatalkan") — not translated English labels. Unknown/
+// StatusCancelled="dibatalkan", StatusRefunded="direfund") — not translated
+// English labels. Unknown/
 // future status strings fall back to a muted badge with the raw value
 // instead of disappearing.
 const STATUS_META: Record<string, { label: string; className: string }> = {
@@ -18,6 +19,7 @@ const STATUS_META: Record<string, { label: string; className: string }> = {
   diproses: { label: "Diproses", className: "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" },
   pending: { label: "Menunggu", className: "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400" },
   dibatalkan: { label: "Dibatalkan", className: "bg-destructive/10 text-destructive" },
+  direfund: { label: "Direfund", className: "bg-muted text-muted-foreground" },
 }
 
 export const reportTransactionColumns: CrudColumn<ReportTransaction>[] = [

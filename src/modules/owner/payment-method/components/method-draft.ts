@@ -20,6 +20,9 @@ export interface MethodDraft {
   surcharge: string
   // Channel name (lower-cased) → should be active.
   channels: Record<string, boolean>
+  // Bank name (lower-cased) → that bank's own credit-card fee, as typed.
+  // "" = no own fee (the standard fee above applies).
+  bankSurcharges: Record<string, string>
   qrisImage: File | null
 }
 
@@ -56,11 +59,18 @@ export function initialDraft(
   for (const option of channelOptions(type, channels)) {
     channelState[channelKey(option.name)] = option.channel?.status === "active"
   }
+  const bankSurcharges: Record<string, string> = {}
+  for (const channel of channels) {
+    if (channel.type === "bank" && channel.credit_surcharge_percent != null) {
+      bankSurcharges[channelKey(channel.name ?? "")] = String(channel.credit_surcharge_percent)
+    }
+  }
   return {
     cardTypes: (method?.card_types ?? []) as CardType[],
     cardNetworks: (method?.card_networks ?? []) as CardNetwork[],
     surcharge: method?.credit_surcharge_percent ? String(method.credit_surcharge_percent) : "",
     channels: channelState,
+    bankSurcharges,
     qrisImage: null,
   }
 }
@@ -74,8 +84,26 @@ export function isDraftDirty(draft: MethodDraft, initial: MethodDraft): boolean 
     !sameSet(draft.cardNetworks, initial.cardNetworks) ||
     Number(draft.surcharge || 0) !== Number(initial.surcharge || 0) ||
     Object.keys(draft.channels).some((key) => draft.channels[key] !== initial.channels[key]) ||
+    bankSurchargesChanged(draft.bankSurcharges, initial.bankSurcharges) ||
     draft.qrisImage !== null
   )
+}
+
+function bankSurchargesChanged(a: Record<string, string>, b: Record<string, string>): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)])
+  for (const key of keys) {
+    const left = (a[key] ?? "").trim()
+    const right = (b[key] ?? "").trim()
+    if (left === right) continue
+    if (left !== "" && right !== "" && Number(left) === Number(right)) continue
+    return true
+  }
+  return false
+}
+
+// True when any bank's own fee is not a number in 0–100.
+export function hasBankSurchargeError(draft: MethodDraft): boolean {
+  return Object.values(draft.bankSurcharges).some((value) => surchargeError(value) !== null)
 }
 
 // Mirrors the backend's `credit_surcharge_percent` binding (gte=0,lte=100).

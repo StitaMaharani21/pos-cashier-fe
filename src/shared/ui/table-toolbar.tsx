@@ -25,26 +25,33 @@ export function TableToolbar({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
       {onSearchChange && (
-        <div className="relative w-full max-w-md min-w-[220px] flex-1">
+        <div className="relative w-full flex-1 sm:max-w-md sm:min-w-55">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search ?? ""}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder.replace(/\.+$/, "")}
-            className="h-10 bg-card pl-10"
+            className="h-11 bg-card pl-10 sm:h-10"
           />
         </div>
       )}
       {children}
       {filtering && onReset && (
-        <Button variant="ghost" onClick={onReset}>
+        <Button variant="ghost" className="h-10" onClick={onReset}>
           Reset filter
         </Button>
       )}
-      {action && <div className="ml-auto flex items-center gap-2">{action}</div>}
+      {/* ml-auto only once there's room for it — on a phone the primary
+          action sits on its own line at full width instead of being
+          squeezed next to the search box. */}
+      {action && (
+        <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto [&>div]:w-full [&>div]:sm:w-auto [&_button]:flex-1 [&_button]:sm:flex-none">
+          {action}
+        </div>
+      )}
     </div>
   )
 }

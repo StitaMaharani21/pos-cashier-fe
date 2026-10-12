@@ -44,7 +44,10 @@ export function DiscountValueFields({ maxHint, children }: { maxHint: string; ch
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {/* items-start: each field keeps its own height, so the hint under Maksimal
+          Potongan doesn't stretch the Nilai Diskon field (label and input would
+          drift down to fill the taller row). */}
+      <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}
           name="value"

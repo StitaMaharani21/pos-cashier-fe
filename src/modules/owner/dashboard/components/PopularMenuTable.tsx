@@ -19,11 +19,11 @@ export function PopularMenuTable() {
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card lg:col-span-2">
-      <div className="flex items-center justify-between border-b px-6 py-4">
-        <h2 className="text-lg font-bold text-foreground">Menu Terpopuler Minggu Ini</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-5 py-4 sm:px-6">
+        <h2 className="text-lg font-bold text-foreground sm:text-xl">Menu Terpopuler Minggu Ini</h2>
         <Link
           to="/app/financial-report?tab=top-products"
-          className="text-sm font-medium text-primary-strong hover:underline"
+          className="shrink-0 rounded-md text-sm font-semibold text-primary-strong outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         >
           Lihat Laporan
         </Link>

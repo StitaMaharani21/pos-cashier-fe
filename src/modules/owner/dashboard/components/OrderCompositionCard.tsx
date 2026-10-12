@@ -13,9 +13,9 @@ export function OrderCompositionCard() {
   const items = data?.items ?? []
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">Komposisi Order</h2>
+        <h2 className="text-lg font-bold text-foreground sm:text-xl">Komposisi Order</h2>
         <span className="rounded-full bg-muted px-2.5 py-1.5 text-xs font-semibold text-muted-foreground">
           Total: {data?.total ?? 0} pesanan
         </span>
@@ -24,7 +24,10 @@ export function OrderCompositionCard() {
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-3">
-        {isPending && <p className="py-8 text-center text-sm text-muted-foreground">Memuat...</p>}
+        {isPending &&
+          Array.from({ length: 3 }, (_, index) => (
+            <div key={index} className="h-18 animate-pulse rounded-xl bg-muted" />
+          ))}
 
         {!isPending && items.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">

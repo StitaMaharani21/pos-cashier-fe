@@ -1,5 +1,6 @@
+import type { ReactNode } from "react"
+import { useIsFetching, useQueryClient } from "@tanstack/react-query"
 import {
-  BellIcon,
   CheckIcon,
   KeyRoundIcon,
   type LucideIcon,
@@ -12,6 +13,7 @@ import {
 import { Link } from "react-router-dom"
 
 import { useAuthStore } from "@/shared/auth/store"
+import { cn } from "@/shared/lib/utils"
 import { type ThemePreference, useThemePreference } from "@/shared/theme/theme"
 import {
   DropdownMenu,
@@ -36,48 +38,52 @@ const TODAY_LABEL = new Date().toLocaleDateString("id-ID", {
 })
 
 // Shared chrome across every owner page — rendered once by OwnerLayout above
-// <Outlet/>, not owned by any individual page. Matches the Figma "Top Header
-// Bar": greeting + date on the left, sync/reload/notification/profile on
-// the right. The sync status is decorative copy — this app has no real
-// background-sync system to report on.
-export function OwnerHeader() {
+// <Outlet/>, not owned by any individual page: the greeting/date, a refresh
+// control and the account menu.
+//
+// The greeting is a <p>, not an <h1>: each page renders its own <h1> through
+// PageHeader, and two <h1>s per document left screen readers with no single
+// page title. The decorative "Data diperbarui 1 mnt lalu" pill and the
+// notification bell with its permanent unread dot were removed — neither had
+// anything behind it, so both reported state that didn't exist. Refresh is
+// now wired to the react-query cache and reports real in-flight state.
+export function OwnerHeader({ menuButton }: { menuButton?: ReactNode }) {
   const name = useAuthStore((state) => state.name) ?? "Owner"
   const email = useAuthStore((state) => state.email)
   const { preference, setPreference } = useThemePreference()
+  const queryClient = useQueryClient()
+  const isFetching = useIsFetching() > 0
 
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground">
-          Selamat datang kembali <span aria-hidden>👋</span>
-        </h1>
-        <p className="mt-0.5 text-xs text-muted-foreground">{TODAY_LABEL}</p>
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-2">
+        {menuButton}
+        <div className="min-w-0">
+          <p className="truncate text-base font-bold tracking-tight text-foreground sm:text-lg">
+            Selamat datang kembali, {name}
+          </p>
+          <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">{TODAY_LABEL}</p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <span className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-muted px-3.5 py-1.5 text-xs text-muted-foreground sm:flex">
-          <RefreshCwIcon className="size-2.5" />
-          Data diperbarui 1 mnt lalu
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          onClick={() => queryClient.invalidateQueries()}
+          disabled={isFetching}
+          aria-label="Muat ulang data halaman"
+          title="Muat ulang data halaman"
+          className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+        >
+          <RefreshCwIcon className={cn("size-4", isFetching && "animate-spin")} aria-hidden />
+        </button>
+
+        {/* Announces refresh completion without stealing focus. */}
+        <span aria-live="polite" className="sr-only">
+          {isFetching ? "Memuat data…" : ""}
         </span>
 
-        <button
-          type="button"
-          aria-label="Muat ulang"
-          className="flex size-9 items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-foreground"
-        >
-          <RefreshCwIcon className="size-3.5" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="Notifikasi"
-          className="relative flex size-9 items-center justify-center rounded-xl bg-muted text-muted-foreground hover:text-foreground"
-        >
-          <BellIcon className="size-4" />
-          <span className="absolute top-2 right-2 size-2 rounded-full bg-destructive ring-2 ring-background" />
-        </button>
-
-        <div className="h-6 w-px bg-border" />
+        <div aria-hidden className="hidden h-6 w-px bg-border sm:block" />
 
         {/* Account menu — the only way into the change-password page, which
             deliberately has no sidebar entry. */}
@@ -86,18 +92,29 @@ export function OwnerHeader() {
             <button
               type="button"
               aria-label="Menu akun"
-              className="flex items-center gap-2.5 rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-h-10 items-center gap-2.5 rounded-xl px-1 text-left transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span className="flex size-9 items-center justify-center rounded-full bg-foreground text-background">
-                <UserIcon className="size-3.5" />
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary-strong">
+                <UserIcon className="size-4" aria-hidden />
               </span>
-              <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-foreground">{name}</p>
-                {email && <p className="text-xs text-muted-foreground">{email}</p>}
-              </div>
+              <span className="hidden min-w-0 md:block">
+                <span className="block truncate text-sm font-semibold text-foreground">{name}</span>
+                {email && (
+                  <span className="block truncate text-xs text-muted-foreground">{email}</span>
+                )}
+              </span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel className="md:hidden">
+              <span className="block truncate text-sm font-semibold">{name}</span>
+              {email && (
+                <span className="block truncate text-xs font-normal text-muted-foreground">
+                  {email}
+                </span>
+              )}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="md:hidden" />
             <DropdownMenuItem asChild>
               <Link to="/app/profile">
                 <UserIcon />

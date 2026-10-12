@@ -13,18 +13,17 @@ import {
 
 import type { CashVarianceTrendPoint } from "@/modules/owner/cash-report/cash-report.types"
 import { formatSelisih } from "@/modules/owner/cash-report/lib/selisih"
+import { SEMANTIC_CHART_COLORS } from "@/shared/lib/chart-colors"
 
-// Literal colors mirroring index.css's --destructive/--muted-foreground and
-// the amber-600 Tailwind literal already used for "positive selisih" across
-// this module (lib/selisih.ts, shift-cash.columns.tsx) — recharts renders
-// raw SVG attributes for per-point Cell fills, so a literal value is more
-// reliable than var(--x) here, same reasoning as SalesTrendCard's
-// PRIMARY_COLOR. Deliberately NOT green for positive — a positive variance
-// is still a bookkeeping gap to investigate, not "good news" (see
-// lib/selisih.ts).
-const NEGATIVE_COLOR = "oklch(0.577 0.245 27.325)" // mirrors --destructive
-const POSITIVE_COLOR = "#F59E0B" // amber-600, same literal as PaymentMethodDonutCard/CategoryBreakdownTab
-const NEUTRAL_COLOR = "oklch(0.62 0.02 255)" // neutral gray, readable in light and dark
+// Colors come from the shared chart tokens (index.css) so they track
+// light/dark like everything else — recharts writes these straight into SVG
+// fill attributes, where `var(--x)` resolves fine. Deliberately NOT green for
+// positive: a positive variance is still a bookkeeping gap to investigate,
+// not "good news" (see lib/selisih.ts), so it reuses the same amber as
+// "manual / off-system" elsewhere in the app.
+const NEGATIVE_COLOR = "var(--destructive)"
+const POSITIVE_COLOR = SEMANTIC_CHART_COLORS.manual
+const NEUTRAL_COLOR = "var(--muted-foreground)"
 
 function colorFor(selisih: number): string {
   if (selisih < 0) return NEGATIVE_COLOR

@@ -6,6 +6,12 @@ Fields: `name`, `code`, `type` (`percent`|`fixed`), `value`, `max_discount` (per
 
 The drawer (`components/VoucherForm.tsx`) uses the same cards as diskon otomatis (`modules/owner/discount-form`): Informasi Voucher (name ≤50, code — upper-cased, no spaces, "Acak" generates one — and Aktif), Nilai Diskon (Persen/Nominal, Maksimal Potongan, Minimal Belanja), Periode Berlaku (presets, no day/hour schedule), a summary, then Batal / Simpan Voucher (Hapus on edit).
 
+**Expiry & reactivation** (enforced by the backend, mirrored in the form):
+1. A voucher is valid between `start_date` and `end_date`; the backend checks this whenever a code is applied.
+2. Once the end date has passed, the backend switches the voucher to `inactive` by itself (on the next list/read/apply). The list shows such rows as inactive with a "Kedaluwarsa" note.
+3. An inactive voucher can be switched back on from the drawer (Aktif switch).
+4. On reactivation the start date must be **today or later** — no past dates (`400 VOUCHER_START_DATE_PAST`, shown as a friendly message by `shared/api/error-message.ts`). The form checks this up front (`createVoucherSchema({ reactivating })`), moves a past start date to today when the switch is turned on, and greys out earlier days in the date picker. Saving a voucher that stays inactive, or editing an active one, is not checked.
+
 A voucher already redeemed in an order can't be deleted (backend returns `409 VOUCHER_IN_USE`) — the Aktif row's hint suggests deactivating it instead, rather than special-casing the error in `CrudSection`.
 
 Applying a voucher to a cart (`POST/DELETE /carts/{id}/voucher`) is a separate cashier-facing flow and lives outside this module.

@@ -1,41 +1,40 @@
-import { TriangleAlert } from "lucide-react"
-
-import { SectionHeading } from "@/modules/public/landing/presentation/components/SectionHeading"
-import { PAIN_POINTS } from "@/modules/public/landing/presentation/landing.content"
+import { ProblemRow } from "@/modules/public/landing/presentation/components/problem/ProblemRow"
+import { useInView } from "@/modules/public/landing/presentation/components/problem/useInView"
+import { PROBLEMS } from "@/modules/public/landing/presentation/landing.content"
+import { cn } from "@/shared/lib/utils"
 
 export function ProblemSection() {
-  return (
-    <section className="w-full bg-neela-surface-container-low py-24">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-16 px-4 md:px-6 lg:px-8">
-        <SectionHeading
-          eyebrow="Kendala Operasional Nyata"
-          eyebrowClassName="text-neela-error"
-          title="Masalah Kasir Klasik yang Bikin Omset Bocor dan Tamu Kecewa"
-          description="Solusi untuk kendala kasir yang sering bikin omset bocor saat jam sibuk."
-        />
+  const { ref: headerRef, inView: headerInView } = useInView<HTMLDivElement>({
+    threshold: 0.1,
+    once: true,
+  })
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {PAIN_POINTS.map(({ icon: Icon, title, body, impact }) => (
-            <div
-              key={title}
-              className="flex flex-col justify-between gap-6 rounded-2xl bg-neela-surface-container-lowest p-8 shadow-md"
-            >
-              <div className="flex flex-col gap-4">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-neela-error-container text-neela-error">
-                  <Icon className="size-6" />
-                </div>
-                <div>
-                  <h3 className="mb-2 text-neela-headline-md text-neela-on-surface">{title}</h3>
-                  <p className="text-neela-body-md text-neela-on-surface-variant">{body}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2 rounded-xl bg-neela-error-container/40 p-4 text-neela-label-sm text-neela-on-error-container">
-                <TriangleAlert className="size-[18px] shrink-0 text-neela-error" />
-                <span>
-                  <strong>Dampak:</strong> {impact}
-                </span>
-              </div>
-            </div>
+  return (
+    <section id="masalah" className="w-full bg-white py-20 lg:py-28">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        {/* HEADER (rata tengah) */}
+        <div
+          ref={headerRef}
+          className={cn(
+            "mx-auto max-w-2xl text-center transition-opacity duration-700 ease-out",
+            headerInView ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <p className="text-xs font-bold tracking-widest text-neela-brand uppercase sm:text-sm">
+            MASALAH YANG SERING TERJADI
+          </p>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl md:text-4xl lg:text-[40px] lg:leading-[48px]">
+            Kendala operasional kasir yang sering bikin repot
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-neutral-600 sm:text-lg">
+            Tiga masalah yang sering dialami pemilik kafe dan resto, dan bagaimana Neela POS menjawabnya.
+          </p>
+        </div>
+
+        {/* TIGA BARIS (dipisah garis tipis abu-abu) */}
+        <div className="mt-14 divide-y divide-neutral-200 border-y border-neutral-200 lg:mt-20">
+          {PROBLEMS.map((item) => (
+            <ProblemRow key={item.problem} item={item} />
           ))}
         </div>
       </div>

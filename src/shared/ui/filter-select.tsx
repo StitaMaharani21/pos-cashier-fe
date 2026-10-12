@@ -11,7 +11,7 @@ interface FilterSelectProps {
 export function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="h-10 w-auto gap-2 bg-card px-3.5" aria-label={label}>
+      <SelectTrigger className="h-11 w-full gap-2 bg-card px-3.5 sm:h-10 sm:w-auto" aria-label={label}>
         <span className="text-muted-foreground">{label}:</span>
         <span className="font-semibold text-foreground">
           <SelectValue />

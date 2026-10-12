@@ -6,12 +6,11 @@ import payCash from "@/assets/landing/pay-cash.webp"
 import payQris from "@/assets/landing/pay-qris.webp"
 import shiftStart from "@/assets/landing/shift-start.webp"
 
-// The hero's product visual — implemented from the Claude Design canvas
-// "Neela POS — Iklan Kasir" (https://claude.ai/artifact/UEUWcX8UWuvXF5vGu45gWQ),
-// a 1200×900 artboard. Every coordinate below is that artboard's px value,
-// scaled to whatever width the hero column gives it: `--u` is one design
-// px expressed in container-query width units, so the whole composition
-// shrinks in proportion instead of being a flat PNG.
+// The hero's product visual — real app screenshots composed as an ad. Every
+// coordinate below is a 1200×900 design canvas's px value, scaled to
+// whatever width the hero column gives it: `--u` is one design px expressed
+// in container-query width units, so the whole composition shrinks in
+// proportion instead of being a flat PNG.
 const DESIGN_WIDTH = 1200
 
 function u(px: number): string {
@@ -56,13 +55,13 @@ export function HeroShowcase() {
   return (
     <div className="@container w-full">
       <div
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-[#eef1fb]"
+        className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-neela-surface-subtle"
         style={{ "--u": `calc(100cqw / ${DESIGN_WIDTH})` } as CSSProperties}
       >
         {/* Decorative shapes */}
-        <div aria-hidden className="rounded-full bg-neela-primary-container" style={box({ right: -90, top: -110, width: 360, height: 360 })} />
-        <div aria-hidden className="rounded-full bg-neela-primary-fixed" style={box({ left: -60, bottom: -80, width: 240, height: 240 })} />
-        <div aria-hidden className="bg-neela-on-primary-fixed" style={{ ...box({ left: 66, top: 196, width: 704, height: 620 }), borderRadius: u(40) }} />
+        <div aria-hidden className="rounded-full bg-neela-brand/12" style={box({ right: -90, top: -110, width: 360, height: 360 })} />
+        <div aria-hidden className="rounded-full bg-neela-primary-tint/15" style={box({ left: -60, bottom: -80, width: 240, height: 240 })} />
+        <div aria-hidden className="bg-white" style={{ ...box({ left: 66, top: 196, width: 704, height: 620 }), borderRadius: u(40) }} />
 
         {/* Tablet: the cashier "Buat Pesanan" screen */}
         <div
@@ -114,34 +113,36 @@ export function HeroShowcase() {
           style={box({ right: 26, bottom: 58, width: 480, height: 350, rotate: 2 })}
         />
 
-        {/* Callouts */}
+        {/* Callouts — claims kept to what's actually offline: cash orders
+            and shifts, not "transactions" broadly (QRIS still needs a
+            connection, see OfflineSection). */}
         <div
-          className="flex items-center rounded-full bg-neela-inverse-surface font-bold whitespace-nowrap text-neela-tertiary-fixed shadow-[0_12px_28px_rgba(0,24,73,0.25)]"
+          className="flex items-center rounded-full bg-neela-primary-strong font-bold whitespace-nowrap text-white shadow-[0_12px_28px_rgba(0,24,73,0.25)]"
           style={{ ...box({ left: 110, top: 64 }), ...pill(17, 12, 20) }}
         >
-          <span aria-hidden className="shrink-0 rounded-full bg-neela-tertiary-fixed" style={{ width: atLeast(10, 6), height: atLeast(10, 6) }} />
-          <span>Tanpa Internet — Transaksi Tetap Tersimpan Aman</span>
+          <span aria-hidden className="shrink-0 rounded-full bg-neela-success-soft" style={{ width: atLeast(10, 6), height: atLeast(10, 6) }} />
+          <span>Tanpa Internet — Pesanan Tunai Tetap Tersimpan</span>
         </div>
 
         {/* The two secondary pills only fit once the visual is ≥ 28rem wide. */}
         <div
-          className="hidden items-center rounded-full bg-white font-bold whitespace-nowrap text-neela-on-primary-fixed shadow-[0_10px_24px_rgba(0,24,73,0.18)] @md:flex"
+          className="hidden items-center rounded-full bg-white font-bold whitespace-nowrap text-neela-text shadow-[0_10px_24px_rgba(0,24,73,0.18)] @md:flex"
           style={{ ...box({ right: 60, top: 24 }), ...pill(16, 10, 18) }}
         >
-          <Clock aria-hidden className="shrink-0 text-neela-tertiary" style={{ width: atLeast(20, 12), height: atLeast(20, 12) }} />
+          <Clock aria-hidden className="shrink-0 text-neela-success" style={{ width: atLeast(20, 12), height: atLeast(20, 12) }} />
           <span>Buka kasir + uang kas awal</span>
         </div>
 
         <div
-          className="hidden items-center rounded-full bg-neela-on-primary-fixed font-bold whitespace-nowrap text-white shadow-[0_12px_28px_rgba(0,24,73,0.3)] @md:flex"
+          className="hidden items-center rounded-full bg-neela-primary-strong font-bold whitespace-nowrap text-white shadow-[0_12px_28px_rgba(0,24,73,0.3)] @md:flex"
           style={{ ...box({ right: 60, bottom: 16 }), ...pill(16, 10, 18) }}
         >
-          <QrCode aria-hidden className="shrink-0 text-neela-tertiary-fixed" style={{ width: atLeast(20, 12), height: atLeast(20, 12) }} />
-          <span>QRIS, Tunai, Kartu &amp; E-Wallet</span>
+          <QrCode aria-hidden className="shrink-0 text-neela-blue-100" style={{ width: atLeast(20, 12), height: atLeast(20, 12) }} />
+          <span>QRIS &amp; Tunai dalam Satu Layar</span>
         </div>
 
         <div
-          className="flex items-center bg-white text-neela-on-primary-fixed shadow-[0_14px_32px_rgba(0,24,73,0.2)]"
+          className="flex items-center bg-white text-neela-text shadow-[0_14px_32px_rgba(0,24,73,0.2)]"
           style={{
             ...box({ left: 40, bottom: 48 }),
             gap: atLeast(12, 6),
@@ -152,7 +153,7 @@ export function HeroShowcase() {
         >
           <span
             aria-hidden
-            className="flex shrink-0 items-center justify-center bg-neela-primary-container text-white"
+            className="flex shrink-0 items-center justify-center bg-neela-brand text-white"
             style={{ width: atLeast(40, 22), height: atLeast(40, 22), borderRadius: atLeast(12, 6) }}
           >
             <ReceiptText style={{ width: atLeast(22, 13), height: atLeast(22, 13) }} />
@@ -161,7 +162,7 @@ export function HeroShowcase() {
             <span className="font-extrabold" style={{ fontSize: atLeast(17, 10) }}>
               Buat pesanan dalam hitungan detik
             </span>
-            <span className="hidden font-medium text-neela-on-surface-variant @md:inline" style={{ fontSize: atLeast(13, 9) }}>
+            <span className="hidden font-medium text-neela-text-secondary @md:inline" style={{ fontSize: atLeast(13, 9) }}>
               Menu, catatan &amp; diskon dalam satu layar
             </span>
           </span>

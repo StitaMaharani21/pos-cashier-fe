@@ -9,8 +9,8 @@ interface PrimaryCtaProps {
   withArrow?: boolean
 }
 
-// "Daftar Early Access" → /daftar for visitors; "Buka Dashboard" → /app once
-// an owner session exists, so a logged-in owner is never told to sign up.
+// "Daftar" → /daftar for visitors; "Buka Dashboard" → /app once an owner
+// session exists, so a logged-in owner is never told to sign up.
 export function PrimaryCta({ className, withArrow = false }: PrimaryCtaProps) {
   const isOwner = useIsOwnerSession()
   const cta = isOwner ? PRIMARY_CTA.owner : PRIMARY_CTA.visitor
@@ -18,7 +18,7 @@ export function PrimaryCta({ className, withArrow = false }: PrimaryCtaProps) {
   return (
     <Link to={cta.to} className={className}>
       <span>{cta.label}</span>
-      {withArrow && <ArrowRight className="size-5" />}
+      {withArrow && <ArrowRight className="size-5" aria-hidden />}
     </Link>
   )
 }

@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react"
 import { CalendarRangeIcon, PercentIcon, ShuffleIcon, TicketIcon } from "lucide-react"
 
 import type { CreateVoucherPayload, Voucher } from "@/entities/voucher/model/voucher.types"
@@ -15,7 +16,7 @@ import {
   toApiDate,
   todayInput,
 } from "@/modules/owner/discount-form/lib/discount-rules"
-import { voucherSchema, type VoucherFormValues } from "@/modules/owner/voucher/schemas/voucher.schema"
+import { createVoucherSchema, type VoucherFormValues } from "@/modules/owner/voucher/schemas/voucher.schema"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
@@ -36,8 +37,19 @@ interface VoucherFormProps {
 // voucher's own fields: a code the cashier types, a minimum spend on the
 // order total, no menu picker and no day/hour schedule.
 export function VoucherForm({ row, isSubmitting, onSubmit, onCancel, onDelete, isDeleting }: VoucherFormProps) {
+  // An inactive voucher (switched off, or deactivated automatically once its
+  // end date passed) can be switched back on, but only with a start date of
+  // today or later.
+  const wasInactive = !!row && row.status !== "active"
+  // A voucher that already started keeps its (past) start date; nothing else
+  // may start before today.
+  const savedStartDate = row ? fromApiDate(row.start_date) : ""
+  const schema = useMemo(
+    () => createVoucherSchema({ reactivating: wasInactive, savedStartDate }),
+    [wasInactive, savedStartDate]
+  )
   const form = useCrudForm({
-    schema: voucherSchema,
+    schema,
     defaultValues: {
       name: row?.name ?? "",
       code: row?.code ?? "",
@@ -52,6 +64,15 @@ export function VoucherForm({ row, isSubmitting, onSubmit, onCancel, onDelete, i
   })
 
   const values = form.watch()
+  const reactivating = wasInactive && values.isActive
+  const today = todayInput()
+
+  // Switching an inactive voucher back on moves a past start date to today.
+  useEffect(() => {
+    if (reactivating && form.getValues("startDate") < today) {
+      form.setValue("startDate", today, { shouldValidate: form.formState.isSubmitted })
+    }
+  }, [reactivating, today, form])
   const rule = {
     type: values.type,
     value: Number(values.value) || 0,
@@ -90,7 +111,11 @@ export function VoucherForm({ row, isSubmitting, onSubmit, onCancel, onDelete, i
             <NameStatusFields
               nameLabel="Nama Voucher"
               namePlaceholder="Contoh: Promo Gajian"
-              statusHint="Voucher yang sudah dipakai di transaksi tidak bisa dihapus — nonaktifkan saja"
+              statusHint={
+                wasInactive
+                  ? "Voucher nonaktif. Saat diaktifkan kembali, tanggal mulai harus hari ini atau setelahnya"
+                  : "Voucher yang sudah dipakai di transaksi tidak bisa dihapus — nonaktifkan saja"
+              }
             >
               <FormField
                 control={form.control}
@@ -161,7 +186,16 @@ export function VoucherForm({ row, isSubmitting, onSubmit, onCancel, onDelete, i
           </FormSection>
 
           <FormSection icon={CalendarRangeIcon} title="Periode Berlaku" description="Kapan kode voucher bisa dipakai">
-            <PeriodFields />
+            <PeriodFields
+              minStartDate={!reactivating && savedStartDate && savedStartDate < today ? savedStartDate : today}
+            >
+              {wasInactive && (
+                <p className="text-xs text-muted-foreground">
+                  Voucher otomatis nonaktif setelah tanggal selesainya lewat. Untuk mengaktifkannya kembali, atur
+                  tanggal mulai (hari ini atau setelahnya) dan tanggal selesai yang baru.
+                </p>
+              )}
+            </PeriodFields>
           </FormSection>
 
           <SummaryBanner lines={summaryLines} />

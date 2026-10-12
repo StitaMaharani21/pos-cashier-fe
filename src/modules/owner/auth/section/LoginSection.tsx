@@ -43,13 +43,13 @@ export function LoginSection() {
   })
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10">
       <div className="flex w-full max-w-sm flex-col items-center">
-        <span className="mb-8 text-4xl font-bold tracking-wide text-primary-strong">Neela</span>
+        <span className="mb-7 text-4xl font-extrabold tracking-tight text-primary-strong">Neela</span>
 
-        <div className="w-full rounded-2xl border bg-card p-8 shadow-sm">
+        <div className="w-full rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
           <div className="mb-6 flex flex-col gap-1">
-            <h1 className="text-xl font-bold text-foreground">Masuk sebagai Owner</h1>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Masuk sebagai Owner</h1>
             <p className="text-sm text-muted-foreground">
               Kelola toko Anda dari satu dashboard.
             </p>
@@ -63,7 +63,10 @@ export function LoginSection() {
         {/* A newly registered store can't log in until Neela approves it. */}
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Baru mendaftar?{" "}
-          <Link to="/status-pendaftaran" className="font-medium text-primary-strong hover:underline">
+          <Link
+            to="/status-pendaftaran"
+            className="rounded font-semibold text-primary-strong outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          >
             Cek status pendaftaran
           </Link>
         </p>

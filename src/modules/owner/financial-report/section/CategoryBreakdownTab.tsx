@@ -2,22 +2,9 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts"
 
 import { ReportStateCard } from "@/modules/owner/financial-report/components/ReportStateCard"
 import { useCategoryBreakdown } from "@/modules/owner/financial-report/financial-report.queries"
+import { chartColor } from "@/shared/lib/chart-colors"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Card } from "@/shared/ui/card"
-
-// Cycled by index — same idiom as dashboard/components/PaymentMethodDonutCard
-// (the backend returns a dynamic list of categories, so colors can't be
-// hardcoded per-category).
-const SLICE_COLORS = [
-  "#67BAF4",
-  "#2D6FA8",
-  "#10B981",
-  "#F59E0B",
-  "#8B5CF6",
-  "#EC4899",
-  "#EF4444",
-  "#14B8A6",
-]
 
 function formatCompact(value: number): string {
   if (value >= 1_000_000)
@@ -28,7 +15,7 @@ function formatCompact(value: number): string {
 
 // "Kategori" tab — donut chart of revenue-by-category. Mirrors
 // dashboard/components/PaymentMethodDonutCard's Recharts Pie/Cell/
-// SLICE_COLORS structure rather than PaymentMethodTab's horizontal-bar
+// shared chart palette structure rather than PaymentMethodTab's horizontal-bar
 // pattern: a donut is the more natural shape for "share of total revenue"
 // than a bar-per-row list. `percentage` comes straight from the backend
 // (already computed against total_revenue), so this never re-derives it.
@@ -36,7 +23,7 @@ export function CategoryBreakdownTab({ from, to }: { from: string; to: string })
   const query = useCategoryBreakdown({ from, to })
 
   if (query.isPending) {
-    return <div className="h-[320px] animate-pulse rounded-xl border bg-muted/40" />
+    return <div className="h-80 animate-pulse rounded-2xl border bg-muted/40" />
   }
 
   if (query.isError || !query.data) {
@@ -78,7 +65,7 @@ export function CategoryBreakdownTab({ from, to }: { from: string; to: string })
                 stroke="none"
               >
                 {items.map((entry, index) => (
-                  <Cell key={entry.category_id} fill={SLICE_COLORS[index % SLICE_COLORS.length]} />
+                  <Cell key={entry.category_id} fill={chartColor(index)} />
                 ))}
               </Pie>
             </PieChart>
@@ -95,10 +82,10 @@ export function CategoryBreakdownTab({ from, to }: { from: string; to: string })
               <div className="flex items-center gap-2">
                 <span
                   className="size-3 shrink-0 rounded-[2px]"
-                  style={{ backgroundColor: SLICE_COLORS[index % SLICE_COLORS.length] }}
+                  style={{ backgroundColor: chartColor(index) }}
                 />
                 <span className="flex-1 text-sm font-semibold text-foreground">{item.category_name}</span>
-                <span className="text-sm font-bold" style={{ color: SLICE_COLORS[index % SLICE_COLORS.length] }}>
+                <span className="text-sm font-bold tabular-nums text-foreground">
                   {item.percentage.toFixed(1)}%
                 </span>
               </div>

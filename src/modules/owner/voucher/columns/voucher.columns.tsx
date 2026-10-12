@@ -4,11 +4,20 @@ import type { Voucher } from "@/entities/voucher/model/voucher.types"
 import {
   describeApiPeriod,
   describeValue,
+  fromApiDate,
+  todayInput,
 } from "@/modules/owner/discount-form/lib/discount-rules"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { formatRupiah } from "@/shared/lib/utils"
 import { StatusBadge } from "@/shared/ui/status-badge"
 import { IconTile, TitleCell } from "@/shared/ui/table-cells"
+
+// The end date has passed. The backend switches such vouchers to inactive on
+// its own; this only labels them so they read as expired, not just switched off.
+function isExpired(row: Voucher): boolean {
+  const end = fromApiDate(row.end_date)
+  return end !== "" && end < todayInput()
+}
 
 export const voucherColumns: CrudColumn<Voucher>[] = [
   {
@@ -48,6 +57,11 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
     key: "status",
     header: "Status",
     className: "w-32",
-    render: (row) => <StatusBadge active={row.status === "active"} />,
+    render: (row) => (
+      <div className="flex flex-col items-start gap-1">
+        <StatusBadge active={row.status === "active"} />
+        {isExpired(row) && <span className="text-xs text-muted-foreground">Kedaluwarsa</span>}
+      </div>
+    ),
   },
 ]

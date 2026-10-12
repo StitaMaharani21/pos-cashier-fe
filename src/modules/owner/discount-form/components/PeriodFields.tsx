@@ -28,7 +28,8 @@ function DateBox({ children, invalid }: { children: ReactNode; invalid?: boolean
 // Tanggal mulai / selesai + the Hari ini · 7 hari · 30 hari · Tanpa batas
 // presets. An empty end date means "tanpa batas" (the backend never expires
 // it). `children` goes under it (the "Atur hari & jam" panel).
-export function PeriodFields({ children }: { children?: ReactNode }) {
+// `minStartDate` (yyyy-MM-dd) greys out earlier days in the start-date picker.
+export function PeriodFields({ children, minStartDate }: { children?: ReactNode; minStartDate?: string }) {
   const form = useFormContext<DiscountBaseValues>()
   const startDate = form.watch("startDate")
   const endDate = form.watch("endDate")
@@ -76,7 +77,12 @@ export function PeriodFields({ children }: { children?: ReactNode }) {
               <DateBox invalid={!!fieldState.error}>
                 <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
                 <FormControl>
-                  <input type="date" className="w-full min-w-0 bg-transparent text-sm outline-none" {...field} />
+                  <input
+                    type="date"
+                    min={minStartDate}
+                    className="w-full min-w-0 bg-transparent text-sm outline-none"
+                    {...field}
+                  />
                 </FormControl>
               </DateBox>
               <FormMessage />

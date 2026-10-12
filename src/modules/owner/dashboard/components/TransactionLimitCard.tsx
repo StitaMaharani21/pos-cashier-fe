@@ -8,9 +8,9 @@ export function TransactionLimitCard() {
   const { data, isPending } = useDailyTransactionLimit()
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold text-foreground">Batas Pemakaian</h2>
+        <h2 className="text-lg font-bold text-foreground sm:text-xl">Batas Pemakaian</h2>
         <p className="text-sm text-muted-foreground">
           Pemakaian hari ini dibanding batas paket
         </p>
@@ -30,7 +30,15 @@ export function TransactionLimitCard() {
 
         {!isPending && !data?.unlimited && (
           <>
-            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              role="progressbar"
+              aria-label="Pemakaian transaksi harian"
+              aria-valuenow={Math.round(Math.min(data?.percent ?? 0, 100))}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuetext={`${(data?.percent ?? 0).toFixed(0)}% dari batas harian terpakai`}
+              className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted"
+            >
               <div
                 className="h-full rounded-full bg-primary transition-all"
                 style={{ width: `${Math.min(data?.percent ?? 0, 100)}%` }}

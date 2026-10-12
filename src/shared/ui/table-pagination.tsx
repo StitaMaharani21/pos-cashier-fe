@@ -24,11 +24,12 @@ export function TablePagination({ page, totalPages, total, perPage, noun, onPage
   const pages = Math.max(totalPages, 1)
   const rangeStart = total === 0 ? 0 : (page - 1) * perPage + 1
   const rangeEnd = Math.min(page * perPage, total)
-  const button = "flex size-9 items-center justify-center rounded-lg border text-sm font-semibold transition-colors"
+  const button =
+    "flex size-11 cursor-pointer items-center justify-center rounded-lg border text-sm font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring sm:size-9"
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
-      <span className="text-sm text-muted-foreground">
+    <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
+      <span aria-live="polite" className="text-sm text-muted-foreground">
         Menampilkan {rangeStart}-{rangeEnd} dari {total} {noun}
       </span>
       <nav aria-label="Halaman" className="flex items-center gap-2">
@@ -36,7 +37,7 @@ export function TablePagination({ page, totalPages, total, perPage, noun, onPage
           type="button"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className={cn(button, "text-muted-foreground hover:bg-muted disabled:opacity-40")}
+          className={cn(button, "text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40")}
           aria-label="Halaman sebelumnya"
         >
           <ChevronLeftIcon className="size-4" />
@@ -47,6 +48,7 @@ export function TablePagination({ page, totalPages, total, perPage, noun, onPage
             type="button"
             onClick={() => onPageChange(number)}
             aria-current={number === page ? "page" : undefined}
+            aria-label={`Halaman ${number}`}
             className={cn(
               button,
               number === page
@@ -61,7 +63,7 @@ export function TablePagination({ page, totalPages, total, perPage, noun, onPage
           type="button"
           disabled={page >= pages}
           onClick={() => onPageChange(page + 1)}
-          className={cn(button, "text-muted-foreground hover:bg-muted disabled:opacity-40")}
+          className={cn(button, "text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40")}
           aria-label="Halaman berikutnya"
         >
           <ChevronRightIcon className="size-4" />

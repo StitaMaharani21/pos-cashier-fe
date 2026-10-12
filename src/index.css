@@ -31,6 +31,17 @@
   --border: oklch(0.922 0.005 255);
   --input: oklch(0.922 0.005 255);
   --ring: oklch(0.76 0.116 241);
+  /* Categorical chart scale — one source of truth for every Recharts series
+     in the app (shared/lib/chart-colors.ts reads these). Ordered so the
+     first three stay distinguishable in the most common 2-3 series charts. */
+  --chart-1: #67BAF4;
+  --chart-2: #2D6FA8;
+  --chart-3: #10B981;
+  --chart-4: #F59E0B;
+  --chart-5: #8B5CF6;
+  --chart-6: #EC4899;
+  --chart-7: #EF4444;
+  --chart-8: #14B8A6;
 }
 
 .dark {
@@ -54,6 +65,15 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.76 0.116 241);
+  /* Lifted in dark mode so each slice keeps ~3:1 against the dark card. */
+  --chart-1: #8ACBF7;
+  --chart-2: #5E9BD1;
+  --chart-3: #34D399;
+  --chart-4: #FBBF24;
+  --chart-5: #A78BFA;
+  --chart-6: #F472B6;
+  --chart-7: #F87171;
+  --chart-8: #2DD4BF;
 }
 
 @theme inline {
@@ -76,6 +96,18 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+  /* Plus Jakarta Sans is already loaded by index.html for the landing page;
+     without this the owner console fell back to system-ui, so the two halves
+     of the product rendered in different typefaces. */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -87,6 +119,23 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  /* Anchors/skip-link land below the sticky owner header. */
+  :target {
+    scroll-margin-top: 5rem;
+  }
+}
+
+/* Honour the OS "reduce motion" setting app-wide — tw-animate-css enter/exit
+   animations and every `transition-*` utility included. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -73,10 +73,12 @@ export function PlanComparisonGrid({ caps, plans, current, onBuy }: PlanComparis
 
               <div>
                 <span className="text-2xl font-extrabold text-foreground">
-                  {backendPlan ? formatRupiah(backendPlan.price) : `${plan.pricePrefix ?? ""}${plan.price.monthly}`}
+                  {backendPlan ? formatRupiah(backendPlan.price) : `${plan.pricePrefix ?? ""}${plan.price}`}
                 </span>
                 <span className="text-sm text-muted-foreground">/bulan</span>
-                <p className="mt-0.5 text-xs text-muted-foreground">{plan.subtext.monthly}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {plan.cashiers} &middot; {plan.devices}
+                </p>
               </div>
 
               <div className="flex flex-col gap-2">

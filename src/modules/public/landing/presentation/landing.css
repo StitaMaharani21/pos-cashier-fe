@@ -1,15 +1,36 @@
-/* Design tokens for the public landing page, transcribed from the Stitch
-   export's tailwind.config (Material 3 palette + type scale).
+/* Design tokens shared by every `modules/public/*` page (landing,
+   self-order, store registration) — transcribed from the Stitch export's
+   tailwind.config (Material 3 palette + type scale), plus the official
+   Neela POS palette added on top for the landing redesign.
 
-   Every token is namespaced `neela-` on purpose: the Stitch palette reuses
-   names the owner console's shadcn theme already defines with different
-   values (`primary`, `secondary`, `background`), and unprefixed tokens like
-   `surface`/`tertiary` would otherwise leak into the owner design system.
-   Imported once from src/index.css. */
+   Every token is namespaced `neela-` on purpose: the owner console's shadcn
+   theme already defines `primary`/`secondary`/`background` with different
+   values, and unprefixed tokens would collide or leak into the owner UI.
+   Imported once from src/index.css; Plus Jakarta Sans is loaded in
+   index.html.
+
+   Three layers, in this file in this order:
+   1. The original Material-3 token set (`neela-on-surface`,
+      `neela-primary-container`, `neela-tertiary`, ...) — load-bearing for
+      self-order (presentation/self-order.css + MenuThumb.tsx's raw
+      `var(--color-neela-*)` reads) and every store-registration component.
+      Left untouched: this redesign's scope is the landing page, not those.
+   2. The official brand scale (`neela-blue-600`, `neela-neutral-900`, ...)
+      from the "Complete Landing Page Redesign" brief — one hex per step.
+   3. Semantic role tokens (`neela-brand`, `neela-text`, `neela-surface-alt`,
+      ...) built from layer 2, which the landing page's OWN components
+      consume exclusively (see presentation/components/*.tsx). Named to
+      avoid colliding with layer 1's bare `neela-primary`/`neela-on-primary`/
+      `neela-error`. Change the palette by editing layer 2; change what a
+      role means by repointing layer 3 — landing components never hold a
+      literal hex. */
 
 @theme {
   --font-neela: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
+  /* ======================================================================
+     Layer 1 — original Material-3 set. Consumed by self-order and
+     store-registration; do not rename or remove any of these. */
   --color-neela-primary: #0050cc;
   --color-neela-on-primary: #ffffff;
   --color-neela-primary-container: #0266ff;
@@ -57,6 +78,7 @@
   --color-neela-outline: #727687;
   --color-neela-outline-variant: #c2c6d8;
 
+  /* Type scale — shared by every modules/public/* page, values unchanged. */
   --text-neela-display-hero: 56px;
   --text-neela-display-hero--line-height: 64px;
   --text-neela-display-hero--letter-spacing: -0.03em;
@@ -104,4 +126,81 @@
   --text-neela-currency-md--line-height: 24px;
   --text-neela-currency-md--letter-spacing: -0.01em;
   --text-neela-currency-md--font-weight: 700;
+
+  /* ======================================================================
+     Layer 2 — official brand scale (the landing redesign brief). */
+  --color-neela-blue-900: #001849;
+  --color-neela-blue-800: #001b3d;
+  --color-neela-blue-700: #0042a3;
+  --color-neela-blue-600: #0050cc;
+  --color-neela-blue-500: #0266ff;
+  --color-neela-blue-400: #4a78ff;
+  --color-neela-blue-100: #dae1ff;
+  --color-neela-blue-50: #f8faff;
+
+  --color-neela-neutral-950: #000613;
+  --color-neela-neutral-900: #111827;
+  --color-neela-neutral-600: #4b5563;
+  --color-neela-neutral-500: #6b7280;
+  --color-neela-neutral-400: #74777f;
+  --color-neela-neutral-300: #c4c6cf;
+  --color-neela-neutral-200: #e5e7eb;
+  --color-neela-neutral-100: #efedf0;
+  --color-neela-neutral-50: #f4f3f6;
+
+  --color-neela-green-600: #16a34a;
+  --color-neela-green-400: #10b981;
+  --color-neela-amber-500: #f59e0b;
+  --color-neela-red-600: #ba1a1a;
+  --color-neela-red-100: #ffdad6;
+  --color-neela-purple-500: #8b5cf6;
+
+  /* ======================================================================
+     Layer 3 — semantic roles. Landing components only (LandingHeader,
+     HeroSection, ProblemSection, ProductTourSection, OfflineSection,
+     FeatureSection, SelfOrderSection, PricingSection, EarlyAccessSection,
+     FAQSection, FinalCtaSection, LandingFooter, SectionHeading, PrimaryCta,
+     HeroShowcase, NeelaWordmark). */
+
+  /* Primary action: Blue 600 at rest, Blue 700 on hover. Blue 900 for strong
+     brand emphasis (wordmark, dark-section headings). Blue 500/400 stay
+     restrained — illustration/highlight accents only, never a CTA surface.
+     Blue 100 is the "selected" surface. */
+  /* Named "brand"/"on-brand"/"danger" rather than "primary"/"on-primary"/
+     "error" — those three bare names are already load-bearing Layer-1 M3
+     tokens with different values (self-order, store-registration); reusing
+     them here would silently repoint those pages to the new palette. */
+  --color-neela-brand: var(--color-neela-blue-600);
+  --color-neela-primary-hover: var(--color-neela-blue-700);
+  --color-neela-primary-strong: var(--color-neela-blue-900);
+  --color-neela-on-brand: #ffffff;
+  --color-neela-primary-tint: var(--color-neela-blue-500);
+  --color-neela-primary-accent: var(--color-neela-blue-400);
+  --color-neela-primary-selected: var(--color-neela-blue-100);
+
+  --color-neela-surface-subtle: var(--color-neela-blue-50);
+  --color-neela-surface-alt: var(--color-neela-neutral-50);
+  --color-neela-border: var(--color-neela-neutral-200);
+
+  --color-neela-text: var(--color-neela-neutral-900);
+  --color-neela-text-secondary: var(--color-neela-neutral-600);
+  --color-neela-text-muted: var(--color-neela-neutral-500);
+
+  /* Dark-section text (Blue 900/800 bands — used sparingly, see
+     OfflineSection / FinalCtaSection). */
+  --color-neela-dark-surface: var(--color-neela-blue-900);
+  --color-neela-dark-surface-raised: var(--color-neela-blue-800);
+
+  --color-neela-success: var(--color-neela-green-600);
+  --color-neela-success-soft: var(--color-neela-green-400);
+  /* *-text: darkened so small bold labels (chips, status) keep AA contrast on
+     the matching *-bg tint; the base tokens are for fills and icons. */
+  --color-neela-success-text: color-mix(in oklab, var(--color-neela-green-600) 70%, black);
+  --color-neela-success-bg: color-mix(in oklab, var(--color-neela-green-600) 12%, white);
+  --color-neela-warning-text: color-mix(in oklab, var(--color-neela-amber-500) 52%, black);
+  --color-neela-warning: var(--color-neela-amber-500);
+  --color-neela-warning-bg: color-mix(in oklab, var(--color-neela-amber-500) 14%, white);
+  --color-neela-danger: var(--color-neela-red-600);
+  --color-neela-error-bg: var(--color-neela-red-100);
+  --color-neela-accent: var(--color-neela-purple-500);
 }

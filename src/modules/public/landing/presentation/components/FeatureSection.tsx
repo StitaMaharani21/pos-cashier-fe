@@ -1,68 +1,63 @@
 import { SectionHeading } from "@/modules/public/landing/presentation/components/SectionHeading"
-import { MINI_FEATURES, PILLARS } from "@/modules/public/landing/presentation/landing.content"
+import {
+  PLATFORM_FACTS,
+  PRO_FEATURES,
+  STARTER_FEATURES,
+} from "@/modules/public/landing/presentation/landing.content"
 
+// Section 7 — features organized around what's actually gated (Starter vs
+// Pro, per pos-kasir-be's entitlement.go), plus supported platforms/devices.
+// Not an arbitrary feature grid: the Starter/Pro split is the real gate.
 export function FeatureSection() {
   return (
-    <section id="fitur" className="w-full scroll-mt-20 bg-neela-surface py-24">
+    <section id="fitur" className="w-full scroll-mt-18 bg-neela-surface-alt py-20">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-16 px-4 md:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Keunggulan Neela"
-          title="Dibuat untuk Jam Sibuk di Kasir"
-          description="Kasir dan barista melayani tamu dalam hitungan detik."
+          eyebrow="Fitur"
+          title="Fitur yang tersedia di setiap paket"
+          description="Starter mencakup kebutuhan kasir sehari-hari. Pro menambahkan laporan, stok, dan self-order."
         />
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {PILLARS.map((pillar) => {
-            const Icon = pillar.icon
-            return (
-              <div
-                key={pillar.title}
-                className="flex flex-col justify-between gap-8 rounded-2xl bg-neela-surface-container-lowest p-8 shadow-md md:p-12"
-              >
-                <div className="flex flex-col gap-4">
-                  <div className={`flex size-14 items-center justify-center rounded-xl ${pillar.iconClassName}`}>
-                    <Icon className="size-7" />
-                  </div>
-                  <h3 className="text-neela-headline-md text-neela-on-surface">{pillar.title}</h3>
-                  <p className={`text-neela-label-md font-semibold ${pillar.taglineClassName}`}>
-                    {pillar.tagline}
-                  </p>
-                  <p className="text-neela-body-md text-neela-on-surface-variant">{pillar.body}</p>
-                </div>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {pillar.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-md bg-neela-surface-container px-2 py-1 text-neela-label-sm text-neela-on-surface-variant"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  <span className="rounded-md bg-neela-tertiary-container/15 px-2 py-1 text-neela-label-sm font-bold text-neela-tertiary">
-                    {pillar.highlightTag}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="flex flex-col gap-4 rounded-2xl border border-neela-border bg-white p-7">
+            <h3 className="text-neela-label-lg text-neela-text">Starter</h3>
+            <ul className="flex flex-col gap-3">
+              {STARTER_FEATURES.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-3 text-neela-body-md text-neela-text">
+                  <Icon className="size-4 shrink-0 text-neela-brand" aria-hidden />
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-2xl border-2 border-neela-brand bg-white p-7">
+            <div className="flex items-center gap-2">
+              <h3 className="text-neela-label-lg text-neela-text">Pro</h3>
+              <span className="rounded-full bg-neela-primary-selected px-2 py-0.5 text-[11px] font-bold text-neela-primary-strong">
+                Semua fitur Starter, plus
+              </span>
+            </div>
+            <ul className="flex flex-col gap-3">
+              {PRO_FEATURES.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-3 text-neela-body-md text-neela-text">
+                  <Icon className="size-4 shrink-0 text-neela-brand" aria-hidden />
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div id="keunggulan" className="grid scroll-mt-28 grid-cols-1 gap-4 pt-4 md:grid-cols-3">
-          {MINI_FEATURES.map(({ icon: Icon, title, body, badge }) => (
-            <div key={title} className="flex items-start gap-4 rounded-xl bg-neela-surface-container-low p-6">
-              <div className="shrink-0 rounded-lg bg-neela-primary-container p-2 text-neela-on-primary-container">
-                <Icon className="size-6" />
-              </div>
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-4 border-t border-neela-border pt-10 sm:grid-cols-2">
+          {PLATFORM_FACTS.map(({ icon: Icon, title, body }) => (
+            <div key={title} className="flex items-start gap-4 rounded-xl bg-white p-6">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-neela-primary-selected text-neela-primary-strong">
+                <Icon className="size-5" aria-hidden />
+              </span>
               <div>
-                <h4 className="mb-1 text-neela-label-lg text-neela-on-surface">
-                  {title}
-                  {badge && (
-                    <span className="ml-2 inline-block rounded-full bg-neela-primary-fixed px-2 py-0.5 align-middle text-[11px] font-bold text-neela-primary">
-                      {badge}
-                    </span>
-                  )}
-                </h4>
-                <p className="text-neela-body-sm text-neela-on-surface-variant">{body}</p>
+                <h4 className="text-neela-label-lg text-neela-text">{title}</h4>
+                <p className="text-neela-body-sm text-neela-text-secondary">{body}</p>
               </div>
             </div>
           ))}

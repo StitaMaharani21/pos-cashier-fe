@@ -16,7 +16,7 @@ export function VarianceTrendTab() {
   const points = data?.points ?? []
 
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border bg-card p-[25px] shadow-sm">
+    <div className="flex flex-col gap-6 rounded-2xl border bg-card p-5 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground">Tren Selisih Kas {days} Hari Terakhir</h2>
