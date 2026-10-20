@@ -19,10 +19,17 @@ export interface SalesSummaryComparison {
   net_revenue_change_pct: number | null
 }
 
+// gross_revenue is before discount; net_revenue = gross_revenue -
+// total_discount + total_tax (not net of refunds). cancelled_count counts the
+// orders cancelled in the period by the order's own date — exactly the rows the
+// Transaksi tab shows for status=dibatalkan.
 export interface SalesSummary {
   total_transactions: number
   gross_revenue: number
+  total_discount: number
+  total_tax: number
   net_revenue: number
+  cancelled_count: number
   avg_per_transaction: number
   avg_items_per_transaction: number
   comparison: SalesSummaryComparison
@@ -31,6 +38,9 @@ export interface SalesSummary {
 export interface PaymentMethodBreakdownItem {
   payment_method_id: number
   name: string
+  // cash | card | transfer | qris | ewallet — items are merged into payment
+  // channels by this (see lib/payment-channels.ts).
+  payment_method_type: string
   total_amount: number
   transaction_count: number
   percentage: number
@@ -52,14 +62,29 @@ export interface DiscountImpact {
   auto_discount_order_percentage: number
 }
 
+// `status` is the ORDER status (pending/diproses/selesai/dibatalkan/direfund);
+// refunds are reported separately: `refund_status` + `refund_amount` (item +
+// tax handed back to the customer) and `net_total` = grand_total - refund —
+// what actually stayed with the store. The payment_* fields build the detailed
+// payment label (see lib/payment-label.ts).
+export type RefundStatus = "none" | "partial" | "full"
+
 export interface ReportTransaction {
+  order_id: number
   order_no: string
   created_at: string
   cashier_name: string
   item_count: number
   payment_method_name: string
+  payment_method_type: string
+  payment_channel_name: string
+  card_type: string
+  payment_provider: string
   discount_amount: number
   grand_total: number
+  refund_amount: number
+  net_total: number
+  refund_status: RefundStatus
   status: string
 }
 
@@ -70,11 +95,31 @@ export interface ReportTransactionListResponse {
   total: number
 }
 
+// transaction_count / net_revenue / avg_per_transaction cover completed orders
+// only; cancelled_count is the cashier's cancelled orders in the same period.
 export interface CashierRankingItem {
   cashier_id: number
   cashier_name: string
   transaction_count: number
   net_revenue: number
+  avg_per_transaction: number
+  cancelled_count: number
+}
+
+// GET /reports/sales/daily — one row per date that has completed orders,
+// newest first, plus the totals (equal to the summary figures).
+export interface DailySalesItem {
+  date: string
+  total_orders: number
+  gross_revenue: number
+  discount: number
+  tax: number
+  net_revenue: number
+}
+
+export interface DailySales {
+  days: DailySalesItem[]
+  totals: DailySalesItem
 }
 
 export interface CashierRanking {
@@ -82,23 +127,6 @@ export interface CashierRanking {
   // Already sorted by net_revenue desc by the backend — callers don't
   // re-sort, this just documents which field the order reflects.
   sorted_by: string
-}
-
-export interface CancelledByCashier {
-  // null for cancellations the backend can't attribute to a specific
-  // cashier (e.g. system-cancelled orders) — cashier_name is expected to
-  // already carry a human label ("Sistem" or similar) for those rows, so
-  // callers render cashier_name verbatim rather than special-casing null.
-  cashier_id: number | null
-  cashier_name: string
-  count: number
-  value: number
-}
-
-export interface CancelledSummary {
-  total_count: number
-  total_value: number
-  by_cashier: CancelledByCashier[]
 }
 
 export interface CategoryBreakdownItem {
@@ -149,16 +177,6 @@ export interface TopProductsReport {
   // Worst performers under the requested sort — surfaced as a "consider
   // delisting" signal, not just "bottom of the list" (see TopProductsTab).
   bottom: TopProductItem[]
-}
-
-export interface TaxSummary {
-  // A store-wide rate (0-100), not per-item — 0 almost always means the
-  // store hasn't configured a tax rate yet rather than "no tax collected
-  // this period", so callers show an informational empty state for that
-  // case instead of a confusing Rp0 card (see TaxTab).
-  tax_percentage: number
-  total_tax_collected: number
-  total_transactions: number
 }
 
 // Pro/Enterprise-gated (RequirePlan on the backend) — GET

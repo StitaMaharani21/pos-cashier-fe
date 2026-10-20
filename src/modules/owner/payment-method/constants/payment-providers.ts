@@ -1,5 +1,4 @@
 import type {
-  CardNetwork,
   CardType,
   PaymentMethodType,
 } from "@/entities/payment-method/model/payment-method.types"
@@ -15,8 +14,8 @@ export const METHOD_TYPES: {
 }[] = [
   { type: "cash", name: "Tunai (Cash)", description: "Pembayaran uang tunai di kasir" },
   { type: "card", name: "Kartu Debit / Kredit", description: "Terima pembayaran kartu debit dan kredit" },
-  { type: "transfer", name: "Transfer Bank", description: "Terima transfer ke rekening bank" },
-  { type: "ewallet", name: "E-Wallet", description: "Terima pembayaran dompet digital" },
+  { type: "transfer", name: "Transfer Bank", description: "Terima transfer ke rekening bank toko" },
+  { type: "ewallet", name: "E-Wallet", description: "Terima pembayaran ke e-wallet toko" },
   { type: "qris", name: "QRIS", description: "Satu kode QR untuk semua aplikasi pembayaran" },
 ]
 
@@ -31,15 +30,6 @@ export const CHANNEL_TYPE_FOR: Partial<Record<PaymentMethodType, PaymentChannelT
 export const CARD_TYPE_OPTIONS: { value: CardType; label: string }[] = [
   { value: "debit", label: "Kartu Debit" },
   { value: "credit", label: "Kartu Kredit" },
-]
-
-export const CARD_NETWORK_OPTIONS: { value: CardNetwork; label: string }[] = [
-  { value: "visa", label: "Visa" },
-  { value: "mastercard", label: "Mastercard" },
-  { value: "gpn", label: "GPN" },
-  { value: "jcb", label: "JCB" },
-  { value: "amex", label: "American Express" },
-  { value: "unionpay", label: "UnionPay" },
 ]
 
 // Suggested channels, offered as ready-made checkboxes; channels the store

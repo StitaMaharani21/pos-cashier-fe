@@ -1,5 +1,4 @@
 import type {
-  CardNetwork,
   CardType,
   PaymentMethod,
   PaymentMethodType,
@@ -15,15 +14,22 @@ import {
 // The on/off switch is NOT part of it — that saves immediately.
 export interface MethodDraft {
   cardTypes: CardType[]
-  cardNetworks: CardNetwork[]
-  // Kept as the input's string so a half-typed "2." isn't rewritten.
+  // MDR Default, kept as the input's string so a half-typed "2." isn't rewritten.
   surcharge: string
   // Channel name (lower-cased) → should be active.
   channels: Record<string, boolean>
-  // Bank name (lower-cased) → that bank's own credit-card fee, as typed.
-  // "" = no own fee (the standard fee above applies).
+  // Bank name (lower-cased) → that bank's own MDR override, as typed.
+  // "" = no override (MDR Default applies).
   bankSurcharges: Record<string, string>
+  // Channel name (lower-cased) → the store's account number (bank) / phone
+  // number (e-wallet) and holder name, as typed. "" = not filled in.
+  channelAccounts: Record<string, ChannelAccount>
   qrisImage: File | null
+}
+
+export interface ChannelAccount {
+  number: string
+  name: string
 }
 
 export function channelKey(name: string): string {
@@ -56,21 +62,27 @@ export function initialDraft(
   channels: PaymentChannel[]
 ): MethodDraft {
   const channelState: Record<string, boolean> = {}
+  const channelAccounts: Record<string, ChannelAccount> = {}
   for (const option of channelOptions(type, channels)) {
-    channelState[channelKey(option.name)] = option.channel?.status === "active"
+    const key = channelKey(option.name)
+    channelState[key] = option.channel?.status === "active"
+    channelAccounts[key] = {
+      number: option.channel?.account_number ?? "",
+      name: option.channel?.account_name ?? "",
+    }
   }
   const bankSurcharges: Record<string, string> = {}
   for (const channel of channels) {
-    if (channel.type === "bank" && channel.credit_surcharge_percent != null) {
-      bankSurcharges[channelKey(channel.name ?? "")] = String(channel.credit_surcharge_percent)
+    if (channel.type === "bank" && channel.mdr_percent != null) {
+      bankSurcharges[channelKey(channel.name ?? "")] = String(channel.mdr_percent)
     }
   }
   return {
     cardTypes: (method?.card_types ?? []) as CardType[],
-    cardNetworks: (method?.card_networks ?? []) as CardNetwork[],
-    surcharge: method?.credit_surcharge_percent ? String(method.credit_surcharge_percent) : "",
+    surcharge: method?.mdr_percent ? String(method.mdr_percent) : "",
     channels: channelState,
     bankSurcharges,
+    channelAccounts,
     qrisImage: null,
   }
 }
@@ -81,11 +93,39 @@ const sameSet = (a: string[], b: string[]) =>
 export function isDraftDirty(draft: MethodDraft, initial: MethodDraft): boolean {
   return (
     !sameSet(draft.cardTypes, initial.cardTypes) ||
-    !sameSet(draft.cardNetworks, initial.cardNetworks) ||
     Number(draft.surcharge || 0) !== Number(initial.surcharge || 0) ||
     Object.keys(draft.channels).some((key) => draft.channels[key] !== initial.channels[key]) ||
     bankSurchargesChanged(draft.bankSurcharges, initial.bankSurcharges) ||
+    channelAccountsChanged(draft.channelAccounts, initial.channelAccounts) ||
     draft.qrisImage !== null
+  )
+}
+
+function channelAccountsChanged(
+  a: Record<string, ChannelAccount>,
+  b: Record<string, ChannelAccount>
+): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)])
+  for (const key of keys) {
+    if ((a[key]?.number ?? "").trim() !== (b[key]?.number ?? "").trim()) return true
+    if ((a[key]?.name ?? "").trim() !== (b[key]?.name ?? "").trim()) return true
+  }
+  return false
+}
+
+// Mirrors the backend's account_number check: digits, spaces, "-" and "+", max 50.
+export function accountNumberError(value: string): string | null {
+  const text = value.trim()
+  if (text === "") return null
+  if (text.length > 50) return "Maksimal 50 karakter"
+  if (!/^[0-9 +-]+$/.test(text)) return "Hanya angka, spasi, - dan +"
+  return null
+}
+
+// True when any selected channel's number is invalid.
+export function hasChannelAccountError(draft: MethodDraft): boolean {
+  return Object.entries(draft.channelAccounts).some(
+    ([key, account]) => (draft.channels[key] ?? false) && accountNumberError(account.number) !== null
   )
 }
 
@@ -106,7 +146,7 @@ export function hasBankSurchargeError(draft: MethodDraft): boolean {
   return Object.values(draft.bankSurcharges).some((value) => surchargeError(value) !== null)
 }
 
-// Mirrors the backend's `credit_surcharge_percent` binding (gte=0,lte=100).
+// Mirrors the backend's `mdr_percent` binding (gte=0,lte=100).
 export function surchargeError(value: string): string | null {
   if (value.trim() === "") return null
   const number = Number(value)

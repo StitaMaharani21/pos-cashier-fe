@@ -12,6 +12,8 @@ import type { RefundSummaryToday } from "@/entities/refund/model/refund.types"
 import type {
   CashCount,
   CashSummary,
+  CloseShiftPayload,
+  ClosedShift,
   RecordCashCountPayload,
 } from "@/entities/shift/model/shift.types"
 import type { LowStockMenu } from "@/entities/menu/model/menu.types"
@@ -169,19 +171,26 @@ export function useRecordCashCount(shiftId: number | undefined) {
 }
 
 // Owner menutup shift yang masih terbuka. Backend: PATCH /shifts/:id/close
-// (owner maupun kasir, semua paket), body { closing_balance }. Setelah berhasil,
-// kartu "Aktual Cash Laci" kembali ke "Tidak ada shift aktif" dan laporan kas
-// dimuat ulang karena shift ini berubah dari "berjalan" menjadi "selesai".
+// (owner maupun kasir, semua paket), body { closing_balance, closing_notes? }.
+// Responsnya memuat rekonsiliasi (expected_balance, difference,
+// difference_status). Setelah berhasil, kartu kas laci kembali ke "Tidak ada
+// shift aktif" dan laporan kas dimuat ulang karena shift ini berubah dari
+// "berjalan" menjadi "selesai".
 export function useCloseShift(shiftId: number | undefined) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (closingBalance: number) => {
+    mutationFn: async (payload: CloseShiftPayload) => {
       if (!shiftId) throw new Error("Shift tidak ditemukan.")
-      await apiClient.patch(`/shifts/${shiftId}/close`, { closing_balance: closingBalance })
+      const res = await apiClient.patch<SingleResponse<ClosedShift>>(
+        `/shifts/${shiftId}/close`,
+        payload
+      )
+      return res.data.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_SUMMARY_KEY })
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "dashboard-summary"] })
       queryClient.invalidateQueries({ queryKey: ["cash-report"] })
     },
   })

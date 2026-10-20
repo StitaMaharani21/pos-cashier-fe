@@ -12,6 +12,8 @@ interface KpiCardProps {
   iconTone?: "primary" | "neutral" | "warning"
   onClick?: () => void
   className?: string
+  // Stable hook for e2e/UI tests (e.g. "card-total-pendapatan").
+  testId?: string
 }
 
 const ICON_TONE_CLASSES: Record<NonNullable<KpiCardProps["iconTone"]>, string> = {
@@ -29,11 +31,13 @@ export function KpiCard({
   iconTone = "primary",
   onClick,
   className,
+  testId,
 }: KpiCardProps) {
   const isWarning = tone === "warning"
 
   return (
     <div
+      data-testid={testId}
       className={cn(
         "group relative flex min-h-[8.75rem] flex-col justify-between overflow-hidden rounded-2xl border bg-card p-5 shadow-sm",
         isWarning && "border-destructive/40",

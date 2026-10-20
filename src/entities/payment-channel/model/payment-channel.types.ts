@@ -1,13 +1,20 @@
 import type { components } from "@/shared/api/generated/owner-schema"
 
-// A specific bank or e-wallet (pos-kasir-be internal/master/payment_channel).
-// The cashier must pick one when paying with a card/transfer (type "bank" —
-// the two share one bank list) or an e-wallet (type "ewallet").
-// `credit_surcharge_percent` (banks only): this bank's own credit-card fee, null
-// = the card method's standard fee applies. Added after the generated schema
-// was last refreshed, so it is declared here.
+// A bank or e-wallet the STORE itself uses (pos-kasir-be
+// internal/master/payment_channel) — type "bank" is shared by card and transfer,
+// "ewallet" is separate. Not the customer's bank: the cashier may pick one when
+// taking a payment, but doesn't have to.
+// `mdr_percent` (banks only): this bank's own MDR override, null = the card
+// method's MDR Default applies.
+// `account_number` / `account_name`: the store's account number (bank) or phone
+// number (e-wallet) and its holder, shown to customers who want to transfer;
+// "" = not filled in.
+// These were added after the generated schema was last refreshed, so they are
+// declared here.
 export type PaymentChannel = components["schemas"]["dto.PaymentChannelResponse"] & {
-  credit_surcharge_percent?: number | null
+  mdr_percent?: number | null
+  account_number?: string
+  account_name?: string
 }
 
 export type PaymentChannelType = "bank" | "ewallet"
@@ -20,6 +27,9 @@ export interface PaymentChannelPayload {
   name: string
   status: "active" | "inactive"
   sort_order?: number
-  // Banks only. null/undefined = use the card method's standard fee.
-  credit_surcharge_percent?: number | null
+  // Banks only. null/undefined = use the card method's MDR Default.
+  mdr_percent?: number | null
+  // PUT replaces every field, so resend the saved values ("" clears them).
+  account_number?: string
+  account_name?: string
 }

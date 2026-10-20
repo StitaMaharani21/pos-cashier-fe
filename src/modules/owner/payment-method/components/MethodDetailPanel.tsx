@@ -10,6 +10,7 @@ import {
 import {
   initialDraft,
   hasBankSurchargeError,
+  hasChannelAccountError,
   isDraftDirty,
   surchargeError,
   type MethodDraft,
@@ -56,7 +57,9 @@ export function MethodDetailPanel({
   const [draft, setDraft] = useState<MethodDraft>(initial)
   const dirty = isDraftDirty(draft, initial)
   const surchargeProblem = type === "card" ? surchargeError(draft.surcharge) : null
-  const bankProblem = type === "card" && hasBankSurchargeError(draft)
+  const bankProblem =
+    (type === "card" && hasBankSurchargeError(draft)) ||
+    ((type === "transfer" || type === "ewallet") && hasChannelAccountError(draft))
   const hasSettings = type !== "cash"
 
   useEffect(() => {

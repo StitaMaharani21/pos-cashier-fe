@@ -25,8 +25,7 @@ function methodFormData(payload: PaymentMethodPayload): FormData {
   // Repeated fields (card_types=debit&card_types=credit) — gin binds them
   // into []string. Omitted entirely = empty list.
   payload.card_types?.forEach((value) => formData.append("card_types", value))
-  payload.card_networks?.forEach((value) => formData.append("card_networks", value))
-  formData.append("credit_surcharge_percent", String(payload.credit_surcharge_percent ?? 0))
+  formData.append("mdr_percent", String(payload.mdr_percent ?? 0))
   return formData
 }
 
@@ -36,11 +35,14 @@ function channelFormData(payload: PaymentChannelPayload): FormData {
   formData.append("name", payload.name)
   formData.append("status", payload.status)
   formData.append("sort_order", String(payload.sort_order ?? 0))
-  // Omitted (not "") when there is no own fee: the backend reads an empty value
-  // as 0%, which would mean "free" instead of "use the standard fee".
-  if (payload.credit_surcharge_percent != null) {
-    formData.append("credit_surcharge_percent", String(payload.credit_surcharge_percent))
+  // Omitted (not "") when there is no override: an empty value would read as 0%
+  // ("free") instead of "use the MDR Default".
+  if (payload.mdr_percent != null) {
+    formData.append("mdr_percent", String(payload.mdr_percent))
   }
+  // Always sent: PUT replaces every field, so an empty value clears the number.
+  formData.append("account_number", payload.account_number ?? "")
+  formData.append("account_name", payload.account_name ?? "")
   return formData
 }
 

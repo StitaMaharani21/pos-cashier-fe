@@ -1,8 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 
+import type { OrderDetail } from "@/entities/order/model/order-detail.types"
+import type { OrderRefund } from "@/entities/refund/model/refund.types"
 import type {
-  CancelledSummary,
   CashierRanking,
+  DailySales,
   CategoryBreakdown,
   DiscountImpact,
   OrderSourceBreakdown,
@@ -10,7 +12,6 @@ import type {
   PeakHoursHeatmap,
   ReportTransactionListResponse,
   SalesSummary,
-  TaxSummary,
   TopProductsReport,
   TopProductsSort,
 } from "@/modules/owner/financial-report/financial-report.types"
@@ -33,6 +34,20 @@ export function useSalesSummary({ from, to }: DateRangeParams) {
     queryKey: ["financial-report", "summary", from, to],
     queryFn: async () => {
       const res = await apiClient.get<SingleResponse<SalesSummary>>("/reports/sales/summary", {
+        params: { from, to },
+      })
+      return res.data.data
+    },
+  })
+}
+
+// One row per date with completed orders (newest first) for the Ringkasan
+// breakdown table.
+export function useDailySales({ from, to }: DateRangeParams) {
+  return useQuery({
+    queryKey: ["financial-report", "daily", from, to],
+    queryFn: async () => {
+      const res = await apiClient.get<SingleResponse<DailySales>>("/reports/sales/daily", {
         params: { from, to },
       })
       return res.data.data
@@ -70,23 +85,6 @@ export function useCashierRanking({ from, to }: DateRangeParams) {
     queryKey: ["financial-report", "by-cashier", from, to],
     queryFn: async () => {
       const res = await apiClient.get<SingleResponse<CashierRanking>>("/reports/sales/by-cashier", {
-        params: { from, to },
-      })
-      return res.data.data
-    },
-  })
-}
-
-// Shared by the "Void/Batal" tab count badge (FinancialReportSection),
-// VoidTransactionsTab's own body, and SummaryTab's anti-fraud banner — all
-// three call this exact hook with the same `from`/`to`, so they share one
-// queryKey (["financial-report", "cancelled", from, to]) and React Query
-// dedupes/caches the request instead of each caller firing its own fetch.
-export function useCancelledSummary({ from, to }: DateRangeParams) {
-  return useQuery({
-    queryKey: ["financial-report", "cancelled", from, to],
-    queryFn: async () => {
-      const res = await apiClient.get<SingleResponse<CancelledSummary>>("/reports/sales/cancelled", {
         params: { from, to },
       })
       return res.data.data
@@ -138,6 +136,9 @@ export function useTopProducts({ from, to, sort, limit = 10 }: TopProductsParams
 interface ReportTransactionsParams extends DateRangeParams {
   kasirId?: number
   orderNo?: string
+  // pending | diproses | selesai | dibatalkan | direfund (direfund = any
+  // refund, partial or full); undefined = every status.
+  status?: string
   page: number
   perPage: number
 }
@@ -154,6 +155,7 @@ export function useReportTransactions(params: ReportTransactionsParams) {
             to: params.to,
             kasir_id: params.kasirId,
             order_no: params.orderNo || undefined,
+            status: params.status || undefined,
             page: params.page,
             per_page: params.perPage,
           },
@@ -164,15 +166,31 @@ export function useReportTransactions(params: ReportTransactionsParams) {
   })
 }
 
-export function useTaxSummary({ from, to }: DateRangeParams) {
+// Drill-down for one transaction row. Both are fetched lazily — nothing runs
+// until a row is opened (orderId stays null while the drawer is closed).
+// GET /orders/{id}/detail is the same payload the cashier app shows; the
+// owner may call it on every plan.
+export function useOrderDetail(orderId: number | null) {
   return useQuery({
-    queryKey: ["financial-report", "tax", from, to],
+    queryKey: ["financial-report", "order-detail", orderId],
     queryFn: async () => {
-      const res = await apiClient.get<SingleResponse<TaxSummary>>("/reports/sales/tax", {
-        params: { from, to },
-      })
+      const res = await apiClient.get<SingleResponse<OrderDetail>>(`/orders/${orderId}/detail`)
       return res.data.data
     },
+    enabled: orderId !== null,
+  })
+}
+
+// Refund history of one order (reason, time, per-item amounts) — the order
+// detail only carries `refunded_qty` per item, not when/why.
+export function useOrderRefunds(orderId: number | null) {
+  return useQuery({
+    queryKey: ["financial-report", "order-refunds", orderId],
+    queryFn: async () => {
+      const res = await apiClient.get<SingleResponse<OrderRefund[]>>(`/orders/${orderId}/refunds`)
+      return res.data.data ?? []
+    },
+    enabled: orderId !== null,
   })
 }
 
@@ -197,15 +215,14 @@ export function useOrderSource({ from, to }: DateRangeParams, enabled = true) {
 }
 
 export interface ExportSalesReportParams extends DateRangeParams {
-  // Which tab's data to export — passed straight through as `report=`.
-  // Every financial-report tab id doubles as its report id 1:1 (including
-  // "summary" for Ringkasan), so FinancialReportSection never needs a
-  // separate translation table.
+  // Backend report id (`report=`) — NOT always the tab id; the shell maps
+  // each tab to one (FinancialReportSection's REPORT_ID).
   report: string
   // Only meaningful for report="transactions" (mirrors TransactionsTab's
-  // own local filters).
+  // own filters).
   kasirId?: number
   orderNo?: string
+  status?: string
   // Only meaningful for report="top-products" (mirrors TopProductsTab's
   // own local sort toggle).
   sort?: TopProductsSort
@@ -228,6 +245,7 @@ export function useExportSalesReport() {
           to: params.to,
           kasir_id: params.kasirId,
           order_no: params.orderNo || undefined,
+          status: params.status || undefined,
           sort: params.sort,
           limit: params.limit,
         },

@@ -24,3 +24,25 @@ export function selisihToneClassName(value: number): string {
   if (value > 0) return "text-amber-600"
   return "text-muted-foreground"
 }
+
+// Keterangan selisih kas (aktual - diharapkan) sesuai spesifikasi rekonsiliasi
+// kas laci. Warna: sesuai = hijau, surplus = kuning/amber, shortage = merah.
+export type SelisihStatus = "balanced" | "surplus" | "shortage"
+
+export function selisihStatus(value: number): SelisihStatus {
+  if (value > 0) return "surplus"
+  if (value < 0) return "shortage"
+  return "balanced"
+}
+
+export const SELISIH_STATUS_LABEL: Record<SelisihStatus, string> = {
+  balanced: "Kas Sesuai",
+  surplus: "Kas Lebih (Surplus)",
+  shortage: "Kas Kurang (Shortage)",
+}
+
+export const SELISIH_STATUS_BADGE_CLASSNAME: Record<SelisihStatus, string> = {
+  balanced: "bg-emerald-500/10 text-emerald-700",
+  surplus: "bg-amber-500/15 text-amber-700",
+  shortage: "bg-destructive/10 text-destructive",
+}

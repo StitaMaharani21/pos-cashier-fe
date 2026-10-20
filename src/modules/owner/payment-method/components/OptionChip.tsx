@@ -9,7 +9,7 @@ interface OptionChipProps {
   disabled?: boolean
 }
 
-// A small selectable pill — the "Tipe kartu" / "Jaringan kartu" / bank /
+// A small selectable pill — the "Jenis Kartu" / bank /
 // e-wallet choices. One click toggles it; selected = blue with a check.
 export function OptionChip({ label, checked, onToggle, disabled }: OptionChipProps) {
   return (

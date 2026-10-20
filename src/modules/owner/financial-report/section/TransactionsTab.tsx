@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { ReceiptIcon, SearchIcon } from "lucide-react"
 
 import { listCashiers } from "@/modules/owner/cashier/api/cashier.service"
-import { reportTransactionColumns } from "@/modules/owner/financial-report/columns/report-transaction.columns"
+import { makeReportTransactionColumns } from "@/modules/owner/financial-report/columns/report-transaction.columns"
+import { TransactionDetailSheet } from "@/modules/owner/financial-report/components/TransactionDetailSheet"
 import { useReportTransactions } from "@/modules/owner/financial-report/financial-report.queries"
+import type { ReportTransaction } from "@/modules/owner/financial-report/financial-report.types"
 import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
 import { Input } from "@/shared/ui/input"
@@ -13,6 +15,15 @@ import { TablePagination } from "@/shared/ui/table-pagination"
 
 const PER_PAGE = TABLE_PER_PAGE
 const ALL_CASHIERS = "all-cashiers"
+const ALL_STATUSES = "all-statuses"
+
+// "direfund" covers any refund — partial or full — while "selesai" still lists
+// an order that was only partly refunded (its badge says so).
+const STATUS_OPTIONS = [
+  { value: "selesai", label: "Selesai" },
+  { value: "dibatalkan", label: "Dibatalkan" },
+  { value: "direfund", label: "Direfund" },
+]
 
 interface TransactionsTabProps {
   from: string
@@ -26,6 +37,11 @@ interface TransactionsTabProps {
   onCashierIdChange: (id: number | undefined) => void
   orderNo: string
   onOrderNoChange: (value: string) => void
+  // Order-status filter, held in the URL (?status=) by the shell so the
+  // Ringkasan banner can link here with "dibatalkan" preselected. undefined =
+  // every status.
+  status: string | undefined
+  onStatusChange: (status: string | undefined) => void
 }
 
 // "Detail Transaksi" tab — the only tab with its own local filters (Kasir,
@@ -39,12 +55,18 @@ export function TransactionsTab({
   onCashierIdChange,
   orderNo,
   onOrderNoChange,
+  status,
+  onStatusChange,
 }: TransactionsTabProps) {
   // The raw, not-yet-debounced input value stays local — only the debounced
   // result is pushed up to the shell (and from there into both this tab's
   // own query and the Export button's params).
   const [search, setSearch] = useState(orderNo)
   const [page, setPage] = useState(1)
+  // Row whose detail drawer is open (null = closed). Kept as the row itself so
+  // the drawer header has its status/refund figures without a refetch.
+  const [selectedOrder, setSelectedOrder] = useState<ReportTransaction | null>(null)
+  const columns = useMemo(() => makeReportTransactionColumns(setSelectedOrder), [])
 
   useEffect(() => {
     const timeout = setTimeout(() => onOrderNoChange(search), 400)
@@ -54,7 +76,13 @@ export function TransactionsTab({
 
   useEffect(() => {
     setPage(1)
-  }, [from, to, cashierId, orderNo])
+  }, [from, to, cashierId, orderNo, status])
+
+  // A new filter/page shows different rows — close the drawer so it never
+  // lingers on an order that is no longer in the table.
+  useEffect(() => {
+    setSelectedOrder(null)
+  }, [from, to, cashierId, orderNo, status, page])
 
   const { data: cashiers = [] } = useQuery({
     queryKey: ["cashiers", "all"],
@@ -66,6 +94,7 @@ export function TransactionsTab({
     to,
     kasirId: cashierId,
     orderNo,
+    status,
     page,
     perPage: PER_PAGE,
   })
@@ -94,6 +123,23 @@ export function TransactionsTab({
           </SelectContent>
         </Select>
 
+        <Select
+          value={status ?? ALL_STATUSES}
+          onValueChange={(value) => onStatusChange(value === ALL_STATUSES ? undefined : value)}
+        >
+          <SelectTrigger className="w-[160px]" aria-label="Status Order">
+            <SelectValue placeholder="Semua Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_STATUSES}>Semua Status</SelectItem>
+            {STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <div className="relative min-w-[220px] flex-1">
           <SearchIcon className="absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -106,9 +152,10 @@ export function TransactionsTab({
       </div>
 
       <CrudTable
-        columns={reportTransactionColumns}
+        columns={columns}
         rows={rows}
         getRowId={(row) => row.order_no}
+        onRowClick={setSelectedOrder}
         isLoading={isLoading}
         isError={isError}
         errorHint="Laporan transaksi mungkin memerlukan paket Pro atau fitur tambahan Laporan."
@@ -117,7 +164,9 @@ export function TransactionsTab({
         empty={{
           icon: ReceiptIcon,
           title: "Belum ada transaksi",
-          hint: "Tidak ada transaksi pada rentang tanggal dan filter ini.",
+          hint: status
+            ? "Tidak ada transaksi dengan status ini pada rentang tanggal dan filter yang dipilih."
+            : "Tidak ada transaksi pada rentang tanggal dan filter ini.",
         }}
         footer={
           total > 0 && (
@@ -132,6 +181,8 @@ export function TransactionsTab({
           )
         }
       />
+
+      <TransactionDetailSheet order={selectedOrder} onClose={() => setSelectedOrder(null)} />
     </div>
   )
 }

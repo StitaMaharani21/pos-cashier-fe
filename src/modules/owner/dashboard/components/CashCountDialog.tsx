@@ -64,7 +64,7 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
           <DialogTitle>Hitungan Kas Fisik</DialogTitle>
           <DialogDescription>
             {cashSummary
-              ? `Kas seharusnya di laci saat ini: ${formatRupiah(cashSummary.expected_amount ?? 0)}`
+              ? `Kas seharusnya di laci saat ini: ${formatRupiah(cashSummary.current_expected_amount ?? cashSummary.expected_amount ?? 0)}`
               : "Tidak ada shift aktif untuk dicatat."}
           </DialogDescription>
         </DialogHeader>
