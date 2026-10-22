@@ -113,7 +113,7 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                 <FormItem>
                   <FormLabel>Uang Tunai di Laci (Rp)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={0} step={1000} inputMode="numeric" autoFocus {...field} />
+                    <Input type="number" min={0} step={1} inputMode="numeric" autoFocus {...field} />
                   </FormControl>
                   {shift && (
                     <FormDescription>

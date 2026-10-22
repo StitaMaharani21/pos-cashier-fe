@@ -78,7 +78,7 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
                 <FormItem>
                   <FormLabel>Jumlah Kas Terhitung (Rp)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={0} step={1000} {...field} />
+                    <Input type="number" min={0} step={1} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
