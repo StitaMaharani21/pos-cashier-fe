@@ -14,7 +14,7 @@ export function LandingHeader() {
 
   return (
     <header className="relative z-10">
-      <div className="flex h-18 items-center justify-between gap-4 px-5 lg:px-8">
+      <div className="mx-auto flex h-18 max-w-[1400px] items-center justify-between gap-4 px-5 lg:px-8">
         <a href="#top" className="flex items-center gap-2 rounded outline-none focus-visible:ring-2 focus-visible:ring-white">
           <NeelaWordmark tone="dark" />
         </a>

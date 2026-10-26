@@ -7,67 +7,61 @@ import {
   TOUR_PAYMENT,
   TOUR_SHIFT,
 } from "@/modules/public/landing/presentation/landing.content"
-import { cn } from "@/shared/lib/utils"
 
-function TourRow({
+function TourCard({
+  step,
   title,
   body,
-  reverse,
   children,
 }: {
+  step: number
   title: string
   body: string
-  reverse?: boolean
   children: React.ReactNode
 }) {
   return (
-    <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-16">
-      <div className={cn("flex flex-col gap-3", reverse && "lg:order-2")}>
-        <h3 className="text-neela-headline-sm text-neela-text">{title}</h3>
-        <p className="max-w-md text-neela-body-md text-neela-text-secondary">{body}</p>
+    <article className="flex flex-col overflow-hidden rounded-2xl border border-neela-border bg-white shadow-sm">
+      <div className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-neela-surface-subtle p-4">
+        {children}
       </div>
-      <div className={cn(reverse && "lg:order-1")}>{children}</div>
-    </div>
-  )
-}
-
-function ScreenFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-neela-border bg-neela-surface-subtle p-3 shadow-sm sm:p-5">
-      {children}
-    </div>
+      <div className="flex flex-1 flex-col gap-3 p-6">
+        <span className="flex size-7 items-center justify-center rounded-full bg-neela-brand text-neela-label-sm text-neela-on-brand">
+          {step}
+        </span>
+        <h3 className="text-neela-headline-sm text-neela-text">{title}</h3>
+        <p className="text-neela-body-md text-neela-text-secondary">{body}</p>
+      </div>
+    </article>
   )
 }
 
 // Section 5 — real app screens where a screenshot exists (cashier, payment,
-// shift), alternating sides for rhythm; a plain list for screens that don't
-// have a captured asset yet (never a fabricated mockup).
+// shift), as a three-card row; a plain list for screens that don't have a
+// captured asset yet (never a fabricated mockup).
 export function ProductTourSection() {
   return (
     <section id="cara-kerja" className="w-full scroll-mt-18 bg-white py-20">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-16 px-4 md:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-12 px-4 md:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Cara Kerja"
           title="Dari pesanan sampai tutup kasir"
           description="Layar yang benar-benar dipakai kasir setiap hari — bukan rekaan."
         />
 
-        <TourRow title={TOUR_CASHIER.title} body={TOUR_CASHIER.body}>
-          <ScreenFrame>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <TourCard step={1} title={TOUR_CASHIER.title} body={TOUR_CASHIER.body}>
             <img
               src={TOUR_CASHIER.image}
               alt={TOUR_CASHIER.imageAlt}
               loading="lazy"
               width={1200}
               height={1077}
-              className="w-full rounded-xl object-cover"
+              className="h-full w-full rounded-lg object-cover object-left-top shadow-sm"
             />
-          </ScreenFrame>
-        </TourRow>
+          </TourCard>
 
-        <TourRow title={TOUR_PAYMENT.title} body={TOUR_PAYMENT.body} reverse>
-          <ScreenFrame>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <TourCard step={2} title={TOUR_PAYMENT.title} body={TOUR_PAYMENT.body}>
+            <div className="grid w-full grid-cols-2 items-center gap-2">
               {TOUR_PAYMENT.images.map((img) => (
                 <img
                   key={img.alt}
@@ -76,29 +70,27 @@ export function ProductTourSection() {
                   loading="lazy"
                   width={900}
                   height={657}
-                  className="w-full rounded-lg object-cover shadow-sm"
+                  className="w-full object-contain drop-shadow-md"
                 />
               ))}
             </div>
-          </ScreenFrame>
-        </TourRow>
+          </TourCard>
 
-        <TourRow title={TOUR_SHIFT.title} body={TOUR_SHIFT.body}>
-          <ScreenFrame>
+          <TourCard step={3} title={TOUR_SHIFT.title} body={TOUR_SHIFT.body}>
             <img
               src={TOUR_SHIFT.image}
               alt={TOUR_SHIFT.imageAlt}
               loading="lazy"
               width={1200}
               height={749}
-              className="w-full rounded-xl object-cover"
+              className="h-full w-full rounded-lg object-cover object-left-top shadow-sm"
             />
-          </ScreenFrame>
-        </TourRow>
+          </TourCard>
+        </div>
 
         {/* No screenshot asset for these yet — a plain, honest list rather
             than a faked screen. */}
-        <div className="grid grid-cols-1 gap-4 border-t border-neela-border pt-10 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {TOUR_OTHER.map(({ title, body, badge }) => (
             <div key={title} className="flex flex-col gap-2 rounded-xl bg-neela-surface-alt p-5">
               <div className="flex items-center gap-2">

@@ -8,8 +8,8 @@ import { waLink } from "@/modules/public/shared/contact"
 
 export function HeroSection() {
   return (
-    <section className="mx-auto w-full max-w-[1400px] px-3 pt-3 sm:px-4 sm:pt-4">
-      <div className="relative overflow-hidden rounded-[2rem] bg-linear-to-br from-neela-blue-400 via-neela-brand to-neela-dark-surface">
+    <section className="w-full">
+      <div className="relative overflow-hidden rounded-b-[2rem] bg-linear-to-br from-neela-blue-400 via-neela-brand to-neela-dark-surface">
         <LandingHeader />
 
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 px-5 pt-10 text-center sm:pt-14">
