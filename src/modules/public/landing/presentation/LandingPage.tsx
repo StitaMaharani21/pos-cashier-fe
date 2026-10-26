@@ -6,7 +6,6 @@ import { FeatureSection } from "@/modules/public/landing/presentation/components
 import { FinalCtaSection } from "@/modules/public/landing/presentation/components/FinalCtaSection"
 import { HeroSection } from "@/modules/public/landing/presentation/components/HeroSection"
 import { LandingFooter } from "@/modules/public/landing/presentation/components/LandingFooter"
-import { LandingHeader } from "@/modules/public/landing/presentation/components/LandingHeader"
 import { OfflineSection } from "@/modules/public/landing/presentation/components/OfflineSection"
 import { PricingSection } from "@/modules/public/landing/presentation/components/PricingSection"
 import { ProblemSection } from "@/modules/public/landing/presentation/components/ProblemSection"
@@ -35,8 +34,7 @@ export function LandingPage() {
 
   return (
     <div id="top" className="min-h-screen bg-white font-neela text-neela-body-md text-neela-text antialiased">
-      <LandingHeader />
-      <main className="w-full pt-18">
+      <main className="w-full">
         <HeroSection />
         <QuickFactsSection />
         <ProblemSection />
