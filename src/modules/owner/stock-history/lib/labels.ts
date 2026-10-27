@@ -1,24 +1,12 @@
 // Tipe dan referensi pergerakan stok datang dari backend sebagai kode
-// (mis. "SALE", "order"). Pemilik toko melihat padanan Indonesianya; kode yang
+// (mis. "OUT" + "ORDER"). Pemilik toko melihat padanan Indonesianya; kode yang
 // belum dikenal ditampilkan sebagai teks biasa tanpa garis bawah, bukan kode mentah.
-const TYPE_LABELS: Record<string, string> = {
-  sale: "Penjualan",
-  sales: "Penjualan",
-  order: "Penjualan",
-  adjustment: "Penyesuaian",
-  adjust: "Penyesuaian",
-  in: "Stok masuk",
-  stock_in: "Stok masuk",
-  purchase: "Pembelian",
-  restock: "Stok masuk",
-  out: "Stok keluar",
-  stock_out: "Stok keluar",
-  void: "Pesanan dibatalkan",
-  refund: "Pengembalian",
-  return: "Pengembalian",
-  waste: "Terbuang / rusak",
-  opname: "Stok opname",
-  initial: "Stok awal",
+
+export type MovementTone = "in" | "out" | "neutral"
+
+export interface MovementKind {
+  label: string
+  tone: MovementTone
 }
 
 const REFERENCE_LABELS: Record<string, string> = {
@@ -36,8 +24,34 @@ function humanize(code: string): string {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : "—"
 }
 
-export function movementTypeLabel(type: string): string {
-  return TYPE_LABELS[type.toLowerCase()] ?? humanize(type)
+function toneOf(delta: number): MovementTone {
+  if (delta > 0) return "in"
+  if (delta < 0) return "out"
+  return "neutral"
+}
+
+// What a movement is, for the "Jenis" badge. `delta` is the signed change
+// (positive = stock in). The backend uses "IN" both for goods received
+// (reference PURCHASE) and for stock restored when an order is cancelled
+// (reference ORDER) — the reference tells them apart.
+export function movementKind(type: string, referenceType: string, delta: number): MovementKind {
+  const kind = type.toLowerCase()
+  const reference = referenceType.toLowerCase()
+
+  if (kind === "in") {
+    if (reference === "purchase") return { label: "Stok masuk", tone: "in" }
+    if (reference === "order") return { label: "Pembatalan pesanan", tone: "in" }
+    return { label: "Stok masuk", tone: "in" }
+  }
+  if (kind === "out") {
+    return { label: reference === "order" ? "Penjualan" : "Stok keluar", tone: "out" }
+  }
+  if (kind === "adjustment") {
+    if (delta > 0) return { label: "Penyesuaian (+)", tone: "in" }
+    if (delta < 0) return { label: "Penyesuaian (−)", tone: "out" }
+    return { label: "Penyesuaian", tone: "neutral" }
+  }
+  return { label: humanize(type), tone: toneOf(delta) }
 }
 
 export function movementReferenceLabel(referenceType: string, referenceId?: number): string {

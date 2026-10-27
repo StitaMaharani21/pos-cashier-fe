@@ -1,3 +1,5 @@
+import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+
 import type {
   CardType,
   PaymentMethodType,
@@ -5,16 +7,15 @@ import type {
 import type { PaymentChannel } from "@/entities/payment-channel/model/payment-channel.types"
 import { CARD_TYPE_OPTIONS } from "@/modules/owner/payment-method/constants/payment-providers"
 import {
-  accountNumberError,
   channelKey,
-  channelOptions,
   surchargeError as surchargeErrorOf,
-  type ChannelAccount,
   type MethodDraft,
 } from "@/modules/owner/payment-method/components/method-draft"
 import { OptionChip } from "@/modules/owner/payment-method/components/OptionChip"
+import { Button } from "@/shared/ui/button"
 import { ImageUpload } from "@/shared/ui/image-upload"
 import { Input } from "@/shared/ui/input"
+import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
 
 function SectionLabel({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
@@ -22,19 +23,6 @@ function SectionLabel({ children, action }: { children: React.ReactNode; action?
       <h3 className="text-sm font-semibold text-foreground">{children}</h3>
       {action}
     </div>
-  )
-}
-
-// "Pilih semua" until everything is selected, then "Hapus semua".
-function SelectAllToggle({ allSelected, onChange }: { allSelected: boolean; onChange: (next: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      className="text-xs font-semibold text-primary-strong hover:underline"
-      onClick={() => onChange(!allSelected)}
-    >
-      {allSelected ? "Hapus semua" : "Pilih semua"}
-    </button>
   )
 }
 
@@ -197,120 +185,78 @@ export function CardConfigPanel({
   )
 }
 
-interface ChannelPanelProps extends PanelProps {
-  type: PaymentMethodType
-  channels: PaymentChannel[]
+interface ChannelPanelProps {
+  type: Extract<PaymentMethodType, "transfer" | "ewallet">
+  // Active channels of this panel's type, in display order.
+  accounts: PaymentChannel[]
+  onAdd: () => void
+  onEdit: (channel: PaymentChannel) => void
+  onRemove: (channel: PaymentChannel) => void
+  // Nothing left in the provider list to add.
+  addDisabled: boolean
 }
 
-export function ChannelConfigPanel({ type, channels, draft, onChange }: ChannelPanelProps) {
-  const options = channelOptions(type, channels)
+export function ChannelConfigPanel({ type, accounts, onAdd, onEdit, onRemove, addDisabled }: ChannelPanelProps) {
   const isBank = type === "transfer"
-  const keys = options.map((option) => channelKey(option.name))
-  const allSelected = keys.length > 0 && keys.every((key) => draft.channels[key] ?? false)
-  const setAll = (value: boolean) =>
-    onChange(() => ({ channels: Object.fromEntries(keys.map((key) => [key, value])) }))
-
-  const selected = options.filter((option) => draft.channels[channelKey(option.name)] ?? false)
-  const setAccount = (key: string, patch: Partial<ChannelAccount>) =>
-    onChange((d) => ({
-      channelAccounts: {
-        ...d.channelAccounts,
-        [key]: { ...(d.channelAccounts[key] ?? { number: "", name: "" }), ...patch },
-      },
-    }))
+  const label = isBank ? "Bank" : "E-Wallet"
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <SectionLabel action={<SelectAllToggle allSelected={allSelected} onChange={setAll} />}>
-          {isBank ? "Bank yang digunakan toko" : "E-wallet yang digunakan toko"}
-        </SectionLabel>
-        <p className="-mt-1 text-xs text-muted-foreground">
+    <div className="flex flex-col gap-3">
+      <SectionLabel
+        action={
+          <Button type="button" size="sm" disabled={addDisabled} onClick={onAdd}>
+            <PlusIcon />
+            Tambah {label}
+          </Button>
+        }
+      >
+        {isBank ? "Bank yang digunakan toko" : "E-wallet yang digunakan toko"}
+      </SectionLabel>
+      <p className="-mt-1 text-xs text-muted-foreground">
+        {isBank
+          ? "Pelanggan yang ingin transfer akan diarahkan ke rekening di bawah. Kasir bisa menunjukkan nomor rekening dan nama pemilik ke pelanggan."
+          : "Pelanggan yang ingin membayar lewat e-wallet akan diarahkan ke nomor di bawah. Kasir bisa menunjukkan nomor HP dan nama pemilik ke pelanggan."}
+      </p>
+      {accounts.length === 0 ? (
+        <p className="rounded-xl bg-muted/50 px-4 py-6 text-center text-sm text-muted-foreground">
           {isBank
-            ? "Pilih bank yang dimiliki toko ini. Pelanggan yang ingin transfer akan diarahkan ke rekening di bawah."
-            : "Pilih e-wallet yang dimiliki toko ini. Pelanggan yang ingin membayar lewat e-wallet akan diarahkan ke nomor di bawah."}
+            ? 'Belum ada bank. Klik "Tambah Bank" untuk menambahkan rekening toko.'
+            : 'Belum ada e-wallet. Klik "Tambah E-Wallet" untuk menambahkan akun toko.'}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {options.map((option) => {
-            const key = channelKey(option.name)
-            return (
-              <OptionChip
-                key={key}
-                label={option.name}
-                checked={draft.channels[key] ?? false}
-                onToggle={() => onChange((d) => ({ channels: { ...d.channels, [key]: !(d.channels[key] ?? false) } }))}
-              />
-            )
-          })}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 border-t pt-6">
-        <SectionLabel>{isBank ? "Nomor rekening" : "Nomor HP e-wallet"}</SectionLabel>
-        <p className="-mt-1 text-xs text-muted-foreground">
-          {isBank
-            ? "Opsional. Kasir bisa menunjukkan nomor rekening dan nama pemilik ini ke pelanggan."
-            : "Opsional. Kasir bisa menunjukkan nomor HP dan nama pemilik ini ke pelanggan."}
-        </p>
-        {selected.length === 0 ? (
-          <p className="rounded-xl bg-muted/50 px-4 py-4 text-sm text-muted-foreground">
-            {isBank
-              ? "Pilih minimal satu bank di atas untuk mengisi nomor rekeningnya."
-              : "Pilih minimal satu e-wallet di atas untuk mengisi nomor HP-nya."}
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-xl border">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                  <th className="px-4 py-2.5">{isBank ? "Bank" : "E-wallet"}</th>
-                  <th className="px-4 py-2.5">{isBank ? "Nomor rekening" : "Nomor HP"}</th>
-                  <th className="px-4 py-2.5">Atas nama</th>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                <th className="px-4 py-2.5">{label}</th>
+                <th className="px-4 py-2.5">{isBank ? "Nomor rekening" : "Nomor HP"}</th>
+                <th className="px-4 py-2.5">Atas nama</th>
+                <th className="px-4 py-2.5 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {accounts.map((account) => (
+                <tr key={account.id}>
+                  <td className="px-4 py-3 font-medium text-foreground">{account.name}</td>
+                  <td className="px-4 py-3 tabular-nums">{account.account_number || "-"}</td>
+                  <td className="px-4 py-3">{account.account_name || "-"}</td>
+                  <td className="px-4 py-3">
+                    <RowActions>
+                      <RowActionButton icon={PencilIcon} label={`Edit ${account.name}`} onClick={() => onEdit(account)} />
+                      <RowActionButton
+                        icon={Trash2Icon}
+                        tone="danger"
+                        label={`Hapus ${account.name}`}
+                        onClick={() => onRemove(account)}
+                      />
+                    </RowActions>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y">
-                {selected.map((option) => {
-                  const key = channelKey(option.name)
-                  const account = draft.channelAccounts[key] ?? { number: "", name: "" }
-                  const problem = accountNumberError(account.number)
-                  return (
-                    <tr key={key}>
-                      <td className="px-4 py-3 font-medium text-foreground">
-                        <label htmlFor={`account-number-${key}`}>{option.name}</label>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
-                          <Input
-                            id={`account-number-${key}`}
-                            inputMode="tel"
-                            maxLength={50}
-                            placeholder={isBank ? "mis. 123 456 7890" : "mis. 0812 3456 7890"}
-                            value={account.number}
-                            aria-invalid={problem ? true : undefined}
-                            onChange={(event) => setAccount(key, { number: event.target.value })}
-                            className="min-w-44"
-                          />
-                          {problem && <p className="text-xs text-destructive">{problem}</p>}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Input
-                          aria-label={`Atas nama ${option.name}`}
-                          maxLength={100}
-                          placeholder="Nama pemilik"
-                          value={account.name}
-                          onChange={(event) => setAccount(key, { name: event.target.value })}
-                          className="min-w-44"
-                        />
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

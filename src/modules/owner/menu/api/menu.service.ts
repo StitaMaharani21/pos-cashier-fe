@@ -35,6 +35,8 @@ export interface ListMenusParams {
   categoryId?: number
   // The "Status" filter: Tersedia (true) / Tidak tersedia (false).
   available?: boolean
+  // Only menus using this stock method (the stock-history list wants "by_menu").
+  stockDeductionMethod?: "none" | "by_ingredient" | "by_menu"
 }
 
 export interface ListMenusResult {
@@ -77,6 +79,7 @@ export async function listMenus({
   search,
   categoryId,
   available,
+  stockDeductionMethod,
 }: ListMenusParams): Promise<ListMenusResult> {
   const response = await apiClient.get<PaginatedResponse<Menu>>(RESOURCE, {
     params: {
@@ -85,6 +88,7 @@ export async function listMenus({
       search: search || undefined,
       category_id: categoryId || undefined,
       available,
+      stock_deduction_method: stockDeductionMethod,
     },
   })
   return {

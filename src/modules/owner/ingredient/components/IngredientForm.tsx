@@ -75,6 +75,9 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
                   <option key={unit} value={unit} />
                 ))}
               </datalist>
+              <p className="text-xs text-muted-foreground">
+                Nama satuan untuk menghitung stok (mis. gram, kg, ml, pcs), bukan angka.
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -85,7 +88,10 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
           name="stock"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Stok {row ? "Saat Ini" : "Awal"}</FormLabel>
+              <FormLabel>
+                Stok {row ? "Saat Ini" : "Awal"}
+                {form.watch("unit") && ` (dalam ${form.watch("unit")})`}
+              </FormLabel>
               <FormControl>
                 <Input type="number" min={0} step="any" {...field} />
               </FormControl>

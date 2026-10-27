@@ -28,6 +28,14 @@ export interface CloseShiftPayload {
   closing_notes?: string
 }
 
+// POST /shifts/{id}/cash-transactions — a cash movement outside a sale.
+export interface RecordCashMovementPayload {
+  // in = Kas Masuk (raises the expected cash), out = Kas Keluar (lowers it).
+  type: "in" | "out"
+  amount: number
+  description: string
+}
+
 export type CashDifferenceStatus = "balanced" | "surplus" | "shortage"
 
 export interface ClosedShift {

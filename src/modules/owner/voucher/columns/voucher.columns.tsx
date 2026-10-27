@@ -13,8 +13,10 @@ import { StatusBadge } from "@/shared/ui/status-badge"
 import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 
 // The end date has passed. The backend switches such vouchers to inactive on
-// its own; this only labels them so they read as expired, not just switched off.
-function isExpired(row: Voucher): boolean {
+// its own (a scheduled job, plus whenever a voucher is listed or applied);
+// this labels them so they read as expired, not just switched off, and keeps a
+// stale list (page left open past midnight) from showing them as still active.
+export function isExpired(row: Voucher): boolean {
   const end = fromApiDate(row.end_date)
   return end !== "" && end < todayInput()
 }
@@ -59,7 +61,7 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
     className: "w-32",
     render: (row) => (
       <div className="flex flex-col items-start gap-1">
-        <StatusBadge active={row.status === "active"} />
+        <StatusBadge active={row.status === "active" && !isExpired(row)} />
         {isExpired(row) && <span className="text-xs text-muted-foreground">Kedaluwarsa</span>}
       </div>
     ),

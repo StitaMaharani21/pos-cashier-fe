@@ -10,7 +10,9 @@ import type {
 export interface NormalizedStockMovement {
   id: number
   type: string
-  qty: number
+  // Signed change: positive = stock in, negative = stock out. The backend's
+  // `qty` is always positive, so the direction comes from `delta`.
+  delta: number
   stockBefore: number
   stockAfter: number
   referenceType: string
@@ -20,13 +22,16 @@ export interface NormalizedStockMovement {
   createdAt: string
 }
 
-export function normalizeIngredientMovement(m: IngredientStockMovement): NormalizedStockMovement {
+function normalize(m: IngredientStockMovement | MenuStockMovement): NormalizedStockMovement {
+  const stockBefore = m.stock_before ?? 0
+  const stockAfter = m.stock_after ?? 0
   return {
     id: m.id ?? 0,
     type: m.type ?? "",
-    qty: m.qty ?? 0,
-    stockBefore: m.stock_before ?? 0,
-    stockAfter: m.stock_after ?? 0,
+    // Rounded: ingredient stock is a float (decimal(18,3)).
+    delta: m.delta ?? Math.round((stockAfter - stockBefore) * 1000) / 1000,
+    stockBefore,
+    stockAfter,
     referenceType: m.reference_type ?? "",
     referenceId: m.reference_id,
     notes: m.notes,
@@ -35,17 +40,5 @@ export function normalizeIngredientMovement(m: IngredientStockMovement): Normali
   }
 }
 
-export function normalizeMenuMovement(m: MenuStockMovement): NormalizedStockMovement {
-  return {
-    id: m.id ?? 0,
-    type: m.type ?? "",
-    qty: m.qty ?? 0,
-    stockBefore: m.stock_before ?? 0,
-    stockAfter: m.stock_after ?? 0,
-    referenceType: m.reference_type ?? "",
-    referenceId: m.reference_id,
-    notes: m.notes,
-    createdByName: m.created_by_name,
-    createdAt: m.created_at ?? "",
-  }
-}
+export const normalizeIngredientMovement = (m: IngredientStockMovement) => normalize(m)
+export const normalizeMenuMovement = (m: MenuStockMovement) => normalize(m)

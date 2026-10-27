@@ -23,7 +23,8 @@ import {
 } from "@/modules/owner/payment-method/api/payment-method.service"
 import { MethodDetailPanel } from "@/modules/owner/payment-method/components/MethodDetailPanel"
 import { MethodListItem } from "@/modules/owner/payment-method/components/MethodListItem"
-import { channelKey, channelOptions, type MethodDraft } from "@/modules/owner/payment-method/components/method-draft"
+import type { ChannelAccountSubmit } from "@/modules/owner/payment-method/components/ChannelAccountDialog"
+import { channelKey, type MethodDraft } from "@/modules/owner/payment-method/components/method-draft"
 import { CHANNEL_TYPE_FOR, METHOD_TYPES } from "@/modules/owner/payment-method/constants/payment-providers"
 import { CrudServiceError } from "@/shared/api/crud/types"
 import { Button } from "@/shared/ui/button"
@@ -164,51 +165,61 @@ export function PaymentMethodSection() {
           await updatePaymentChannel(channel.id, channelPayload(channel, { mdr_percent: wanted }))
         }
       }
-
-      const channelType = CHANNEL_TYPE_FOR[config.type]
-      if (channelType && config.type !== "card") {
-        const options = channelOptions(config.type, channels)
-        for (const [index, option] of options.entries()) {
-          const key = channelKey(option.name)
-          const wanted = draft.channels[key] ?? false
-          const account = {
-            account_number: (draft.channelAccounts[key]?.number ?? "").trim(),
-            account_name: (draft.channelAccounts[key]?.name ?? "").trim(),
-          }
-          const existing = option.channel
-          if (existing?.id != null) {
-            const statusChanged = (existing.status === "active") !== wanted
-            const accountChanged =
-              account.account_number !== (existing.account_number ?? "") ||
-              account.account_name !== (existing.account_name ?? "")
-            if (statusChanged || accountChanged) {
-              await updatePaymentChannel(
-                existing.id,
-                channelPayload(existing, { status: wanted ? "active" : "inactive", ...account })
-              )
-            }
-          } else if (wanted) {
-            await createPaymentChannel({
-              type: channelType,
-              name: option.name,
-              status: "active",
-              sort_order: index,
-              ...account,
-            })
-          }
-        }
-      }
     },
     onSuccess: async (_, { config }) => {
       toast.success(`Pengaturan ${config.name} disimpan`)
       await refresh()
       setPanelVersion((version) => version + 1)
     },
-    // Channels are saved one by one — refresh so a partial save shows as is.
+    // Bank MDR overrides are saved one by one — refresh so a partial save shows as is.
     onError: (error) => {
       toast.error(errorMessage(error))
       refresh()
     },
+  })
+
+  // Adds / edits one bank or e-wallet account. A store has one row per
+  // provider name, so a provider that was removed earlier (inactive) is
+  // reactivated instead of getting a duplicate row.
+  const saveChannelMutation = useMutation({
+    mutationFn: async ({ type, values }: { type: "transfer" | "ewallet"; values: ChannelAccountSubmit }) => {
+      const channelType = CHANNEL_TYPE_FOR[type]
+      if (!channelType) return
+      const account = { account_number: values.accountNumber, account_name: values.accountName }
+      const existing = channels.find(
+        (channel) => channel.type === channelType && channelKey(channel.name ?? "") === channelKey(values.provider)
+      )
+      if (existing?.id != null) {
+        await updatePaymentChannel(existing.id, channelPayload(existing, { status: "active", ...account }))
+        return
+      }
+      const sortOrder = Math.max(-1, ...channels.filter((channel) => channel.type === channelType).map((c) => c.sort_order ?? 0)) + 1
+      await createPaymentChannel({
+        type: channelType,
+        name: values.provider,
+        status: "active",
+        sort_order: sortOrder,
+        ...account,
+      })
+    },
+    onSuccess: (_, { values }) => {
+      toast.success(`${values.provider} disimpan`)
+      refresh()
+    },
+    onError: (error) => toast.error(errorMessage(error)),
+  })
+
+  // Channels are never deleted (payments reference them) — "Hapus" turns one off.
+  const removeChannelMutation = useMutation({
+    mutationFn: async (channel: PaymentChannel) => {
+      if (channel.id == null) return
+      await updatePaymentChannel(channel.id, channelPayload(channel, { status: "inactive" }))
+    },
+    onSuccess: (_, channel) => {
+      toast.success(`${channel.name} dihapus`)
+      refresh()
+    },
+    onError: (error) => toast.error(errorMessage(error)),
   })
 
   const onDirtyChange = useCallback((value: boolean) => setDirty(value), [])
@@ -294,8 +305,12 @@ export function PaymentMethodSection() {
           active={selected.active}
           toggling={togglingType === selected.config.type}
           isSaving={saveMutation.isPending}
+          isSavingChannel={saveChannelMutation.isPending}
+          isRemovingChannel={removeChannelMutation.isPending}
           onToggle={(next) => toggleMutation.mutate({ config: selected.config, next })}
           onSave={(draft) => saveMutation.mutate({ config: selected.config, draft })}
+          onSaveChannel={(type, values) => saveChannelMutation.mutateAsync({ type, values })}
+          onRemoveChannel={(channel) => removeChannelMutation.mutateAsync(channel)}
           onCancel={() => setPanelVersion((version) => version + 1)}
           onDirtyChange={onDirtyChange}
         />

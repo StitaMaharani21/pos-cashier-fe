@@ -8,16 +8,26 @@ import {
   QrisConfigPanel,
 } from "@/modules/owner/payment-method/components/ConfigPanels"
 import {
+  ChannelAccountDialog,
+  type ChannelAccountSubmit,
+} from "@/modules/owner/payment-method/components/ChannelAccountDialog"
+import {
+  channelKey,
   initialDraft,
   hasBankSurchargeError,
-  hasChannelAccountError,
   isDraftDirty,
   surchargeError,
   type MethodDraft,
 } from "@/modules/owner/payment-method/components/method-draft"
+import {
+  BANK_PROVIDERS,
+  CHANNEL_TYPE_FOR,
+  EWALLET_PROVIDERS,
+} from "@/modules/owner/payment-method/constants/payment-providers"
 import { TYPE_META } from "@/modules/owner/payment-method/constants/payment-type-meta"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { Switch } from "@/shared/ui/switch"
 
 interface MethodDetailPanelProps {
@@ -29,15 +39,21 @@ interface MethodDetailPanelProps {
   active: boolean
   toggling: boolean
   isSaving: boolean
+  isSavingChannel: boolean
+  isRemovingChannel: boolean
   onToggle: (next: boolean) => void
   onSave: (draft: MethodDraft) => void
+  // Bank / e-wallet accounts save immediately from the dialog, not via the draft.
+  onSaveChannel: (type: "transfer" | "ewallet", values: ChannelAccountSubmit) => Promise<unknown>
+  onRemoveChannel: (channel: PaymentChannel) => Promise<unknown>
   onCancel: () => void
   onDirtyChange: (dirty: boolean) => void
 }
 
-// Right-hand panel: settings of the selected method. Edits are a local
-// draft saved with "Simpan Perubahan"; the "Aktifkan metode ini" switch
-// saves immediately (same as the list's switch). Remounted (keyed) per
+// Right-hand panel: settings of the selected method. Card / QRIS edits are a
+// local draft saved with "Simpan Perubahan"; bank / e-wallet accounts are
+// added, edited and removed one at a time (saved immediately); the
+// "Aktifkan metode ini" switch saves immediately too (same as the list's switch). Remounted (keyed) per
 // method and on "Batal", which is what resets the draft.
 export function MethodDetailPanel({
   type,
@@ -48,19 +64,37 @@ export function MethodDetailPanel({
   active,
   toggling,
   isSaving,
+  isSavingChannel,
+  isRemovingChannel,
   onToggle,
   onSave,
+  onSaveChannel,
+  onRemoveChannel,
   onCancel,
   onDirtyChange,
 }: MethodDetailPanelProps) {
-  const initial = useMemo(() => initialDraft(type, method, channels), [type, method, channels])
+  const initial = useMemo(() => initialDraft(method, channels), [method, channels])
   const [draft, setDraft] = useState<MethodDraft>(initial)
   const dirty = isDraftDirty(draft, initial)
   const surchargeProblem = type === "card" ? surchargeError(draft.surcharge) : null
-  const bankProblem =
-    (type === "card" && hasBankSurchargeError(draft)) ||
-    ((type === "transfer" || type === "ewallet") && hasChannelAccountError(draft))
-  const hasSettings = type !== "cash"
+  const bankProblem = type === "card" && hasBankSurchargeError(draft)
+  const isChannelType = type === "transfer" || type === "ewallet"
+  const hasSettings = type !== "cash" && !isChannelType
+
+  const [accountDialog, setAccountDialog] = useState<{ open: boolean; editing: PaymentChannel | null }>({
+    open: false,
+    editing: null,
+  })
+  const [removing, setRemoving] = useState<PaymentChannel | null>(null)
+
+  // Active accounts of this method's channel type, and the providers the
+  // store hasn't added yet (a store has one account per provider).
+  const channelType = CHANNEL_TYPE_FOR[type]
+  const accounts = channels.filter((channel) => channel.type === channelType && channel.status === "active")
+  const presets: readonly string[] = channelType === "ewallet" ? EWALLET_PROVIDERS : BANK_PROVIDERS
+  const availableProviders = presets.filter(
+    (provider) => !accounts.some((account) => channelKey(account.name ?? "") === channelKey(provider))
+  )
 
   useEffect(() => {
     onDirtyChange(dirty)
@@ -95,10 +129,17 @@ export function MethodDetailPanel({
       <div className="px-6 py-6">
         {type === "card" && <CardConfigPanel draft={draft} onChange={change} surchargeError={surchargeProblem} channels={channels} />}
         {(type === "transfer" || type === "ewallet") && (
-          <ChannelConfigPanel type={type} channels={channels} draft={draft} onChange={change} />
+          <ChannelConfigPanel
+            type={type}
+            accounts={accounts}
+            addDisabled={availableProviders.length === 0}
+            onAdd={() => setAccountDialog({ open: true, editing: null })}
+            onEdit={(channel) => setAccountDialog({ open: true, editing: channel })}
+            onRemove={setRemoving}
+          />
         )}
         {type === "qris" && <QrisConfigPanel draft={draft} onChange={change} imageUrl={method?.image_url} />}
-        {!hasSettings && (
+        {type === "cash" && (
           <p className="rounded-xl bg-muted/50 px-4 py-6 text-center text-sm text-muted-foreground">
             Tidak ada pengaturan tambahan untuk pembayaran tunai.
           </p>
@@ -128,6 +169,39 @@ export function MethodDetailPanel({
             </Button>
           </div>
         </div>
+      )}
+
+      {(type === "transfer" || type === "ewallet") && (
+        <>
+          <ChannelAccountDialog
+            type={type}
+            open={accountDialog.open}
+            editing={accountDialog.editing}
+            availableProviders={availableProviders}
+            isSubmitting={isSavingChannel}
+            onOpenChange={(open) => setAccountDialog((current) => ({ ...current, open }))}
+            onSubmit={(values) =>
+              onSaveChannel(type, values).then(
+                () => setAccountDialog({ open: false, editing: null }),
+                () => undefined // the section already toasted the error; keep the form open
+              )
+            }
+          />
+          <ConfirmDialog
+            open={removing != null}
+            onOpenChange={(open) => !open && setRemoving(null)}
+            title={`Hapus ${removing?.name ?? ""}?`}
+            description={`${removing?.name ?? "Akun ini"} tidak akan muncul lagi di kasir dan aplikasi pelanggan. Riwayat pembayaran tetap tersimpan.`}
+            isPending={isRemovingChannel}
+            onConfirm={() => {
+              if (!removing) return
+              onRemoveChannel(removing).then(
+                () => setRemoving(null),
+                () => undefined
+              )
+            }}
+          />
+        </>
       )}
     </div>
   )

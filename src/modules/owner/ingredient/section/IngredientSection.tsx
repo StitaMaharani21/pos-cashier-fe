@@ -14,6 +14,8 @@ import {
   listIngredients,
 } from "@/modules/owner/ingredient/api/ingredient.service"
 import { AdjustIngredientStockDialog } from "@/modules/owner/ingredient/components/AdjustIngredientStockDialog"
+import { AddStockDialog } from "@/modules/owner/stock-history/components/AddStockDialog"
+import { ingredientToStockItem, type StockItem } from "@/modules/owner/stock-history/lib/stock-item"
 import { IngredientForm } from "@/modules/owner/ingredient/components/IngredientForm"
 import { ingredientColumns } from "@/modules/owner/ingredient/columns/ingredient.columns"
 import { useCapabilities } from "@/shared/access/useCapabilities"
@@ -39,6 +41,7 @@ export function IngredientSection() {
     row: null,
   })
   const [stockDialogRow, setStockDialogRow] = useState<Ingredient | null>(null)
+  const [addStockItem, setAddStockItem] = useState<StockItem | null>(null)
   const [deleting, setDeleting] = useState<Ingredient | null>(null)
   const { can } = useCapabilities()
 
@@ -109,6 +112,7 @@ export function IngredientSection() {
   const isSubmitting = createMutation.isPending || updateMutation.isPending
 
   const columns = ingredientColumns({
+    onAddStock: can("inventory", "edit") ? (row) => setAddStockItem(ingredientToStockItem(row)) : undefined,
     onAdjustStock: (row) => setStockDialogRow(row),
     onEdit: can("inventory", "edit") ? (row) => setDialogState({ open: true, row }) : undefined,
     onDelete: can("inventory", "delete") ? setDeleting : undefined,
@@ -190,6 +194,8 @@ export function IngredientSection() {
         isPending={removeMutation.isPending}
         onConfirm={() => deleting && removeMutation.mutate(deleting.id ?? 0)}
       />
+
+      <AddStockDialog item={addStockItem} onOpenChange={(open) => !open && setAddStockItem(null)} />
 
       <AdjustIngredientStockDialog
         row={stockDialogRow}

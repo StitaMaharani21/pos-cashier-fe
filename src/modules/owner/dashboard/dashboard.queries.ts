@@ -14,6 +14,7 @@ import type {
   CashSummary,
   CloseShiftPayload,
   ClosedShift,
+  RecordCashMovementPayload,
   RecordCashCountPayload,
 } from "@/entities/shift/model/shift.types"
 import type { LowStockMenu } from "@/entities/menu/model/menu.types"
@@ -166,6 +167,26 @@ export function useRecordCashCount(shiftId: number | undefined) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CASH_SUMMARY_KEY })
+    },
+  })
+}
+
+// Cash movement outside a sale on the running shift — Kas Masuk / Kas Keluar
+// (POST /shifts/:id/cash-transactions, owner and cashier). It changes the
+// expected cash, so the cash summary, the dashboard summary and Laporan Kas
+// are refreshed.
+export function useRecordCashMovement(shiftId: number | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (payload: RecordCashMovementPayload) => {
+      if (!shiftId) throw new Error("Shift tidak ditemukan.")
+      await apiClient.post(`/shifts/${shiftId}/cash-transactions`, payload)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CASH_SUMMARY_KEY })
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "dashboard-summary"] })
+      queryClient.invalidateQueries({ queryKey: ["cash-report"] })
     },
   })
 }

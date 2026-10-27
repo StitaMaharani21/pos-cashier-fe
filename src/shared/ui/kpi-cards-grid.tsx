@@ -6,6 +6,7 @@ import {
   CreditCardIcon,
   LandmarkIcon,
   LockIcon,
+  PlusIcon,
   ReceiptIcon,
   ScaleIcon,
   UndoIcon,
@@ -18,6 +19,7 @@ import {
   formatSelisih,
   selisihStatus,
 } from "@/modules/owner/cash-report/lib/selisih"
+import { CashMovementDialog } from "@/modules/owner/dashboard/components/CashMovementDialog"
 import { CashCountDialog } from "@/modules/owner/dashboard/components/CashCountDialog"
 import { CloseShiftDialog } from "@/modules/owner/dashboard/components/CloseShiftDialog"
 import { useCashSummary, useDashboardSummary } from "@/modules/owner/dashboard/dashboard.queries"
@@ -33,18 +35,24 @@ function CardGroup({
   title,
   description,
   columns,
+  action,
   children,
 }: {
   title: string
   description: string
   columns: string
+  // Optional button on the right of the group header.
+  action?: ReactNode
   children: ReactNode
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <div>
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-        <p className="text-xs text-muted-foreground">{description}</p>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+        {action}
       </div>
       <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${columns}`}>{children}</div>
     </section>
@@ -65,6 +73,7 @@ function footerNote(text: string) {
 export function KpiCardsGrid() {
   const [cashDialogOpen, setCashDialogOpen] = useState(false)
   const [closeDialogOpen, setCloseDialogOpen] = useState(false)
+  const [movementDialogOpen, setMovementDialogOpen] = useState(false)
   const summary = useDashboardSummary(true)
   const cashSummary = useCashSummary()
 
@@ -162,7 +171,15 @@ export function KpiCardsGrid() {
         <CardGroup
           title="Rekonsiliasi Kas Laci"
           description="Uang fisik di laci kasir. Pembayaran non-cash tidak menambah saldo laci."
-          columns="xl:grid-cols-4"
+          columns={hasShift ? "xl:grid-cols-4" : "xl:grid-cols-2"}
+          action={
+            hasShift && (
+              <Button type="button" variant="outline" size="sm" onClick={() => setMovementDialogOpen(true)}>
+                <PlusIcon />
+                Catat Kas
+              </Button>
+            )
+          }
         >
           <KpiCard
             testId="card-kas-awal"
@@ -181,10 +198,15 @@ export function KpiCardsGrid() {
             footer={
               hasShift &&
               footerNote(
-                `Awal + Cash + Masuk (${formatRupiah(data?.cash_in ?? 0)}) − Keluar (${formatRupiah(data?.cash_out ?? 0)}) − Refund Cash (${formatRupiah(data?.cash_refunds ?? 0)})`
+                `Awal + Cash + Masuk (${formatRupiah(data?.cash_in ?? 0)}) − Keluar (${formatRupiah(data?.cash_out ?? 0)}) − Refund (${formatRupiah(data?.cash_refunds ?? 0)})`
               )
             }
           />
+          {/* Kas Aktual and Selisih belong to a running shift. After it is closed
+              the drawer figures reset for the next shift, so they are not shown
+              until a new shift opens. */}
+          {hasShift && (
+            <>
           <KpiCard
             testId="card-kas-aktual"
             icon={WalletIcon}
@@ -231,10 +253,12 @@ export function KpiCardsGrid() {
                   {SELISIH_STATUS_LABEL[status]}
                 </span>
               ) : (
-                footerNote(hasShift ? "Menunggu hitungan kas aktual" : "Kas Aktual − Kas yang Diharapkan")
+                footerNote("Menunggu hitungan kas aktual")
               )
             }
           />
+            </>
+          )}
         </CardGroup>
       </div>
 
@@ -248,6 +272,11 @@ export function KpiCardsGrid() {
             : null
         }
         onOpenChange={setCloseDialogOpen}
+      />
+
+      <CashMovementDialog
+        shiftId={movementDialogOpen && activeCash?.shift_id ? activeCash.shift_id : null}
+        onOpenChange={setMovementDialogOpen}
       />
 
       <CashCountDialog open={cashDialogOpen} onOpenChange={setCashDialogOpen} cashSummary={activeCash} />

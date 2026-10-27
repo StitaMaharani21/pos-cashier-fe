@@ -5,7 +5,7 @@ import type {
   UpdateVoucherPayload,
   Voucher,
 } from "@/entities/voucher/model/voucher.types"
-import { voucherColumns } from "@/modules/owner/voucher/columns/voucher.columns"
+import { isExpired, voucherColumns } from "@/modules/owner/voucher/columns/voucher.columns"
 import { VoucherForm } from "@/modules/owner/voucher/components/VoucherForm"
 import { createCrudService } from "@/shared/api/crud/createCrudService"
 import { CrudSection } from "@/shared/ui/crud/CrudSection"
@@ -28,7 +28,7 @@ export function VoucherSection() {
       describeCount={(total) => `${total} voucher terdaftar`}
       searchText={(row) => `${row.name ?? ""} ${row.code ?? ""}`}
       searchPlaceholder="Cari nama atau kode voucher..."
-      statusOf={(row) => row.status}
+      statusOf={(row) => (isExpired(row) ? "inactive" : row.status)}
       empty={{
         icon: TicketIcon,
         title: "Belum ada voucher",

@@ -10,7 +10,7 @@ Backed by `pos-kasir-be`'s `internal/master/menu`:
 - `PATCH /master/menus/:id/availability` — the "Tersedia" switch in each row
 - "Unggulan" star — no dedicated endpoint: `setMenuFeatured` resends the row's own fields through the regular PUT with `is_featured` flipped
 - `DELETE /master/menus/:id` — from the eye/preview sheet (`MenuPreviewSheet`); the row itself has edit + view only, per the design
-- `PUT /master/menus/:id/stock` — `upsertMenuStock`, called from `createMenu`/`updateMenu` when `stock_deduction_method` is `by_menu` (`MenuForm.tsx`'s `stockQty` field). An absolute set (`stockQty` is required only when creating; on edit it may be left empty — a menu with no stock row yet, or with a negative stock from overselling, still saves, and the stock stays as it is), **not** audited — see `modules/owner/stock-history` / `stock-reconciliation`.
+- `PUT /master/menus/:id/stock` — `upsertMenuStock`, called from `createMenu`/`updateMenu` when `stock_deduction_method` is `by_menu` (`MenuForm.tsx`'s `stockQty` field). An absolute set (`stockQty` is required only when creating; on edit it may be left empty — a menu with no stock row yet, or with a negative stock from overselling, still saves, and the stock stays as it is), the backend records the difference from the current stock as an `ADJUSTMENT` movement (so the stock and *Riwayat Stok* stay in step); stock received is added with `POST /master/menus/:id/stock-in` from *Riwayat Stok* (`modules/owner/stock-history`). See also `stock-reconciliation`.
 
 Response includes server-computed `discount`/`final_price` (don't recompute client-side).
 

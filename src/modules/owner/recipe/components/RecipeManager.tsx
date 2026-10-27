@@ -126,6 +126,10 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
       values.unit,
       selectedIngredient.unit ?? values.unit
     )
+    if (!(quantityInIngredientUnit > 0)) {
+      toast.error("Jumlah harus lebih dari 0")
+      return
+    }
     createMutation.mutate({
       menu_id: menuId,
       ingredient_id: Number(values.ingredientId),
@@ -262,7 +266,9 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleAdd)} className="flex flex-col gap-2 border-t pt-3">
+        {/* A <div>, not a <form>: this block renders inside the menu <form>, and a nested
+            submit would bubble up and submit (then close) the menu drawer. */}
+        <div className="flex flex-col gap-2 border-t pt-3">
           <FormField
             control={form.control}
             name="ingredientId"
@@ -294,7 +300,19 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <Input type="number" min={0} step="any" placeholder="Jumlah per sajian" {...field} />
+                    <Input
+                      type="number"
+                      min={0}
+                      step="any"
+                      placeholder="Jumlah per sajian"
+                      {...field}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault()
+                          void form.handleSubmit(handleAdd)()
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -325,11 +343,16 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
               )}
             />
 
-            <Button type="submit" disabled={createMutation.isPending || !selectedIngredient} size="icon">
+            <Button
+              type="button"
+              onClick={() => void form.handleSubmit(handleAdd)()}
+              disabled={createMutation.isPending || !selectedIngredient}
+              size="icon"
+            >
               <PlusIcon className="size-4" />
             </Button>
           </div>
-        </form>
+        </div>
       </Form>
     </div>
   )

@@ -118,7 +118,7 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                   {shift && (
                     <FormDescription>
                       Kas yang diharapkan: {formatRupiah(shift.expectedAmount)} (kas awal + penjualan cash +
-                      kas masuk − kas keluar − refund cash).
+                      kas masuk − kas keluar − refund; semua refund dibayar tunai dari laci).
                     </FormDescription>
                   )}
                   <FormMessage />

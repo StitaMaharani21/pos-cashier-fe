@@ -1,24 +1,28 @@
-import { PackageIcon, PencilIcon, SlidersHorizontalIcon, Trash2Icon } from "lucide-react"
+import { PackageIcon, PencilIcon, PlusIcon, SlidersHorizontalIcon, Trash2Icon } from "lucide-react"
 
 import type { Ingredient } from "@/entities/ingredient/model/ingredient.types"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { formatRupiah } from "@/shared/lib/utils"
+import { Quantity } from "@/shared/ui/quantity"
 import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
 import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 
 interface IngredientColumnsArgs {
+  // Stok masuk (goods received) — recorded as "Stok masuk" in Riwayat Stok.
+  onAddStock?: (row: Ingredient) => void
+  // Correction up or down — recorded as "Penyesuaian".
   onAdjustStock: (row: Ingredient) => void
   // Omitted = the role can't edit / delete.
   onEdit?: (row: Ingredient) => void
   onDelete?: (row: Ingredient) => void
 }
 
-export function ingredientColumns({ onAdjustStock, onEdit, onDelete }: IngredientColumnsArgs): CrudColumn<Ingredient>[] {
+export function ingredientColumns({ onAddStock, onAdjustStock, onEdit, onDelete }: IngredientColumnsArgs): CrudColumn<Ingredient>[] {
   return [
     {
       key: "name",
       header: "Bahan Baku",
-      render: (row) => <TitleCell leading={<IconTile icon={PackageIcon} />} title={row.name} subtitle={row.unit} />,
+      render: (row) => <TitleCell leading={<IconTile icon={PackageIcon} />} title={row.name} subtitle={`Satuan: ${row.unit}`} />,
     },
     {
       key: "stock",
@@ -32,9 +36,11 @@ export function ingredientColumns({ onAdjustStock, onEdit, onDelete }: Ingredien
             {low && (
               <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-bold text-destructive">Menipis</span>
             )}
-            <span className={low ? "font-bold text-destructive" : "font-semibold"}>
-              {row.stock ?? 0} {row.unit}
-            </span>
+            <Quantity
+              value={row.stock ?? 0}
+              unit={row.unit}
+              className={low ? "font-bold text-destructive" : "font-semibold"}
+            />
           </span>
         )
       },
@@ -44,7 +50,7 @@ export function ingredientColumns({ onAdjustStock, onEdit, onDelete }: Ingredien
       header: "Stok Minimum",
       align: "right",
       className: "tabular-nums text-muted-foreground",
-      render: (row) => `${row.min_stock ?? 0} ${row.unit}`,
+      render: (row) => <Quantity value={row.min_stock ?? 0} unit={row.unit} />,
     },
     {
       key: "purchase_price",
@@ -56,9 +62,10 @@ export function ingredientColumns({ onAdjustStock, onEdit, onDelete }: Ingredien
     {
       key: "actions",
       header: "Aksi",
-      className: "w-36",
+      className: "w-44",
       render: (row) => (
         <RowActions>
+          {onAddStock && <RowActionButton icon={PlusIcon} label={`Tambah stok ${row.name}`} onClick={() => onAddStock(row)} />}
           <RowActionButton icon={SlidersHorizontalIcon} label={`Sesuaikan stok ${row.name}`} onClick={() => onAdjustStock(row)} />
           {onEdit && <RowActionButton icon={PencilIcon} label={`Edit ${row.name}`} onClick={() => onEdit(row)} />}
           {onDelete && (
