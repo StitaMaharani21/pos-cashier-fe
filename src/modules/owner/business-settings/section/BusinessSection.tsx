@@ -21,7 +21,7 @@ export function BusinessSection() {
   return (
     <div className="flex flex-col gap-6">
       <PageTabs
-        label="Bisnis"
+        label="Info Toko & Paket"
         tabs={TABS}
         active={tab}
         onChange={(id) => setSearchParams(id === "info" ? {} : { tab: id }, { replace: true })}

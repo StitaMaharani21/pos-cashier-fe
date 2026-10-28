@@ -3,6 +3,7 @@ import { Gauge } from "lucide-react"
 import { Navigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { useRegistrationContent } from "@/modules/public/store-registration/application/useRegistrationContent"
 import {
   registrationConflict,
   useSubmitRegistration,
@@ -24,7 +25,6 @@ import { RegistrationSuccess } from "@/modules/public/store-registration/present
 import {
   DEFAULT_REGISTRATION_PLAN,
   PURCHASE_MODE_PARAM,
-  REGISTRATION_PLANS,
   findRegistrationPlan,
   purchaseModeFromParam,
   type RegistrationPlanId,
@@ -41,6 +41,7 @@ import { friendlyErrorMessage } from "@/shared/api/error-message"
 // internal admin approves it before the store is actually provisioned.
 export function StoreRegistrationPage() {
   const isOwner = useIsOwnerSession()
+  const content = useRegistrationContent()
   const [submitted, setSubmitted] = useState<{ email: string; storeName: string } | null>(null)
   const mutation = useSubmitRegistration()
 
@@ -63,11 +64,11 @@ export function StoreRegistrationPage() {
   // ?paket=<id> comes from the landing's plan buttons. A plan that isn't
   // selectable (none today; a future "Segera hadir") falls back to the default
   // (Starter) with a notice.
-  const requested = findRegistrationPlan(searchParams.get("paket"))
+  const requested = findRegistrationPlan(content.plans, searchParams.get("paket"))
   const [planId, setPlanId] = useState<RegistrationPlanId>(
     requested?.available ? requested.id : DEFAULT_REGISTRATION_PLAN
   )
-  const plan = findRegistrationPlan(planId) ?? REGISTRATION_PLANS[0]
+  const plan = findRegistrationPlan(content.plans, planId) ?? content.plans[0]
   const unavailableRequest = requested && !requested.available ? requested : undefined
   // A plan with no free trial (Pro) can only be bought outright; the visitor's
   // own pick is kept for when they switch back to Starter.
@@ -119,7 +120,7 @@ export function StoreRegistrationPage() {
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-neela-surface-container-high px-3 py-1 text-neela-primary shadow-sm">
               <span className="text-neela-label-sm font-bold tracking-wider uppercase">
-                Early Access • Tanpa Kartu Kredit
+                Pendaftaran Awal • Tanpa Kartu Kredit
               </span>
             </div>
             <h1 className="text-neela-headline-xl-mobile tracking-tight text-neela-on-primary-fixed md:text-neela-headline-xl">
@@ -134,6 +135,9 @@ export function StoreRegistrationPage() {
 
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
             <BenefitsPanel
+              plans={content.plans}
+              steps={content.steps}
+              stepsTitle={content.stepsTitle}
               plan={plan}
               onPlanChange={setPlanId}
               requestedPlan={unavailableRequest}
@@ -187,8 +191,8 @@ export function StoreRegistrationPage() {
                     Punya Lebih dari 3 Cabang Toko?
                   </h4>
                   <p className="text-neela-body-md text-neela-on-surface-variant">
-                    Dapatkan demonstrasi tatap muka langsung di outlet Anda bersama tim spesialis
-                    implementasi kami.
+                    Dapatkan demonstrasi tatap muka langsung di toko Anda bersama tim spesialis
+                    pemasangan kami.
                   </p>
                 </div>
               </div>

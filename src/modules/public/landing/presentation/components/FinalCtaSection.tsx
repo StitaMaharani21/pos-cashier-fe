@@ -1,7 +1,7 @@
 import { MessageCircle } from "lucide-react"
 
 import { PrimaryCta } from "@/modules/public/landing/presentation/components/PrimaryCta"
-import { FINAL_CTA_LEAD, FINAL_CTA_TITLE, WHATSAPP_CTA_LABEL } from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 import { waLink } from "@/modules/public/shared/contact"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 
@@ -9,17 +9,18 @@ import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 // no repeat of the full hero pitch.
 export function FinalCtaSection() {
   const isOwner = useIsOwnerSession()
+  const { finalCta, global, settings } = useLandingContent()
 
   return (
     <section id="kontak" className="w-full scroll-mt-18 bg-neela-dark-surface py-16 text-white">
       <div className="mx-auto max-w-[1280px] px-4 md:px-6 lg:px-8">
         <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
           <h2 className="text-neela-headline-xl-mobile font-bold tracking-tight md:text-neela-headline-xl">
-            {FINAL_CTA_TITLE}
+            {finalCta.title}
           </h2>
 
           <p className="max-w-xl text-neela-body-lg text-neela-blue-100">
-            {isOwner ? FINAL_CTA_LEAD.owner : FINAL_CTA_LEAD.visitor}
+            {isOwner ? finalCta.leadOwner : finalCta.leadVisitor}
           </p>
 
           <div className="flex w-full flex-col items-stretch gap-3 pt-1 sm:w-auto sm:flex-row sm:items-center">
@@ -28,13 +29,13 @@ export function FinalCtaSection() {
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white px-7 text-neela-label-lg text-neela-primary-strong outline-none transition-colors hover:bg-neela-blue-100 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neela-dark-surface"
             />
             <a
-              href={waLink("Halo Neela POS, saya tertarik tanya soal aplikasi kasir")}
+              href={waLink(global.wa.interest, settings.salesWa)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-7 text-neela-label-lg text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white"
             >
               <MessageCircle className="size-5" aria-hidden />
-              <span>{WHATSAPP_CTA_LABEL}</span>
+              <span>{global.waCtaLabel}</span>
             </a>
           </div>
         </div>

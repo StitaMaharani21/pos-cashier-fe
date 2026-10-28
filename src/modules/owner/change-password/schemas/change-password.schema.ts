@@ -6,9 +6,9 @@ import { z } from "zod"
 // it before the round trip.
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Password saat ini wajib diisi"),
-    newPassword: z.string().min(8, "Password baru minimal 8 karakter"),
-    confirmPassword: z.string().min(1, "Konfirmasi password wajib diisi"),
+    currentPassword: z.string().min(1, "Kata sandi saat ini wajib diisi"),
+    newPassword: z.string().min(8, "Kata sandi baru minimal 8 karakter"),
+    confirmPassword: z.string().min(1, "Ulangi kata sandi baru"),
   })
   .refine((values) => values.newPassword === values.confirmPassword, {
     path: ["confirmPassword"],
@@ -16,7 +16,7 @@ export const changePasswordSchema = z
   })
   .refine((values) => values.newPassword !== values.currentPassword, {
     path: ["newPassword"],
-    message: "Password baru harus berbeda dari password saat ini",
+    message: "Kata sandi baru harus berbeda dari yang lama",
   })
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>

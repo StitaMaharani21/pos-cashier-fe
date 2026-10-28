@@ -24,7 +24,7 @@ const cashierColumns: CrudColumn<CashierRankingItem>[] = [
   },
   {
     key: "net_revenue",
-    header: "Total Penjualan Bersih",
+    header: "Total Penjualan",
     align: "right",
     render: (row) => (
       <span className="font-semibold tabular-nums text-foreground">{formatRupiah(row.net_revenue)}</span>

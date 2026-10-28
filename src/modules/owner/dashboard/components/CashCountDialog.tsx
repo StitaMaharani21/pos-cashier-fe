@@ -46,12 +46,12 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
       { counted_amount: Number(values.countedAmount), notes: values.notes ?? "" },
       {
         onSuccess: () => {
-          toast.success("Hitungan kas fisik tersimpan")
+          toast.success("Hitungan uang di laci tersimpan")
           form.reset()
           onOpenChange(false)
         },
         onError: (error) => {
-          toast.error(friendlyErrorMessage(error, "Gagal menyimpan hitungan kas"))
+          toast.error(friendlyErrorMessage(error, "Hitungan uang belum tersimpan. Coba lagi."))
         },
       }
     )
@@ -61,11 +61,11 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Hitungan Kas Fisik</DialogTitle>
+          <DialogTitle>Hitung Uang di Laci</DialogTitle>
           <DialogDescription>
             {cashSummary
-              ? `Kas seharusnya di laci saat ini: ${formatRupiah(cashSummary.current_expected_amount ?? cashSummary.expected_amount ?? 0)}`
-              : "Tidak ada shift aktif untuk dicatat."}
+              ? `Uang yang seharusnya ada di laci sekarang: ${formatRupiah(cashSummary.current_expected_amount ?? cashSummary.expected_amount ?? 0)}`
+              : "Kasir belum dibuka, belum ada yang bisa dicatat."}
           </DialogDescription>
         </DialogHeader>
 
@@ -76,7 +76,7 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
               name="countedAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Jumlah Kas Terhitung (Rp)</FormLabel>
+                  <FormLabel>Jumlah Uang Hasil Hitung (Rp)</FormLabel>
                   <FormControl>
                     <Input type="number" min={0} step={1} {...field} />
                   </FormControl>

@@ -20,9 +20,9 @@ import {
 import { Input } from "@/shared/ui/input"
 
 const FIELDS = [
-  { name: "currentPassword", label: "Password Saat Ini", autoComplete: "current-password" },
-  { name: "newPassword", label: "Password Baru", autoComplete: "new-password" },
-  { name: "confirmPassword", label: "Konfirmasi Password Baru", autoComplete: "new-password" },
+  { name: "currentPassword", label: "Kata Sandi Saat Ini", autoComplete: "current-password" },
+  { name: "newPassword", label: "Kata Sandi Baru", autoComplete: "new-password" },
+  { name: "confirmPassword", label: "Ulangi Kata Sandi Baru", autoComplete: "new-password" },
 ] as const
 
 // Owns its own mutation (unlike ProfileForm) because its backend errors map
@@ -36,21 +36,21 @@ export function ChangePasswordForm() {
   const mutation = useMutation({
     mutationFn: changePassword,
     onSuccess: () => {
-      toast.success("Password berhasil diganti")
+      toast.success("Kata sandi berhasil diganti")
       form.reset()
     },
     onError: (error) => {
       if (error instanceof CrudServiceError && error.code === "INVALID_CURRENT_PASSWORD") {
-        form.setError("currentPassword", { message: "Password saat ini salah" })
+        form.setError("currentPassword", { message: "Kata sandi saat ini salah" })
         return
       }
       if (error instanceof CrudServiceError && error.code === "SAME_PASSWORD") {
         form.setError("newPassword", {
-          message: "Password baru harus berbeda dari password saat ini",
+          message: "Kata sandi baru harus berbeda dari yang lama",
         })
         return
       }
-      toast.error(error instanceof CrudServiceError ? error.message : "Gagal mengganti password")
+      toast.error(error instanceof CrudServiceError ? error.message : "Kata sandi belum berhasil diganti. Coba lagi.")
     },
   })
 
@@ -65,7 +65,7 @@ export function ChangePasswordForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-5">
         <div>
-          <h2 className="text-base font-extrabold text-foreground">Ganti Password</h2>
+          <h2 className="text-base font-extrabold text-foreground">Ganti Kata Sandi</h2>
           <p className="text-xs text-muted-foreground">Minimal 8 karakter.</p>
         </div>
 
@@ -87,7 +87,7 @@ export function ChangePasswordForm() {
         ))}
 
         <Button type="submit" disabled={mutation.isPending} className="self-start">
-          {mutation.isPending ? "Menyimpan..." : "Ganti Password"}
+          {mutation.isPending ? "Menyimpan..." : "Ganti Kata Sandi"}
         </Button>
       </form>
     </Form>

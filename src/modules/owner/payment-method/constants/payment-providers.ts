@@ -12,7 +12,7 @@ export const METHOD_TYPES: {
   name: string
   description: string
 }[] = [
-  { type: "cash", name: "Tunai (Cash)", description: "Pembayaran uang tunai di kasir" },
+  { type: "cash", name: "Tunai", description: "Pembayaran uang tunai di kasir" },
   { type: "card", name: "Kartu Debit / Kredit", description: "Terima pembayaran kartu debit dan kredit" },
   { type: "transfer", name: "Transfer Bank", description: "Terima transfer ke rekening bank toko" },
   { type: "ewallet", name: "E-Wallet", description: "Terima pembayaran ke e-wallet toko" },

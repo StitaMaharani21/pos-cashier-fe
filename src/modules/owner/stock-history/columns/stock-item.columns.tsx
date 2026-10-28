@@ -26,7 +26,7 @@ export function stockItemColumns({ onViewHistory, onAddStock }: StockItemColumns
         <TitleCell
           leading={<IconTile icon={item.source === "ingredient" ? PackageIcon : UtensilsIcon} />}
           title={item.name}
-          subtitle={item.source === "ingredient" ? `Satuan: ${item.unit}` : "Stok per menu"}
+          subtitle={item.source === "ingredient" ? `Satuan: ${item.unit}` : "Stok dicatat per menu"}
         />
       ),
     },

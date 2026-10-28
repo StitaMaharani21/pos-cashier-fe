@@ -106,7 +106,7 @@ export function MenuPreviewSheet({
                 {canEdit && (
                   <Button className="flex-1" onClick={() => onEdit(menu)}>
                     <PencilIcon />
-                    Edit Menu
+                    Ubah Menu
                   </Button>
                 )}
               </div>

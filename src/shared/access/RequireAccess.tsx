@@ -39,9 +39,9 @@ function PageSkeleton() {
 function ForbiddenPage() {
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-card py-24 text-center">
-      <h1 className="text-xl font-semibold">Akses Ditolak</h1>
+      <h1 className="text-xl font-semibold">Halaman Ini Tidak Bisa Dibuka</h1>
       <p className="text-sm text-muted-foreground">
-        Anda tidak memiliki izin untuk membuka halaman ini.
+        Hubungi pemilik toko bila Anda perlu akses ke halaman ini.
       </p>
     </div>
   )
@@ -51,7 +51,7 @@ function NotFoundPage() {
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-card py-24 text-center">
       <h1 className="text-xl font-semibold">Halaman Tidak Ditemukan</h1>
-      <p className="text-sm text-muted-foreground">Periksa kembali alamat yang Anda tuju.</p>
+      <p className="text-sm text-muted-foreground">Coba kembali ke Beranda.</p>
     </div>
   )
 }

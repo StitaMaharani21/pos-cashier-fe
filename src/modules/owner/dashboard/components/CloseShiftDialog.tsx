@@ -73,22 +73,22 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
     // here, not in the backend, because the cashier app's logout-and-close
     // path sends no note.
     if (difference !== null && difference !== 0 && notes === "") {
-      form.setError("notes", { message: "Jelaskan penyebab selisih kas" })
+      form.setError("notes", { message: "Tulis alasan uang kurang atau lebih" })
       return
     }
     mutation.mutate({ closing_balance: Number(values.closingBalance), closing_notes: notes }, {
       onSuccess: () => {
-        toast.success("Shift berhasil ditutup")
+        toast.success("Kasir berhasil ditutup")
         form.reset()
         onOpenChange(false)
       },
       onError: (error) => {
         if (error instanceof ApiError && error.code === "SHIFT_ALREADY_CLOSED") {
-          toast.error("Shift ini sudah ditutup sebelumnya.")
+          toast.error("Kasir ini sudah ditutup sebelumnya.")
           onOpenChange(false)
           return
         }
-        toast.error(friendlyErrorMessage(error, "Gagal menutup shift. Coba lagi."))
+        toast.error(friendlyErrorMessage(error, "Kasir belum berhasil ditutup. Coba lagi."))
       },
     })
   }
@@ -97,10 +97,10 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
     <Dialog open={shift !== null} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{shift?.cashierName ? `Tutup shift ${shift.cashierName}?` : "Tutup shift yang berjalan?"}</DialogTitle>
+          <DialogTitle>{shift?.cashierName ? `Tutup kasir ${shift.cashierName}?` : "Tutup kasir yang sedang buka?"}</DialogTitle>
           <DialogDescription>
-            Hitung uang tunai yang ada di laci kasir sekarang, lalu masukkan jumlahnya. Setelah ditutup, shift ini
-            tidak bisa dibuka lagi.
+            Hitung uang tunai yang ada di laci kasir sekarang, lalu masukkan jumlahnya. Setelah ditutup, sesi kasir
+            ini tidak bisa dibuka lagi.
           </DialogDescription>
         </DialogHeader>
 
@@ -117,8 +117,8 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                   </FormControl>
                   {shift && (
                     <FormDescription>
-                      Kas yang diharapkan: {formatRupiah(shift.expectedAmount)} (kas awal + penjualan cash +
-                      kas masuk − kas keluar − refund; semua refund dibayar tunai dari laci).
+                      Uang yang seharusnya ada: {formatRupiah(shift.expectedAmount)} (modal awal + penjualan tunai +
+                      uang masuk − uang keluar − refund; semua refund dibayar tunai dari laci).
                     </FormDescription>
                   )}
                   <FormMessage />
@@ -131,7 +131,7 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                 data-testid="close-shift-difference"
                 className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
               >
-                <span className="text-muted-foreground">Selisih Kas</span>
+                <span className="text-muted-foreground">Uang Kurang/Lebih</span>
                 <span className="flex items-center gap-2">
                   <span className="font-semibold tabular-nums">{formatSelisih(difference)}</span>
                   <span
@@ -149,9 +149,9 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Keterangan Selisih</FormLabel>
+                    <FormLabel>Alasan Uang Kurang/Lebih</FormLabel>
                     <FormControl>
-                      <Textarea rows={2} placeholder="Mis. salah kembalian, kas kecil belum dicatat" {...field} />
+                      <Textarea rows={2} placeholder="Mis. salah memberi kembalian, uang kecil belum dicatat" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -169,7 +169,7 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                 Batal
               </Button>
               <Button type="submit" variant="destructive" disabled={mutation.isPending}>
-                {mutation.isPending ? "Menutup..." : "Tutup Shift"}
+                {mutation.isPending ? "Menutup..." : "Tutup Kasir"}
               </Button>
             </DialogFooter>
           </form>

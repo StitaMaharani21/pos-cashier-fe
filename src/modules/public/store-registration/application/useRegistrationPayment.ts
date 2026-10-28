@@ -72,7 +72,7 @@ export function paymentErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
       case "PAYMENT_PROVIDER_NOT_CONFIGURED":
-        return "Pembayaran online belum tersedia saat ini. Pendaftaran kamu tetap tercatat — tim kami akan menghubungi untuk pembayarannya."
+        return "Pembayaran online belum tersedia saat ini. Pendaftaran Anda tetap tercatat — tim kami akan menghubungi untuk pembayarannya."
       case "PAYMENT_PROVIDER_UNAVAILABLE":
         return "Gagal membuat QR pembayaran. Coba lagi beberapa saat."
       case "INVALID_CREDENTIALS":

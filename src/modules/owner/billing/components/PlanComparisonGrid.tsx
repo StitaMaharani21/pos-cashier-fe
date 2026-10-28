@@ -38,7 +38,7 @@ export function PlanComparisonGrid({ caps, plans, current, onBuy }: PlanComparis
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-bold text-foreground">Perbandingan Paket</h2>
-        <p className="text-sm text-muted-foreground">Harga per toko per bulan, belum termasuk PPN (jika berlaku).</p>
+        <p className="text-sm text-muted-foreground">Harga per toko per bulan, belum termasuk pajak (PPN) bila ada.</p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {PLANS.map((plan) => {
@@ -112,7 +112,7 @@ export function PlanComparisonGrid({ caps, plans, current, onBuy }: PlanComparis
                   </Badge>
                 ) : backendPlan ? (
                   <Button className="h-10 w-full font-semibold" onClick={() => buy("upgrade")}>
-                    Upgrade &amp; Bayar
+                    Naik Paket dan Bayar
                   </Button>
                 ) : (
                   <a

@@ -67,7 +67,7 @@ export function ingredientColumns({ onAddStock, onAdjustStock, onEdit, onDelete 
         <RowActions>
           {onAddStock && <RowActionButton icon={PlusIcon} label={`Tambah stok ${row.name}`} onClick={() => onAddStock(row)} />}
           <RowActionButton icon={SlidersHorizontalIcon} label={`Sesuaikan stok ${row.name}`} onClick={() => onAdjustStock(row)} />
-          {onEdit && <RowActionButton icon={PencilIcon} label={`Edit ${row.name}`} onClick={() => onEdit(row)} />}
+          {onEdit && <RowActionButton icon={PencilIcon} label={`Ubah ${row.name}`} onClick={() => onEdit(row)} />}
           {onDelete && (
             <RowActionButton icon={Trash2Icon} tone="danger" label={`Hapus ${row.name}`} onClick={() => onDelete(row)} />
           )}

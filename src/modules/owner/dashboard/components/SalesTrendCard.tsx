@@ -48,7 +48,7 @@ export function SalesTrendCard() {
             </span>
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Pantau fluktuasi pendapatan harian untuk proyeksi stok &amp; staf
+            Lihat naik turunnya penjualan tiap hari untuk menyiapkan stok dan jadwal karyawan
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export function SalesTrendCard() {
         <div className="flex flex-wrap items-center gap-4 border-b pb-3.5 sm:gap-8">
           <div>
             <p className="text-xs font-medium text-muted-foreground">
-              Puncak Tertinggi{data?.peak_date === todayDate ? " (Hari Ini)" : ""}
+              Hari Terlaris{data?.peak_date === todayDate ? " (Hari Ini)" : ""}
             </p>
             <p className="text-xl font-bold text-foreground">
               {data ? formatRupiah(data.peak_amount ?? 0) : "—"}

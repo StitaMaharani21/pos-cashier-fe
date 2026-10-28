@@ -19,7 +19,7 @@ export function RegistrationHeader() {
           <span className="hidden h-5 w-px bg-neela-outline-variant sm:inline-block" />
           <span className="hidden items-center gap-1 rounded bg-neela-surface-container-low px-2 py-1 text-neela-label-sm tracking-wider text-neela-on-surface-variant uppercase sm:inline-flex">
             <Zap className="size-4 text-neela-tertiary" />
-            Daftar Early Access
+            Daftar Lebih Awal
           </span>
         </div>
 

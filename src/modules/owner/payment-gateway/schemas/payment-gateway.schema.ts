@@ -12,7 +12,7 @@ export const serverKeySchema = z.object({
     .max(200, "Kunci rahasia terlalu panjang")
     .regex(
       /^(SB-)?Mid-server-/,
-      "Format kunci belum dikenali. Kunci asli diawali Mid-server-, kunci uji coba diawali SB-Mid-server-"
+      "Kunci tidak sesuai. Periksa lagi kunci yang Anda salin dari Midtrans."
     ),
 })
 

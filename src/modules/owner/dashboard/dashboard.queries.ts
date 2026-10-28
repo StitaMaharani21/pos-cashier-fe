@@ -158,7 +158,7 @@ export function useRecordCashCount(shiftId: number | undefined) {
 
   return useMutation({
     mutationFn: async (payload: RecordCashCountPayload) => {
-      if (!shiftId) throw new Error("No active shift to record a cash count against.")
+      if (!shiftId) throw new Error("Kasir belum dibuka, belum ada yang bisa dicatat.")
       const res = await apiClient.post<SingleResponse<CashCount>>(
         `/shifts/${shiftId}/cash-counts`,
         payload
@@ -180,7 +180,7 @@ export function useRecordCashMovement(shiftId: number | undefined) {
 
   return useMutation({
     mutationFn: async (payload: RecordCashMovementPayload) => {
-      if (!shiftId) throw new Error("Shift tidak ditemukan.")
+      if (!shiftId) throw new Error("Data kasir tidak ditemukan.")
       await apiClient.post(`/shifts/${shiftId}/cash-transactions`, payload)
     },
     onSuccess: () => {
@@ -202,7 +202,7 @@ export function useCloseShift(shiftId: number | undefined) {
 
   return useMutation({
     mutationFn: async (payload: CloseShiftPayload) => {
-      if (!shiftId) throw new Error("Shift tidak ditemukan.")
+      if (!shiftId) throw new Error("Data kasir tidak ditemukan.")
       const res = await apiClient.patch<SingleResponse<ClosedShift>>(
         `/shifts/${shiftId}/close`,
         payload

@@ -54,7 +54,7 @@ export function LowStockCard() {
             </span>
             <p className="font-semibold text-foreground">Semua stok menu aman</p>
             <p className="max-w-xs text-xs text-muted-foreground">
-              Menu yang stoknya dilacak akan muncul di sini saat mendekati batas minimum.
+              Menu yang stoknya Anda catat akan muncul di sini kalau hampir habis.
             </p>
           </div>
         )}

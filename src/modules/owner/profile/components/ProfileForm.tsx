@@ -64,7 +64,7 @@ export function ProfileForm({ profile, isSubmitting, onSubmit }: ProfileFormProp
             <Label htmlFor="profile-email">Email</Label>
             <Input id="profile-email" value={profile.email ?? "-"} readOnly disabled />
             <p className="text-xs text-muted-foreground">
-              Email dipakai untuk login dan tidak dapat diubah.
+              Email dipakai untuk masuk dan tidak bisa diubah.
             </p>
           </div>
 

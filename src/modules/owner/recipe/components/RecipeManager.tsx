@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { CheckIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
@@ -170,7 +171,7 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
         <p className="text-xs text-muted-foreground">
           Jumlah bahan yang terpakai setiap 1 unit menu ini terjual — mis. Cafe Latte butuh 18g biji
           kopi dan 150ml susu per gelas. Masukkan dalam satuan yang paling nyaman (mis. gram) — otomatis
-          dikonversi ke satuan stok bahan baku saat disimpan (didukung: gram↔kg, ml↔liter).
+          diubah ke satuan stok bahan baku saat disimpan (misalnya gram ke kg, ml ke liter).
         </p>
       </div>
 
@@ -360,5 +361,5 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
 
 function errorMessage(error: unknown): string {
   if (error instanceof CrudServiceError) return error.message
-  return "Terjadi kesalahan"
+  return DEFAULT_ERROR_MESSAGE
 }

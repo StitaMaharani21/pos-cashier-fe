@@ -8,6 +8,7 @@ import { useOrderDetail, useOrderRefunds } from "@/modules/owner/financial-repor
 import type { ReportTransaction } from "@/modules/owner/financial-report/financial-report.types"
 import { orderStatusBadge } from "@/modules/owner/financial-report/lib/order-status"
 import { formatPaymentLabel } from "@/modules/owner/financial-report/lib/payment-label"
+import { orderTypeLabel } from "@/shared/lib/order-type-label"
 import { cn, formatRupiah } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
@@ -19,12 +20,6 @@ interface TransactionDetailSheetProps {
   // the sheet (same open-state idiom as ShiftCashTransactionsSheet).
   order: ReportTransaction | null
   onClose: () => void
-}
-
-const ORDER_TYPE_LABEL: Record<string, string> = {
-  dine_in: "Dine In",
-  takeaway: "Takeaway",
-  delivery: "Delivery",
 }
 
 function formatDateTime(value: string | null | undefined) {
@@ -145,7 +140,7 @@ function ItemRow({ item, refund }: { item: OrderDetailItem; refund: ItemRefund |
           </>
         ) : (
           <Badge className="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
-            Normal
+            Tidak di-refund
           </Badge>
         )}
       </div>
@@ -178,7 +173,7 @@ function PaymentBlock({ detail }: { detail: OrderDetail }) {
           provider: payment.payment_provider,
         })}
       </Row>
-      {payment.payment_reference && <Row label="Referensi / Approval">{payment.payment_reference}</Row>}
+      {payment.payment_reference && <Row label="Kode Bukti Pembayaran">{payment.payment_reference}</Row>}
       {isCash && <Row label="Uang diterima">{formatRupiah(payment.amount_received)}</Row>}
       {isCash && <Row label="Kembalian">{formatRupiah(payment.change_amount)}</Row>}
       <Row label="Dibayar pada">{formatDateTime(payment.paid_at)}</Row>
@@ -201,8 +196,8 @@ function DetailBody({ detail, refunds }: { detail: OrderDetail; refunds: OrderRe
       <Section title="Pesanan">
         <div className="flex flex-col">
           <Row label="No. Transaksi">{detail.trx_no || "—"}</Row>
-          <Row label="Tipe">
-            {ORDER_TYPE_LABEL[detail.order_type] ?? detail.order_type ?? "—"}
+          <Row label="Jenis Pesanan">
+            {orderTypeLabel(detail.order_type)}
             {detail.order_type === "dine_in" && detail.table_number ? ` · Meja ${detail.table_number}` : ""}
           </Row>
           <Row label="Pelanggan">{detail.guest_name || "—"}</Row>
@@ -221,7 +216,7 @@ function DetailBody({ detail, refunds }: { detail: OrderDetail; refunds: OrderRe
 
       <Section title="Ringkasan Pembayaran">
         <div className="flex flex-col">
-          <Row label="Subtotal Produk">{formatRupiah(detail.summary.subtotal)}</Row>
+          <Row label="Harga Barang">{formatRupiah(detail.summary.subtotal)}</Row>
           {detail.summary.discount_amount > 0 && (
             <Row label="Diskon / Voucher">- {formatRupiah(detail.summary.discount_amount)}</Row>
           )}
@@ -232,7 +227,7 @@ function DetailBody({ detail, refunds }: { detail: OrderDetail; refunds: OrderRe
           )}
           <Row label="Total">{formatRupiah(detail.summary.grand_total)}</Row>
           {refundTotal > 0 && (
-            <Row label="Subtotal Refund" tone="refund">
+            <Row label="Total Refund" tone="refund">
               - {formatRupiah(refundTotal)}
             </Row>
           )}
@@ -242,7 +237,7 @@ function DetailBody({ detail, refunds }: { detail: OrderDetail; refunds: OrderRe
             </p>
           )}
           <div className="mt-1 border-t pt-1.5">
-            <Row label="Total Bersih Dibayarkan" strong>
+            <Row label="Total Setelah Refund" strong>
               {formatRupiah(refundTotal > 0 ? netTotal : detail.summary.grand_total)}
             </Row>
           </div>
@@ -330,9 +325,9 @@ export function TransactionDetailSheet({ order, onClose }: TransactionDetailShee
                   <span className="flex size-11 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                     <TriangleAlertIcon className="size-5" />
                   </span>
-                  <p className="font-semibold text-foreground">Gagal memuat detail transaksi</p>
+                  <p className="font-semibold text-foreground">Detail transaksi belum bisa dimuat</p>
                   <p className="max-w-sm text-sm text-muted-foreground">
-                    Rincian item dan pembayaran untuk transaksi ini tidak dapat dimuat.
+                    Rincian barang dan pembayaran transaksi ini belum bisa dimuat. Coba lagi sebentar lagi.
                   </p>
                   <Button
                     type="button"

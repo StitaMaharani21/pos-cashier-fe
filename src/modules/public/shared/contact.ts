@@ -20,8 +20,10 @@ if (!SALES_WA_CONFIGURED && import.meta.env.DEV) {
   )
 }
 
-export function waLink(message: string): string {
-  return `https://wa.me/${SALES_WA}?text=${encodeURIComponent(message)}`
+// `number` overrides the env/placeholder number — the landing passes the one the
+// CMS holds (cms_setting.sales_wa), when it has one.
+export function waLink(message: string, number?: string): string {
+  return `https://wa.me/${number || SALES_WA}?text=${encodeURIComponent(message)}`
 }
 
 // Shared by PricingSection's PlanCtaLink (public landing) and the owner

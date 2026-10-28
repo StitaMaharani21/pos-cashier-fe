@@ -12,3 +12,5 @@ Still a deliberate exception to the `CrudSection`/`createCrudService` pattern us
 - `section/DashboardSection.tsx` — composes everything in the Figma layout (Limit → KPI grid → Menu Terpopuler + Metode Pembayaran → Penjualan chart → Stok Hampir Habis + Komposisi Order).
 
 Endpoint DTOs live in `entities/order/model/order-analytics.types.ts`, `entities/shift/model/shift.types.ts`, `entities/refund/model/refund.types.ts`, and `entities/menu/model/menu.types.ts` (`LowStockMenu`) — all re-exported from the generated `owner-schema.d.ts` (see `scripts/generate-owner-types.mjs`'s `ALLOWED_PATH_PREFIXES`).
+
+**On-screen wording** (plain Indonesian, no accounting terms): "shift" is shown as *sesi kasir* / "Tutup Kasir"; Kas Awal → *Uang Modal Awal*, Kas yang Diharapkan → *Uang Seharusnya Ada*, Kas Aktual → *Uang Hasil Hitung*, Selisih → *Uang Kurang/Lebih* (*Uang Pas* / *Uang Lebih* / *Uang Kurang*), Rekonsiliasi Kas Laci → *Uang di Laci*, Cash/Non-Cash → *Tunai/Non-Tunai*. Order types come from `shared/lib/order-type-label.ts`. The word "Refund" is kept on purpose. Code, field names and test ids keep the old names.

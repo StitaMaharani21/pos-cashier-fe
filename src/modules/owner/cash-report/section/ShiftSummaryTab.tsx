@@ -57,10 +57,10 @@ export function ShiftSummaryTab({ from, to }: ShiftSummaryTabProps) {
           // outcome, not something to warn about).
           tone={anomalyCount > 0 ? "warning" : "default"}
           iconTone={anomalyCount > 0 ? "warning" : "neutral"}
-          label="Shift dengan Selisih Tak Wajar"
+          label="Kasir dengan Selisih Besar"
           value={
             <>
-              {anomalyCount} <span className="text-sm font-normal text-muted-foreground">Shift</span>
+              {anomalyCount} <span className="text-sm font-normal text-muted-foreground">Kasir</span>
             </>
           }
           className="sm:max-w-sm"
@@ -92,14 +92,14 @@ export function ShiftSummaryTab({ from, to }: ShiftSummaryTabProps) {
         getRowId={(row) => row.shift_id}
         isLoading={isLoading}
         isError={isError}
-        errorHint="Laporan kas mungkin memerlukan paket Pro atau fitur tambahan Laporan."
+        errorHint="Laporan ini mungkin hanya ada di paket Pro. Periksa paket langganan Anda."
         onRetry={() => refetch()}
         onRowClick={(row) => setSelectedShiftId(row.shift_id)}
         minWidth="min-w-[1080px]"
         empty={{
           icon: WalletIcon,
-          title: "Belum ada shift",
-          hint: "Tidak ada shift kasir pada rentang tanggal dan filter ini.",
+          title: "Belum ada catatan kasir",
+          hint: "Belum ada catatan kasir pada tanggal dan pilihan ini.",
         }}
       />
 

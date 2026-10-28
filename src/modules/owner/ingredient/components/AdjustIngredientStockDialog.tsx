@@ -93,7 +93,7 @@ export function AdjustIngredientStockDialog({
                   <FormLabel>Keterangan</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="mis. Barang datang dari supplier, atau koreksi stock opname"
+                      placeholder="mis. Barang datang dari pemasok, atau hasil hitung ulang stok"
                       {...field}
                     />
                   </FormControl>

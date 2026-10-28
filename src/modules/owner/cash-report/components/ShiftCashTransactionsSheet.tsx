@@ -49,30 +49,30 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
               <SheetTitle>{shift.kasir_name || "—"}</SheetTitle>
               <SheetDescription>
                 {formatDateTime(shift.opened_at)} –{" "}
-                {shift.is_open ? "Sedang Berjalan" : formatDateTime(shift.closed_at)}
+                {shift.is_open ? "Sedang Buka" : formatDateTime(shift.closed_at)}
               </SheetDescription>
             </SheetHeader>
 
             <div className="flex flex-col gap-0.5 border-b px-6 py-4">
-              <SummaryRow label="Saldo Awal">{formatRupiah(shift.saldo_awal ?? 0)}</SummaryRow>
+              <SummaryRow label="Uang Modal Awal">{formatRupiah(shift.saldo_awal ?? 0)}</SummaryRow>
               <SummaryRow label="Kas Masuk">{formatRupiah(shift.kas_masuk ?? 0)}</SummaryRow>
               <SummaryRow label="Kas Keluar">{formatRupiah(shift.kas_keluar ?? 0)}</SummaryRow>
               <SummaryRow label="Penjualan Tunai">{formatRupiah(shift.penjualan_tunai ?? 0)}</SummaryRow>
-              <SummaryRow label="Perkiraan Saldo Akhir (sementara)">
+              <SummaryRow label="Perkiraan Uang di Laci (belum final)">
                 {formatRupiah(shift.estimasi_saldo_akhir ?? 0)}
               </SummaryRow>
-              <SummaryRow label="Saldo Akhir">
+              <SummaryRow label="Uang di Laci Saat Tutup">
                 {shift.saldo_akhir === null ? (
-                  <span className="font-normal text-muted-foreground" title="Shift belum ditutup">
+                  <span className="font-normal text-muted-foreground" title="Kasir belum ditutup">
                     —
                   </span>
                 ) : (
                   formatRupiah(shift.saldo_akhir)
                 )}
               </SummaryRow>
-              <SummaryRow label="Selisih">
+              <SummaryRow label="Uang Kurang/Lebih">
                 {shift.selisih === null ? (
-                  <span className="font-normal text-muted-foreground" title="Shift belum ditutup">
+                  <span className="font-normal text-muted-foreground" title="Kasir belum ditutup">
                     —
                   </span>
                 ) : (
@@ -84,11 +84,11 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
             {shift.is_open && (
               <div className="flex flex-col gap-2 border-b bg-muted/30 px-6 py-4">
                 <p className="text-sm text-muted-foreground">
-                  Shift ini masih berjalan. Anda bisa menutupnya jika kasir lupa atau tidak bisa menutup sendiri.
+                  Kasir ini masih buka. Anda bisa menutupnya kalau kasir lupa atau tidak bisa menutupnya sendiri.
                 </p>
                 <Button type="button" variant="outline" className="self-start" onClick={() => setClosing(true)}>
                   <LockIcon />
-                  Tutup Shift
+                  Tutup Kasir
                 </Button>
               </div>
             )}
@@ -105,7 +105,7 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
                   </span>
                   <p className="font-semibold text-foreground">Gagal memuat data</p>
                   <p className="max-w-sm text-sm text-muted-foreground">
-                    Tidak dapat memuat kas masuk/keluar untuk shift ini.
+                    Catatan kas masuk dan keluar belum bisa dimuat.
                   </p>
                   <Button type="button" variant="outline" size="sm" onClick={() => refetch()} className="mt-1">
                     Coba lagi
@@ -118,7 +118,7 @@ export function ShiftCashTransactionsSheet({ shift, onClose }: ShiftCashTransact
                   </span>
                   <p className="font-semibold text-foreground">Belum ada transaksi</p>
                   <p className="max-w-sm text-sm text-muted-foreground">
-                    Belum ada kas masuk/keluar tercatat untuk shift ini.
+                    Belum ada kas masuk atau keluar yang dicatat.
                   </p>
                 </div>
               ) : (

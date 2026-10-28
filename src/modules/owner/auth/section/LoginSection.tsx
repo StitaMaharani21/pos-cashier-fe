@@ -49,9 +49,9 @@ export function LoginSection() {
 
         <div className="w-full rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
           <div className="mb-6 flex flex-col gap-1">
-            <h1 className="text-xl font-bold tracking-tight text-foreground">Masuk sebagai Owner</h1>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Masuk sebagai Pemilik</h1>
             <p className="text-sm text-muted-foreground">
-              Kelola toko Anda dari satu dashboard.
+              Kelola toko Anda dari satu tempat.
             </p>
           </div>
           <LoginForm

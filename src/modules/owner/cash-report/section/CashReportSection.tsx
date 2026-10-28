@@ -17,10 +17,10 @@ type Tab = "shifts" | "cashier-recap" | "trend" | "anomalies"
 const TAB_IDS: Tab[] = ["shifts", "cashier-recap", "trend", "anomalies"]
 
 const TABS: PageTab<Tab>[] = [
-  { id: "shifts", label: "Ringkasan Shift" },
+  { id: "shifts", label: "Ringkasan Kasir" },
   { id: "cashier-recap", label: "Rekap per Kasir" },
-  { id: "trend", label: "Tren Selisih" },
-  { id: "anomalies", label: "Selisih Tak Wajar" },
+  { id: "trend", label: "Tren Uang Kurang/Lebih" },
+  { id: "anomalies", label: "Selisih Besar" },
 ]
 
 // /app/cash-report — "Laporan Kas": physical-cash reconciliation per cashier
@@ -54,7 +54,7 @@ export function CashReportSection() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Laporan Kas" description="Cocokkan uang tunai di laci kasir dengan catatan, per shift kasir" />
+      <PageHeader title="Laporan Kas" description="Cocokkan uang tunai di laci kasir dengan catatan penjualan, per sesi kasir" />
 
       <ReportFilterBar from={from} to={to} onChange={setRange} />
 

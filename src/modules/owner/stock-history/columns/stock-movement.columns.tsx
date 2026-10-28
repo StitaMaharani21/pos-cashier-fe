@@ -69,7 +69,7 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
   },
   {
     key: "reference",
-    header: "Asal Perubahan",
+    header: "Sumber Perubahan",
     render: (row) => movementReferenceLabel(row.referenceType, row.referenceId),
   },
   {

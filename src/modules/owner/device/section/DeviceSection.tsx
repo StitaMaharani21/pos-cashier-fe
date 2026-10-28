@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, formatDistanceToNow } from "date-fns"
@@ -70,7 +71,7 @@ export function DeviceSection() {
       setRevoking(null)
       queryClient.invalidateQueries({ queryKey: DEVICES_KEY })
     },
-    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Terjadi kesalahan. Coba lagi."),
+    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : DEFAULT_ERROR_MESSAGE),
   })
 
   const canManage = can("user", "edit")

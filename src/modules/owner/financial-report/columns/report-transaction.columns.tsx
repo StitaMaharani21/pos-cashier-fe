@@ -17,7 +17,7 @@ export function makeReportTransactionColumns(
   return [
     {
       key: "order_no",
-      header: "No. Order",
+      header: "No. Pesanan",
       render: (row) => <span className="font-medium text-foreground">{row.order_no}</span>,
     },
     {

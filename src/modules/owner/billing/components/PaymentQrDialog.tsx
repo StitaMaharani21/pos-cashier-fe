@@ -136,7 +136,7 @@ function PaymentFlow({ intent, onClose }: { intent: PaymentIntent; onClose: () =
             <span className="text-2xl font-extrabold tabular-nums">{formatRupiah(intentEstimate(intent))}</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {intentDays(intent)} hari · harga per toko, belum termasuk PPN (jika berlaku)
+            {intentDays(intent)} hari · harga per toko, belum termasuk pajak (PPN) bila ada
           </p>
         </div>
 
@@ -177,9 +177,9 @@ function PaymentFlow({ intent, onClose }: { intent: PaymentIntent; onClose: () =
   return (
     <div className="flex flex-col gap-5">
       <DialogHeader>
-        <DialogTitle className="text-xl font-bold">Scan untuk membayar</DialogTitle>
+        <DialogTitle className="text-xl font-bold">Pindai untuk membayar</DialogTitle>
         <DialogDescription>
-          {title} · buka e-wallet atau mobile banking yang mendukung QRIS, lalu pindai kode ini.
+          {title} · buka aplikasi dompet digital atau aplikasi bank yang mendukung QRIS, lalu pindai kode ini.
         </DialogDescription>
       </DialogHeader>
 
@@ -187,7 +187,7 @@ function PaymentFlow({ intent, onClose }: { intent: PaymentIntent; onClose: () =
         <QRCodeSVG value={payment.qr_string ?? ""} size={232} level="M" aria-label="QR pembayaran QRIS" />
         {lapsed && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/95 text-center">
-            <p className="font-semibold text-foreground">QR kedaluwarsa</p>
+            <p className="font-semibold text-foreground">Kode QR sudah habis waktu</p>
             <Button
               size="sm"
               disabled={create.isPending}
@@ -223,7 +223,7 @@ function PaymentFlow({ intent, onClose }: { intent: PaymentIntent; onClose: () =
       )}
 
       <p className="text-center text-xs text-muted-foreground">
-        Halaman ini diperbarui otomatis setelah pembayaran terkonfirmasi. Anda juga bisa menutupnya; fitur aktif begitu
+        Setelah Anda membayar, halaman ini berubah sendiri. Anda boleh menutupnya; fitur langsung aktif begitu
         pembayaran diterima.
       </p>
       <div className="flex justify-end">

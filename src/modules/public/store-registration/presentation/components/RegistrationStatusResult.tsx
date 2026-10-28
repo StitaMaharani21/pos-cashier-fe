@@ -109,14 +109,14 @@ export function RegistrationStatusResult({
             <>
               Toko <strong className="text-neela-on-surface">{result.store_name}</strong> sudah disetujui dan
               sedang disiapkan. Masuk dengan email{" "}
-              <strong className="text-neela-on-surface">{email}</strong> dan kata sandi yang kamu buat. Jika
+              <strong className="text-neela-on-surface">{email}</strong> dan kata sandi yang Anda buat. Jika
               belum bisa masuk, tunggu beberapa menit lalu coba lagi.
             </>
           )}
           {result.status === "rejected" && (
             <>
               Maaf, pendaftaran <strong className="text-neela-on-surface">{result.store_name}</strong> belum
-              dapat kami setujui. Kamu bisa mendaftar ulang dengan data yang sudah diperbaiki.
+              dapat kami setujui. Anda bisa mendaftar ulang dengan data yang sudah diperbaiki.
             </>
           )}
         </p>

@@ -38,7 +38,7 @@ export function isFuture(iso?: string): boolean {
 
 export function intentTitle(intent: PaymentIntent): string {
   if (intent.kind === "plan") {
-    return intent.mode === "upgrade" ? `Upgrade ke ${intent.planName}` : `Perpanjang ${intent.planName}`
+    return intent.mode === "upgrade" ? `Naik ke ${intent.planName}` : `Perpanjang ${intent.planName}`
   }
   return intent.addon.per_unit ? `${intent.addon.name} × ${intent.qty}` : intent.addon.name
 }
@@ -69,8 +69,8 @@ export function intentNotes(intent: PaymentIntent): string[] {
     const notes = [`Masa aktif ${intent.planName} ${days} hari dihitung mulai hari ini, setelah pembayaran diterima.`]
     notes.push(
       isFuture(intent.renewAt)
-        ? `Paket ${intent.currentPlanName} Anda aktif sampai ${formatDay(intent.renewAt)}. Sisa harinya tidak dihitung ke paket baru dan hangus.`
-        : `Sisa masa aktif paket ${intent.currentPlanName} (jika ada) tidak dihitung ke paket baru dan hangus.`
+        ? `Paket ${intent.currentPlanName} Anda aktif sampai ${formatDay(intent.renewAt)}. Sisa harinya tidak dipindahkan ke paket baru.`
+        : `Sisa masa aktif paket ${intent.currentPlanName} (jika ada) tidak dipindahkan ke paket baru.`
     )
     return notes
   }
@@ -79,7 +79,7 @@ export function intentNotes(intent: PaymentIntent): string[] {
   if (addon.per_unit) {
     return [
       `${qty} perangkat tambahan aktif ${days} hari mulai setelah pembayaran diterima.`,
-      "Setelah masa aktif habis, jumlah perangkat kembali ke batas paket. Perangkat yang sudah terpasang tetap berjalan, tetapi memasang perangkat baru dibatasi sampai Anda membeli lagi.",
+      "Setelah masa aktif habis, jumlah perangkat kembali sesuai paket. Perangkat yang sudah dipakai tetap jalan, tetapi menambah perangkat baru tidak bisa sampai Anda membeli lagi.",
     ]
   }
   return addon.active_until && isFuture(addon.active_until)

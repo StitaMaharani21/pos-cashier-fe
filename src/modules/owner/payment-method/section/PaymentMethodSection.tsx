@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useCallback, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { InfoIcon } from "lucide-react"
@@ -103,7 +104,7 @@ function summaryFor(config: MethodConfig, method: PaymentMethod | undefined, cha
 }
 
 function errorMessage(error: unknown): string {
-  return error instanceof CrudServiceError ? error.message : "Terjadi kesalahan"
+  return error instanceof CrudServiceError ? error.message : DEFAULT_ERROR_MESSAGE
 }
 
 export function PaymentMethodSection() {

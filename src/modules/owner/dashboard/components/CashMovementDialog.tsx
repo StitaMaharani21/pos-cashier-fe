@@ -24,7 +24,7 @@ import { Input } from "@/shared/ui/input"
 import { Textarea } from "@/shared/ui/textarea"
 
 const TYPE_OPTIONS: { value: CashMovementType; label: string; hint: string }[] = [
-  { value: "in", label: "Kas Masuk", hint: "Menambah uang di laci (mis. owner tambah modal)" },
+  { value: "in", label: "Kas Masuk", hint: "Menambah uang di laci (mis. pemilik menambah modal)" },
   { value: "out", label: "Kas Keluar", hint: "Uang keluar dari laci (mis. beli perlengkapan)" },
 ]
 
@@ -63,7 +63,7 @@ export function CashMovementDialog({ shiftId, onOpenChange }: CashMovementDialog
         },
         onError: (error) => {
           if (error instanceof ApiError && error.code === "SHIFT_ALREADY_CLOSED") {
-            toast.error("Shift ini sudah ditutup, kas tidak bisa dicatat lagi.")
+            toast.error("Kasir ini sudah ditutup, uang tidak bisa dicatat lagi.")
             onOpenChange(false)
             return
           }
@@ -79,8 +79,8 @@ export function CashMovementDialog({ shiftId, onOpenChange }: CashMovementDialog
         <DialogHeader>
           <DialogTitle>Catat Kas Laci</DialogTitle>
           <DialogDescription>
-            Catat uang tunai yang masuk atau keluar dari laci di luar penjualan. Nominalnya langsung ikut
-            perhitungan kas yang diharapkan.
+            Catat uang tunai yang masuk atau keluar dari laci di luar penjualan. Jumlahnya langsung masuk ke
+            hitungan uang yang seharusnya ada.
           </DialogDescription>
         </DialogHeader>
 
@@ -92,7 +92,7 @@ export function CashMovementDialog({ shiftId, onOpenChange }: CashMovementDialog
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Jenis</FormLabel>
-                  <div role="group" aria-label="Jenis pergerakan kas" className="grid grid-cols-2 gap-2">
+                  <div role="group" aria-label="Jenis catatan uang" className="grid grid-cols-2 gap-2">
                     {TYPE_OPTIONS.map((option) => (
                       <button
                         key={option.value}
@@ -121,7 +121,7 @@ export function CashMovementDialog({ shiftId, onOpenChange }: CashMovementDialog
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nominal (Rp)</FormLabel>
+                  <FormLabel>Jumlah (Rp)</FormLabel>
                   <FormControl>
                     <Input type="number" min={0} step={1000} inputMode="numeric" autoFocus {...field} />
                   </FormControl>
@@ -137,7 +137,7 @@ export function CashMovementDialog({ shiftId, onOpenChange }: CashMovementDialog
                 <FormItem>
                   <FormLabel>Keterangan</FormLabel>
                   <FormControl>
-                    <Textarea rows={2} placeholder="Mis. Owner tambah modal, beli galon air" {...field} />
+                    <Textarea rows={2} placeholder="Mis. Tambah modal, beli galon air" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

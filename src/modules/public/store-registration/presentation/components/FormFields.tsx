@@ -87,7 +87,7 @@ interface PasswordFieldProps {
   strength?: { score: number; hasValue: boolean }
 }
 
-const STRENGTH_LABEL = ["Kekuatan: Lemah", "Kekuatan: Lemah", "Kekuatan: Cukup baik", "Kekuatan: Cukup baik", "Kekuatan: Sangat aman!"]
+const STRENGTH_LABEL = ["Sandi: Lemah", "Sandi: Lemah", "Sandi: Lumayan", "Sandi: Lumayan", "Sandi: Kuat"]
 
 function strengthColor(score: number): string {
   if (score <= 1) return "bg-neela-error"

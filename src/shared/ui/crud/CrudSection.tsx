@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { Fragment, useState, type ReactNode } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
@@ -158,7 +159,7 @@ export function CrudSection<T, TCreate, TUpdate>({
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending
   const editingRow = dialogState.row
-  const formTitle = editingRow ? `Edit ${title}` : `Tambah ${title}`
+  const formTitle = editingRow ? `Ubah ${title}` : `Tambah ${title}`
   const form = renderForm({
     row: editingRow,
     isSubmitting,
@@ -189,7 +190,7 @@ export function CrudSection<T, TCreate, TUpdate>({
               <RowActions>
                 {extraRowActions?.(row)}
                 {canEdit && (
-                  <RowActionButton icon={PencilIcon} label={`Edit ${getRowLabel(row)}`} onClick={() => openForm(row)} />
+                  <RowActionButton icon={PencilIcon} label={`Ubah ${getRowLabel(row)}`} onClick={() => openForm(row)} />
                 )}
                 {canDelete && (
                   <RowActionButton
@@ -299,5 +300,5 @@ export function CrudSection<T, TCreate, TUpdate>({
 
 function errorMessage(error: unknown): string {
   if (error instanceof CrudServiceError) return error.message
-  return "Terjadi kesalahan"
+  return DEFAULT_ERROR_MESSAGE
 }

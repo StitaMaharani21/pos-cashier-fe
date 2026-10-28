@@ -102,7 +102,7 @@ export function SummaryTab({
               value={
                 <>
                   {data.total_transactions}{" "}
-                  <span className="text-sm font-normal text-muted-foreground">Order</span>
+                  <span className="text-sm font-normal text-muted-foreground">Pesanan</span>
                 </>
               }
               footer={
@@ -115,9 +115,9 @@ export function SummaryTab({
             <KpiCard
               icon={WalletIcon}
               iconTone="neutral"
-              label="Pendapatan Kotor"
+              label="Penjualan Sebelum Diskon"
               value={formatRupiah(data.gross_revenue)}
-              footer={<span className="text-xs text-muted-foreground">Sebelum diskon</span>}
+              footer={<span className="text-xs text-muted-foreground">Sebelum diskon dan pajak</span>}
             />
             <KpiCard
               icon={TagIcon}
@@ -127,8 +127,8 @@ export function SummaryTab({
               footer={
                 <span className="text-xs text-muted-foreground">
                   {discountData
-                    ? `Voucher ${discountData.voucher_order_count} order · Otomatis ${discountData.auto_discount_order_count} order`
-                    : "Voucher & diskon otomatis"}
+                    ? `Pakai voucher: ${discountData.voucher_order_count} pesanan · Diskon otomatis: ${discountData.auto_discount_order_count} pesanan`
+                    : "Voucher dan diskon otomatis"}
                 </span>
               }
             />
@@ -137,11 +137,11 @@ export function SummaryTab({
               iconTone="neutral"
               label="Total Pajak"
               value={formatRupiah(data.total_tax)}
-              footer={<span className="text-xs text-muted-foreground">PB1 / PPN yang dipungut</span>}
+              footer={<span className="text-xs text-muted-foreground">Pajak (PB1/PPN) yang ditagihkan ke pelanggan</span>}
             />
             <KpiCard
               icon={WalletIcon}
-              label="Pendapatan Bersih"
+              label="Penjualan Setelah Diskon"
               value={formatRupiah(data.net_revenue)}
               footer={
                 <DeltaFooter percent={data.comparison.net_revenue_change_pct} label="dibanding periode sebelumnya" />
@@ -152,7 +152,7 @@ export function SummaryTab({
               iconTone="neutral"
               label="Rata-rata Transaksi"
               value={formatRupiah(data.avg_per_transaction)}
-              footer={<span className="text-xs text-muted-foreground">Pendapatan bersih ÷ transaksi</span>}
+              footer={<span className="text-xs text-muted-foreground">Penjualan setelah diskon ÷ jumlah transaksi</span>}
             />
           </div>
 

@@ -2,19 +2,17 @@ import type { ReactNode } from "react"
 import { BadgeCheck, CheckIcon, Info } from "lucide-react"
 import { Link } from "react-router-dom"
 
+import type { LandingContent, LandingPlan } from "@/modules/public/landing/application/landing-content"
 import { SectionHeading } from "@/modules/public/landing/presentation/components/SectionHeading"
-import {
-  EXTRA_DEVICE_NOTE,
-  PLANS,
-  PRICING_TERMS,
-  type Plan,
-} from "@/modules/public/landing/presentation/landing.content"
-import { ownerPlanInquiryMessage, REGISTER_PATH, waLink } from "@/modules/public/shared/contact"
+import { fillTemplate } from "@/modules/public/shared/cms/cms.reader"
+import { REGISTER_PATH, waLink } from "@/modules/public/shared/contact"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 import { cn } from "@/shared/lib/utils"
 
 interface PlanCtaLinkProps {
-  plan: Plan
+  plan: LandingPlan
+  content: LandingContent
   isOwner: boolean
   className: string
   children: ReactNode
@@ -24,7 +22,7 @@ interface PlanCtaLinkProps {
 // pre-picked (?paket=); an owner who already has a store is sent to sales
 // instead (upgrades aren't self-serve), and "sales" plans (Enterprise)
 // always open WhatsApp.
-function PlanCtaLink({ plan, isOwner, className, children }: PlanCtaLinkProps) {
+function PlanCtaLink({ plan, content, isOwner, className, children }: PlanCtaLinkProps) {
   if (plan.ctaAction === "register" && !isOwner) {
     return (
       <Link to={`${REGISTER_PATH}?paket=${plan.id}`} className={className}>
@@ -32,18 +30,17 @@ function PlanCtaLink({ plan, isOwner, className, children }: PlanCtaLinkProps) {
       </Link>
     )
   }
-  const message = isOwner
-    ? ownerPlanInquiryMessage(plan.name)
-    : `Halo Neela POS, saya ingin konsultasi paket ${plan.name}`
+  const { wa } = content.global
+  const message = fillTemplate(isOwner ? wa.ownerPlan : wa.plan, { plan_name: plan.name })
   return (
-    <a href={waLink(message)} target="_blank" rel="noopener noreferrer" className={className}>
+    <a href={waLink(message, content.settings.salesWa)} target="_blank" rel="noopener noreferrer" className={className}>
       {children}
     </a>
   )
 }
 
-function PlanCard({ plan, isOwner }: { plan: Plan; isOwner: boolean }) {
-  const featured = plan.id === "pro"
+function PlanCard({ plan, content, isOwner }: { plan: LandingPlan; content: LandingContent; isOwner: boolean }) {
+  const featured = plan.highlighted
 
   return (
     <div
@@ -54,7 +51,7 @@ function PlanCard({ plan, isOwner }: { plan: Plan; isOwner: boolean }) {
     >
       {featured && (
         <span className="absolute top-0 right-6 -translate-y-1/2 rounded-full bg-neela-brand px-3 py-1 text-[11px] font-bold tracking-wide text-white">
-          Paling Banyak Dipilih
+          {content.pricing.highlightBadge}
         </span>
       )}
 
@@ -72,7 +69,7 @@ function PlanCard({ plan, isOwner }: { plan: Plan; isOwner: boolean }) {
             <span className="text-neela-headline-xl-mobile font-bold text-neela-text md:text-neela-headline-xl">
               {plan.price}
             </span>
-            <span className="text-neela-body-sm text-neela-text-secondary">/bulan</span>
+            <span className="text-neela-body-sm text-neela-text-secondary">{content.pricing.perMonth}</span>
           </div>
           <p className="mt-1 text-neela-body-sm text-neela-text-secondary">
             {plan.cashiers} &middot; {plan.devices}
@@ -104,6 +101,7 @@ function PlanCard({ plan, isOwner }: { plan: Plan; isOwner: boolean }) {
 
       <PlanCtaLink
         plan={plan}
+        content={content}
         isOwner={isOwner}
         className={cn(
           "flex h-12 w-full items-center justify-center rounded-lg text-center text-neela-label-md font-bold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-neela-brand focus-visible:ring-offset-2",
@@ -120,26 +118,28 @@ function PlanCard({ plan, isOwner }: { plan: Plan; isOwner: boolean }) {
 
 export function PricingSection() {
   const isOwner = useIsOwnerSession()
+  const content = useLandingContent()
+  const { pricing } = content
 
   return (
     <section id="harga" className="w-full scroll-mt-18 bg-neela-surface-alt py-20">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-14 px-4 md:px-6 lg:px-8">
         <SectionHeading
           className="max-w-xl"
-          eyebrow="Paket Harga"
-          title="Harga transparan, per toko per bulan"
-          description="Pilih sesuai jumlah kasir dan kebutuhan fitur tokomu."
+          eyebrow={pricing.eyebrow}
+          title={pricing.title}
+          description={pricing.description}
         />
 
         <div className="grid w-full grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
-          {PLANS.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} isOwner={isOwner} />
+          {pricing.plans.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} content={content} isOwner={isOwner} />
           ))}
         </div>
 
         <div className="flex flex-col items-center gap-1.5 text-center text-neela-body-sm text-neela-text-secondary">
-          <p>{EXTRA_DEVICE_NOTE}</p>
-          <p>{PRICING_TERMS}</p>
+          <p>{pricing.extraNote}</p>
+          <p>{pricing.terms}</p>
         </div>
       </div>
     </section>

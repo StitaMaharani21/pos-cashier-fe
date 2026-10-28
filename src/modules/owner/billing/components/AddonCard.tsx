@@ -55,7 +55,7 @@ export function AddonCard({ addon, caps, catalogItem, onBuy }: AddonCardProps) {
       // plan-only gate handles with a local WhatsApp link.
       badgeLabel = hintCopy.ADDON.badge
       ctaLabel = hintCopy.ADDON.cta
-      href = waLink("Halo Neela, saya ingin menambah kuota akun kasir.")
+      href = waLink("Halo Neela, saya ingin menambah jatah akun kasir.")
     }
   } else if (!isActive) {
     badgeLabel = hintCopy.ADDON.badge

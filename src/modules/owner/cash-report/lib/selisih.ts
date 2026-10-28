@@ -36,9 +36,9 @@ export function selisihStatus(value: number): SelisihStatus {
 }
 
 export const SELISIH_STATUS_LABEL: Record<SelisihStatus, string> = {
-  balanced: "Kas Sesuai",
-  surplus: "Kas Lebih (Surplus)",
-  shortage: "Kas Kurang (Shortage)",
+  balanced: "Uang Pas",
+  surplus: "Uang Lebih",
+  shortage: "Uang Kurang",
 }
 
 export const SELISIH_STATUS_BADGE_CLASSNAME: Record<SelisihStatus, string> = {

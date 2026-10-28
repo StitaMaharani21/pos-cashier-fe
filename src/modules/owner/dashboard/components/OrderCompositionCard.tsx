@@ -1,11 +1,12 @@
 import { BikeIcon, ShoppingBagIcon, UtensilsIcon, type LucideIcon } from "lucide-react"
 
 import { useOrderComposition } from "@/modules/owner/dashboard/dashboard.queries"
+import { orderTypeLabel } from "@/shared/lib/order-type-label"
 
-const ORDER_TYPE_META: Record<string, { label: string; icon: LucideIcon }> = {
-  dine_in: { label: "Dine-in (Makan di Tempat)", icon: UtensilsIcon },
-  takeaway: { label: "Takeaway (Bungkus)", icon: ShoppingBagIcon },
-  delivery: { label: "Delivery Apps (GoFood, GrabFood)", icon: BikeIcon },
+const ORDER_TYPE_ICON: Record<string, LucideIcon> = {
+  dine_in: UtensilsIcon,
+  takeaway: ShoppingBagIcon,
+  delivery: BikeIcon,
 }
 
 export function OrderCompositionCard() {
@@ -15,7 +16,7 @@ export function OrderCompositionCard() {
   return (
     <div className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-foreground sm:text-xl">Komposisi Order</h2>
+        <h2 className="text-lg font-bold text-foreground sm:text-xl">Jenis Pesanan Hari Ini</h2>
         <span className="rounded-full bg-muted px-2.5 py-1.5 text-xs font-semibold text-muted-foreground">
           Total: {data?.total ?? 0} pesanan
         </span>
@@ -31,17 +32,13 @@ export function OrderCompositionCard() {
 
         {!isPending && items.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            Belum ada order hari ini.
+            Belum ada pesanan hari ini.
           </p>
         )}
 
         {items.map((item, index) => {
           const orderType = item.order_type ?? ""
-          const meta = ORDER_TYPE_META[orderType] ?? {
-            label: orderType,
-            icon: UtensilsIcon,
-          }
-          const Icon = meta.icon
+          const Icon = ORDER_TYPE_ICON[orderType] ?? UtensilsIcon
           return (
             <div
               key={orderType || index}
@@ -51,7 +48,7 @@ export function OrderCompositionCard() {
                 <Icon className="size-4" />
               </span>
               <div>
-                <p className="text-sm font-bold text-foreground">{meta.label}</p>
+                <p className="text-sm font-bold text-foreground">{orderTypeLabel(orderType)}</p>
                 <p className="text-[13px] text-muted-foreground">
                   {item.count ?? 0} Pesanan • {(item.percent ?? 0).toFixed(0)}%
                 </p>

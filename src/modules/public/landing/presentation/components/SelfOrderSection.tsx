@@ -1,7 +1,7 @@
 import { CheckIcon, QrCode, Smartphone } from "lucide-react"
 
 import { PrimaryCta } from "@/modules/public/landing/presentation/components/PrimaryCta"
-import { SELF_ORDER } from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 
 // Section 8 — self-order QR as a concrete reason to upgrade to Pro. No
@@ -9,6 +9,7 @@ import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 // clearly-illustrative panel (device + QR glyph), not a faked app screen.
 export function SelfOrderSection() {
   const isOwner = useIsOwnerSession()
+  const { selfOrder } = useLandingContent()
 
   return (
     <section className="w-full bg-white py-20">
@@ -16,15 +17,15 @@ export function SelfOrderSection() {
         <div className="grid grid-cols-1 items-center gap-10 overflow-hidden rounded-3xl bg-neela-surface-subtle p-8 lg:grid-cols-2 lg:gap-16 lg:p-14">
           <div className="flex flex-col items-start gap-4">
             <span className="rounded-full bg-neela-primary-selected px-3 py-1 text-neela-label-sm text-neela-primary-strong">
-              {SELF_ORDER.eyebrow}
+              {selfOrder.eyebrow}
             </span>
             <h2 className="text-neela-headline-xl-mobile tracking-tight text-neela-text md:text-neela-headline-xl">
-              {SELF_ORDER.title}
+              {selfOrder.title}
             </h2>
-            <p className="max-w-md text-neela-body-lg text-neela-text-secondary">{SELF_ORDER.body}</p>
+            <p className="max-w-md text-neela-body-lg text-neela-text-secondary">{selfOrder.body}</p>
 
             <ul className="flex flex-col gap-2.5 pt-1">
-              {SELF_ORDER.bullets.map((bullet) => (
+              {selfOrder.bullets.map((bullet) => (
                 <li key={bullet} className="flex items-start gap-2 text-neela-body-md text-neela-text">
                   <CheckIcon className="mt-0.5 size-4 shrink-0 text-neela-brand" aria-hidden />
                   {bullet}

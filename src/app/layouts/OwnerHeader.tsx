@@ -48,7 +48,7 @@ const TODAY_LABEL = new Date().toLocaleDateString("id-ID", {
 // anything behind it, so both reported state that didn't exist. Refresh is
 // now wired to the react-query cache and reports real in-flight state.
 export function OwnerHeader({ menuButton }: { menuButton?: ReactNode }) {
-  const name = useAuthStore((state) => state.name) ?? "Owner"
+  const name = useAuthStore((state) => state.name) ?? "Pemilik"
   const email = useAuthStore((state) => state.email)
   const { preference, setPreference } = useThemePreference()
   const queryClient = useQueryClient()
@@ -124,7 +124,7 @@ export function OwnerHeader({ menuButton }: { menuButton?: ReactNode }) {
             <DropdownMenuItem asChild>
               <Link to="/app/change-password">
                 <KeyRoundIcon />
-                Ganti Password
+                Ganti Kata Sandi
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

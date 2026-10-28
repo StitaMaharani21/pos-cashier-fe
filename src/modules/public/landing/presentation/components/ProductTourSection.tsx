@@ -1,12 +1,39 @@
 import { CheckIcon } from "lucide-react"
 
+import type { LandingImage } from "@/modules/public/landing/application/landing-content"
 import { SectionHeading } from "@/modules/public/landing/presentation/components/SectionHeading"
-import {
-  TOUR_CASHIER,
-  TOUR_OTHER,
-  TOUR_PAYMENT,
-  TOUR_SHIFT,
-} from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
+
+function TourImages({ images, single }: { images: LandingImage[]; single: boolean }) {
+  if (single) {
+    const img = images[0]
+    return (
+      <img
+        src={img.src}
+        alt={img.alt}
+        loading="lazy"
+        width={img.width}
+        height={img.height}
+        className="h-full w-full rounded-lg object-cover object-left-top shadow-sm"
+      />
+    )
+  }
+  return (
+    <div className="grid w-full grid-cols-2 items-center gap-2">
+      {images.map((img) => (
+        <img
+          key={img.src}
+          src={img.src}
+          alt={img.alt}
+          loading="lazy"
+          width={img.width}
+          height={img.height}
+          className="w-full object-contain drop-shadow-md"
+        />
+      ))}
+    </div>
+  )
+}
 
 function TourCard({
   step,
@@ -39,59 +66,35 @@ function TourCard({
 // shift), as a three-card row; a plain list for screens that don't have a
 // captured asset yet (never a fabricated mockup).
 export function ProductTourSection() {
+  const { tour } = useLandingContent()
+
   return (
     <section id="cara-kerja" className="w-full scroll-mt-18 bg-white py-20">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-12 px-4 md:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Cara Kerja"
-          title="Dari pesanan sampai tutup kasir"
-          description="Layar yang benar-benar dipakai kasir setiap hari — bukan rekaan."
+          eyebrow={tour.eyebrow}
+          title={tour.title}
+          description={tour.description}
         />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <TourCard step={1} title={TOUR_CASHIER.title} body={TOUR_CASHIER.body}>
-            <img
-              src={TOUR_CASHIER.image}
-              alt={TOUR_CASHIER.imageAlt}
-              loading="lazy"
-              width={1200}
-              height={1077}
-              className="h-full w-full rounded-lg object-cover object-left-top shadow-sm"
-            />
+          <TourCard step={1} title={tour.cashier.title} body={tour.cashier.body}>
+            <TourImages images={tour.cashier.images} single />
           </TourCard>
 
-          <TourCard step={2} title={TOUR_PAYMENT.title} body={TOUR_PAYMENT.body}>
-            <div className="grid w-full grid-cols-2 items-center gap-2">
-              {TOUR_PAYMENT.images.map((img) => (
-                <img
-                  key={img.alt}
-                  src={img.src}
-                  alt={img.alt}
-                  loading="lazy"
-                  width={900}
-                  height={657}
-                  className="w-full object-contain drop-shadow-md"
-                />
-              ))}
-            </div>
+          <TourCard step={2} title={tour.payment.title} body={tour.payment.body}>
+            <TourImages images={tour.payment.images} single={false} />
           </TourCard>
 
-          <TourCard step={3} title={TOUR_SHIFT.title} body={TOUR_SHIFT.body}>
-            <img
-              src={TOUR_SHIFT.image}
-              alt={TOUR_SHIFT.imageAlt}
-              loading="lazy"
-              width={1200}
-              height={749}
-              className="h-full w-full rounded-lg object-cover object-left-top shadow-sm"
-            />
+          <TourCard step={3} title={tour.shift.title} body={tour.shift.body}>
+            <TourImages images={tour.shift.images} single />
           </TourCard>
         </div>
 
         {/* No screenshot asset for these yet — a plain, honest list rather
             than a faked screen. */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {TOUR_OTHER.map(({ title, body, badge }) => (
+          {tour.other.map(({ title, body, badge }) => (
             <div key={title} className="flex flex-col gap-2 rounded-xl bg-neela-surface-alt p-5">
               <div className="flex items-center gap-2">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-neela-success-bg text-neela-success">

@@ -52,8 +52,8 @@ export function OrderSourceTab({ from, to }: { from: string; to: string }) {
     return (
       <LockedTile
         badge={hintCopy.UPGRADE_PRO.badge}
-        title="Sumber Pesanan (QR vs Kasir)"
-        description="Lihat perbandingan pesanan yang dibuat pelanggan sendiri lewat QR dengan yang dicatat kasir. Pindah ke paket Pro untuk membuka laporan ini."
+        title="Sumber Pesanan: Pesan Sendiri atau Kasir"
+        description="Lihat perbandingan pesanan yang dibuat pelanggan sendiri lewat QR dengan yang dicatat kasir. Naik ke paket Pro untuk membuka laporan ini."
         cta={href ? hintCopy.UPGRADE_PRO.cta : undefined}
         href={href}
       />
@@ -68,7 +68,7 @@ export function OrderSourceTab({ from, to }: { from: string; to: string }) {
     return (
       <ReportStateCard
         tone="danger"
-        title="Gagal memuat data sumber order"
+        title="Data sumber pesanan belum bisa dimuat"
         hint="Coba lagi beberapa saat lagi, atau ubah rentang tanggal."
         onRetry={() => query.refetch()}
       />
@@ -87,13 +87,13 @@ export function OrderSourceTab({ from, to }: { from: string; to: string }) {
   }
 
   const items = [
-    { key: "qr", label: "Pesan Sendiri (QR)", count: data.qr_order_count, percentage: data.qr_order_percentage, color: SLICE_COLORS.qr },
-    { key: "manual", label: "Input Manual", count: data.manual_order_count, percentage: data.manual_order_percentage, color: SLICE_COLORS.manual },
+    { key: "qr", label: "Pesan Sendiri (scan QR)", count: data.qr_order_count, percentage: data.qr_order_percentage, color: SLICE_COLORS.qr },
+    { key: "manual", label: "Dicatat Kasir", count: data.manual_order_count, percentage: data.manual_order_percentage, color: SLICE_COLORS.manual },
   ]
 
   return (
     <Card className="p-6">
-      <h3 className="pb-4 text-sm font-semibold text-foreground">Pesanan lewat QR vs dicatat kasir</h3>
+      <h3 className="pb-4 text-sm font-semibold text-foreground">Pesanan lewat scan QR dan yang dicatat kasir</h3>
       <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
         <div className="relative h-[200px] w-[200px] shrink-0">
           <ResponsiveContainer width="100%" height="100%">

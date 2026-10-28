@@ -31,7 +31,7 @@ export function RegistrationSuccess({ email, storeName, purchase }: Registration
         ) : (
           <div className="flex max-w-md flex-col items-center gap-3 rounded-xl bg-neela-primary-fixed/50 px-4 py-3 text-neela-on-primary-fixed-variant">
             <p className="text-neela-body-md">
-              Pembayaran paket {purchase.planName} 1 bulan belum selesai. Pendaftaran kamu sudah tercatat —
+              Pembayaran paket {purchase.planName} 1 bulan belum selesai. Pendaftaran Anda sudah tercatat —
               selesaikan pembayarannya kapan saja selagi halaman ini terbuka.
             </p>
             <button
@@ -46,8 +46,8 @@ export function RegistrationSuccess({ email, storeName, purchase }: Registration
         ))}
       <p className="max-w-md text-neela-body-md text-neela-on-surface-variant">
         Terima kasih, pendaftaran <strong className="text-neela-on-surface">{storeName}</strong> sudah
-        kami terima dan sedang ditinjau tim Neela. Setelah disetujui, kamu bisa masuk dengan
-        email <strong className="text-neela-on-surface">{email}</strong> dan kata sandi yang baru kamu
+        kami terima dan sedang ditinjau tim Neela. Setelah disetujui, Anda bisa masuk dengan
+        email <strong className="text-neela-on-surface">{email}</strong> dan kata sandi yang baru Anda
         buat.
       </p>
       <div className="flex w-full flex-col items-stretch gap-3 pt-2 sm:w-auto sm:flex-row">

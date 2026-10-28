@@ -195,8 +195,8 @@ function PairingFlow({ onClose }: { onClose: () => void }) {
 
       {!expired && pairing.pairing_token && (
         <div className="flex flex-col gap-2">
-          <CopyRow label="Kode Toko (Store ID)" value={storeCode} message="Kode toko disalin" />
-          <CopyRow label="Kode Pasangan (Pairing Token)" value={pairing.pairing_token} message="Kode pasangan disalin" />
+          <CopyRow label="Kode Toko" value={storeCode} message="Kode toko disalin" />
+          <CopyRow label="Kode Penghubung" value={pairing.pairing_token} message="Kode pasangan disalin" />
           <p className="text-xs text-muted-foreground">Perangkat tanpa kamera: salin kedua kode di atas, lalu tempel di aplikasi kasir.</p>
         </div>
       )}

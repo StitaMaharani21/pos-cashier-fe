@@ -28,7 +28,7 @@ export function UsersSection() {
   return (
     <div className="flex flex-col gap-6">
       <PageTabs
-        label="Pengguna"
+        label="Kasir & Perangkat"
         tabs={tabs}
         active={tab}
         onChange={(id) => setSearchParams(id === "cashiers" ? {} : { tab: id }, { replace: true })}

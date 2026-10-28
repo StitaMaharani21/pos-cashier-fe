@@ -30,7 +30,7 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
         // Neutral/blue, not a warning tone — an open shift isn't a problem,
         // just still in progress.
         <Badge className="bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
-          Sedang Berjalan
+          Sedang Buka
         </Badge>
       ) : (
         formatDateTime(row.closed_at)
@@ -38,7 +38,7 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
   },
   {
     key: "saldo_awal",
-    header: "Saldo Awal",
+    header: "Uang Modal Awal",
     align: "right",
     render: (row) => <span className="tabular-nums">{formatRupiah(row.saldo_awal ?? 0)}</span>,
   },
@@ -65,7 +65,7 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
     // "(live)" caption — this is a provisional estimate, still meaningful
     // for an open shift, unlike saldo_akhir/selisih below which require the
     // shift to be closed and physically counted.
-    header: "Perkiraan Saldo Akhir (sementara)",
+    header: "Perkiraan Uang di Laci (belum final)",
     align: "right",
     render: (row) => (
       <span className="tabular-nums text-muted-foreground">{formatRupiah(row.estimasi_saldo_akhir ?? 0)}</span>
@@ -73,13 +73,13 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
   },
   {
     key: "saldo_akhir",
-    header: "Saldo Akhir",
+    header: "Uang di Laci Saat Tutup",
     align: "right",
     render: (row) =>
       // Em dash, not "Rp0" — a null saldo_akhir means "not counted yet", not
       // "zero cash".
       row.saldo_akhir === null ? (
-        <span className="text-muted-foreground" title="Shift belum ditutup">
+        <span className="text-muted-foreground" title="Kasir belum ditutup">
           —
         </span>
       ) : (
@@ -88,11 +88,11 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
   },
   {
     key: "selisih",
-    header: "Selisih",
+    header: "Uang Kurang/Lebih",
     align: "right",
     render: (row) =>
       row.selisih === null ? (
-        <span className="text-muted-foreground" title="Shift belum ditutup">
+        <span className="text-muted-foreground" title="Kasir belum ditutup">
           —
         </span>
       ) : (
@@ -103,7 +103,7 @@ export const shiftCashColumns: CrudColumn<ShiftCashRow>[] = [
           )}
         >
           {row.is_anomaly && (
-            <AlertTriangleIcon className="size-3.5 shrink-0" aria-label="Selisih tak wajar" />
+            <AlertTriangleIcon className="size-3.5 shrink-0" aria-label="Selisih besar" />
           )}
           {formatSelisih(row.selisih)}
         </span>

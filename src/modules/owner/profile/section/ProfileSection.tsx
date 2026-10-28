@@ -11,7 +11,7 @@ import { Button } from "@/shared/ui/button"
 const QUERY_KEY = ["me", "profile"]
 
 const ROLE_LABELS: Record<string, string> = {
-  owner: "Owner",
+  owner: "Pemilik",
   cashier: "Kasir",
 }
 

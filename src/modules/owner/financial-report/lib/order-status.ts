@@ -22,11 +22,11 @@ const ORDER_STATUS_META: Record<string, StatusBadgeMeta> = {
   diproses: { label: "Diproses", className: "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" },
   pending: { label: "Menunggu", className: "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400" },
   dibatalkan: { label: "Dibatalkan", className: "bg-destructive/10 text-destructive" },
-  direfund: { label: "Direfund Penuh", className: MUTED },
+  direfund: { label: "Refund Penuh", className: MUTED },
 }
 
 const PARTIAL_REFUND_META: StatusBadgeMeta = {
-  label: "Sebagian Direfund",
+  label: "Refund Sebagian",
   className: "bg-orange-50 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400",
 }
 

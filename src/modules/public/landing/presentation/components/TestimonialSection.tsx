@@ -1,23 +1,25 @@
 import { Star } from "lucide-react"
 
 import { SectionHeading } from "@/modules/public/landing/presentation/components/SectionHeading"
-import { TESTIMONIALS } from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 
 // Rendered only once TESTIMONIALS holds real, owner-approved quotes
 // (LandingPage shows EarlyAccessSection until then — see landing.content.ts).
 export function TestimonialSection() {
+  const { testimonials } = useLandingContent()
+
   return (
     <section id="testimoni" className="w-full scroll-mt-18 bg-white py-20">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-14 px-4 md:px-6 lg:px-8">
         <SectionHeading
           className="max-w-xl"
-          eyebrow="Testimoni Merchant"
-          title="Cerita nyata dari pemilik kafe & resto"
-          description="Langsung dari toko yang sudah memakai Neela POS."
+          eyebrow={testimonials.eyebrow}
+          title={testimonials.title}
+          description={testimonials.description}
         />
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {TESTIMONIALS.map((item) => {
+          {testimonials.items.map((item) => {
             const MetricIcon = item.metricIcon
             return (
               <figure

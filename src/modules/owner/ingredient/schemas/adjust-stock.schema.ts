@@ -9,7 +9,7 @@ export const adjustIngredientStockSchema = z.object({
     .string()
     .min(1, "Jumlah wajib diisi")
     .refine((value) => !Number.isNaN(Number(value)) && Number(value) !== 0, "Jumlah tidak boleh 0"),
-  keterangan: z.string().min(3, "Keterangan wajib diisi"),
+  keterangan: z.string().min(3, "Alasan wajib diisi"),
 })
 
 export type AdjustIngredientStockFormValues = z.infer<typeof adjustIngredientStockSchema>

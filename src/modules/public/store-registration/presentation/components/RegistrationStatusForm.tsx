@@ -35,7 +35,7 @@ export function RegistrationStatusForm({ form, isSubmitting, onSubmit }: Registr
         id="statusPassword"
         label="Kata Sandi"
         icon={Lock}
-        placeholder="Kata sandi yang kamu buat saat mendaftar"
+        placeholder="Kata sandi yang Anda buat saat mendaftar"
         autoComplete="current-password"
         registration={register("password")}
         error={errors.password?.message}

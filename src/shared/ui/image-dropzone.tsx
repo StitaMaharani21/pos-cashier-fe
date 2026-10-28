@@ -18,7 +18,7 @@ interface ImageDropzoneProps {
 export function ImageDropzone({
   value,
   onChange,
-  hint = "PNG, JPG, WEBP · maks 2MB",
+  hint = "Foto PNG, JPG, atau WEBP, maksimal 2 MB",
   error,
 }: ImageDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null)

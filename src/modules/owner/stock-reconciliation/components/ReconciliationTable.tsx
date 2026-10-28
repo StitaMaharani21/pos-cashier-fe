@@ -28,21 +28,21 @@ function columns(unit?: string): CrudColumn<ReconciliationRow>[] {
     },
     {
       key: "stock_in_table",
-      header: "Stok Tercatat",
+      header: "Stok di Catatan",
       align: "right",
       className: "tabular-nums",
       render: (row) => withUnit(row.stock_in_table ?? 0),
     },
     {
       key: "stock_from_last_movement",
-      header: "Stok Menurut Riwayat",
+      header: "Stok Hitungan Riwayat",
       align: "right",
       className: "tabular-nums",
       render: (row) => withUnit(row.stock_from_last_movement ?? 0),
     },
     {
       key: "diff",
-      header: "Selisih",
+      header: "Beda",
       align: "right",
       className: "w-36",
       render: (row) => {
@@ -72,8 +72,8 @@ export function ReconciliationTable({ rows, isLoading, unit }: ReconciliationTab
       empty={{
         icon: CheckCircle2Icon,
         tone: "success",
-        title: "Tidak ada selisih",
-        hint: "Stok di tabel sudah sesuai dengan riwayat pergerakan terakhir.",
+        title: "Tidak ada yang beda",
+        hint: "Stok sudah sesuai dengan catatan stok masuk dan keluar terakhir.",
       }}
     />
   )

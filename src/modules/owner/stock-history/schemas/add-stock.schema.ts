@@ -10,11 +10,11 @@ export function createAddStockSchema({ wholeNumber }: { wholeNumber: boolean }) 
       .trim()
       .min(1, "Jumlah wajib diisi")
       .refine((value) => Number.isFinite(Number(value)) && Number(value) > 0, "Jumlah harus lebih dari 0")
-      .refine((value) => !wholeNumber || Number.isInteger(Number(value)), "Jumlah harus bilangan bulat"),
+      .refine((value) => !wholeNumber || Number.isInteger(Number(value)), "Jumlah harus angka bulat"),
     purchasePrice: z
       .string()
       .trim()
-      .refine((value) => value === "" || (Number.isFinite(Number(value)) && Number(value) >= 0), "Harga beli tidak valid"),
+      .refine((value) => value === "" || (Number.isFinite(Number(value)) && Number(value) >= 0), "Isi harga beli dengan angka 0 atau lebih"),
     keterangan: z.string().trim().max(500, "Maksimal 500 karakter"),
   })
 }

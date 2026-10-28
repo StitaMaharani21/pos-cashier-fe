@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { PackageIcon, PlusIcon } from "lucide-react"
@@ -168,7 +169,7 @@ export function IngredientSection() {
       <CrudDialogFrame
         open={dialogState.open}
         onOpenChange={(open) => setDialogState((state) => ({ ...state, open }))}
-        title={dialogState.row ? "Edit Bahan Baku" : "Tambah Bahan Baku"}
+        title={dialogState.row ? "Ubah Bahan Baku" : "Tambah Bahan Baku"}
       >
         <IngredientForm
           row={dialogState.row}
@@ -215,5 +216,5 @@ export function IngredientSection() {
 
 function errorMessage(error: unknown): string {
   if (error instanceof CrudServiceError) return error.message
-  return "Terjadi kesalahan"
+  return DEFAULT_ERROR_MESSAGE
 }

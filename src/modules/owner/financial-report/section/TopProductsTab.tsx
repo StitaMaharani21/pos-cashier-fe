@@ -108,7 +108,7 @@ export function TopProductsTab({ from, to, sort, onSortChange }: TopProductsTabP
           <div>
             <h3 className="text-sm font-semibold text-foreground">Produk Terlaris</h3>
             <p className="text-xs text-muted-foreground">
-              Produk dengan performa penjualan terbaik pada periode ini.
+              Produk yang paling banyak terjual pada periode ini.
             </p>
           </div>
           <CrudTable
@@ -129,9 +129,9 @@ export function TopProductsTab({ from, to, sort, onSortChange }: TopProductsTabP
 
         <div className="flex flex-col gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Kandidat Dihapus dari Menu</h3>
+            <h3 className="text-sm font-semibold text-foreground">Produk Kurang Laku</h3>
             <p className="text-xs text-muted-foreground">
-              Produk dengan penjualan paling rendah pada periode ini — pertimbangkan untuk dievaluasi.
+              Produk yang paling sedikit terjual pada periode ini — pertimbangkan untuk diganti atau dipromosikan.
             </p>
           </div>
           <CrudTable
@@ -144,7 +144,7 @@ export function TopProductsTab({ from, to, sort, onSortChange }: TopProductsTabP
             onRetry={() => query.refetch()}
             empty={{
               icon: PackageXIcon,
-              title: "Tidak ada data produk berperforma rendah",
+              title: "Belum ada produk yang kurang laku",
               hint: "Coba pilih rentang tanggal yang lain.",
             }}
           />

@@ -10,15 +10,15 @@ export function TransactionLimitCard() {
   return (
     <div className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-bold text-foreground sm:text-xl">Batas Pemakaian</h2>
+        <h2 className="text-lg font-bold text-foreground sm:text-xl">Jatah Transaksi</h2>
         <p className="text-sm text-muted-foreground">
-          Pemakaian hari ini dibanding batas paket
+          Transaksi yang sudah dipakai hari ini dari jatah paket Anda
         </p>
       </div>
 
       <div className="rounded-xl border border-border/50 bg-muted/40 p-3">
         <div className="flex items-center justify-between text-sm font-semibold text-foreground">
-          <span>Batas Transaksi Harian</span>
+          <span>Jatah Transaksi per Hari</span>
           <span>
             {isPending
               ? "—"
@@ -32,11 +32,11 @@ export function TransactionLimitCard() {
           <>
             <div
               role="progressbar"
-              aria-label="Pemakaian transaksi harian"
+              aria-label="Transaksi yang sudah dipakai hari ini"
               aria-valuenow={Math.round(Math.min(data?.percent ?? 0, 100))}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuetext={`${(data?.percent ?? 0).toFixed(0)}% dari batas harian terpakai`}
+              aria-valuetext={`${(data?.percent ?? 0).toFixed(0)}% dari jatah harian sudah dipakai`}
               className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted"
             >
               <div
@@ -46,7 +46,7 @@ export function TransactionLimitCard() {
             </div>
             <div className="mt-1.5 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">
-                Penggunaan: {data?.used ?? 0} transaksi
+                Terpakai: {data?.used ?? 0} transaksi
               </span>
               <span className="font-semibold text-primary-strong">
                 {(data?.percent ?? 0).toFixed(0)}%

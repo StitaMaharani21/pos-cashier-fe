@@ -20,7 +20,7 @@ const SYNC_STEP_MS = 650
 
 const STATUS: Record<Phase, { tone: ChipTone; caption: string }> = {
   offline: { tone: "amber", caption: "Pesanan tunai disimpan di perangkat kasir." },
-  syncing: { tone: "blue", caption: "Data terkirim otomatis, tanpa input ulang." },
+  syncing: { tone: "blue", caption: "Data terkirim otomatis, tanpa mengetik ulang." },
   synced: { tone: "green", caption: "3 pesanan sudah masuk ke server." },
 }
 
@@ -65,7 +65,7 @@ export function OfflineSyncMock() {
 
   const status = STATUS[phase]
   const chipLabel =
-    phase === "offline" ? "3 pesanan menunggu sinkron" : phase === "syncing" ? `Mengirim ke server… ${done}/3` : "Tersinkron"
+    phase === "offline" ? "3 pesanan menunggu dikirim" : phase === "syncing" ? `Mengirim ke pusat data… ${done}/3` : "Sudah terkirim"
   const netLabel = phase === "offline" ? "Mode offline" : phase === "syncing" ? "Internet kembali" : "Online"
 
   return (
@@ -136,7 +136,7 @@ export function OfflineSyncMock() {
             <span className="size-1.75 rounded-full bg-neela-brand" aria-hidden />
             Shift berjalan · 2j 14m
           </span>
-          <span>Tanpa input ulang</span>
+          <span>Tanpa mengetik ulang</span>
         </div>
       </MockCard>
 

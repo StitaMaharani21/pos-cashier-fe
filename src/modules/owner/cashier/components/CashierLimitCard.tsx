@@ -17,7 +17,7 @@ export function CashierLimitCard() {
   return (
     <div className="flex flex-col gap-4 rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold text-foreground">Kuota Kasir</h2>
+        <h2 className="text-xl font-semibold text-foreground">Batas Kasir</h2>
         <p className="text-sm text-muted-foreground">Jumlah akun kasir aktif dibanding batas paket</p>
       </div>
 

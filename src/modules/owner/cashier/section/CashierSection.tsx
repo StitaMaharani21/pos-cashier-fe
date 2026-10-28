@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { PlusIcon, UsersIcon } from "lucide-react"
@@ -28,7 +29,7 @@ import { TableToolbar } from "@/shared/ui/table-toolbar"
 
 function errorMessage(error: unknown): string {
   if (error instanceof CrudServiceError) return error.message
-  return "Terjadi kesalahan"
+  return DEFAULT_ERROR_MESSAGE
 }
 
 // No createCrudService/CrudSection here — the backend has no full "edit"
@@ -117,14 +118,14 @@ export function CashierSection() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Pengguna" description={`${cashiers.length} akun kasir terdaftar`} />
+      <PageHeader title="Akun Kasir" description={`${cashiers.length} akun kasir terdaftar`} />
 
       <CashierLimitCard />
 
       <TableToolbar
         search={table.search}
         onSearchChange={table.setSearch}
-        searchPlaceholder="Cari nama, username, atau no. HP..."
+        searchPlaceholder="Cari nama, nama pengguna, atau no. HP..."
         filtering={table.filtering}
         onReset={table.reset}
         action={
@@ -132,7 +133,7 @@ export function CashierSection() {
             className="h-10"
             onClick={() => setCreateOpen(true)}
             disabled={atQuota}
-            title={atQuota ? "Kuota kasir paket ini sudah penuh" : undefined}
+            title={atQuota ? "Batas kasir paket ini sudah penuh" : undefined}
           >
             <PlusIcon />
             Tambah Kasir

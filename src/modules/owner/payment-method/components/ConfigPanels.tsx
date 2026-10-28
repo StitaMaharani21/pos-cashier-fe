@@ -62,16 +62,16 @@ export function CardConfigPanel({
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          Admin dapat mengaktifkan salah satu atau kedua jenis kartu sekaligus.
+          Anda boleh memilih salah satu atau keduanya.
         </p>
       </div>
 
       <div className="flex flex-col gap-2 border-t pt-6">
         <label htmlFor="mdr-default" className="text-sm font-semibold text-foreground">
-          MDR Default
+          Biaya Kartu Umum (MDR)
         </label>
         <p className="text-xs text-muted-foreground">
-          Digunakan sebagai tarif default jika tidak terdapat konfigurasi khusus.
+          Dipakai bila bank tidak punya biaya sendiri.
         </p>
         <div className="relative max-w-48">
           <Input
@@ -98,21 +98,21 @@ export function CardConfigPanel({
         ) : (
           <p className="text-xs text-muted-foreground italic">
             {acceptsCard
-              ? "Catatan: MDR merupakan biaya pemrosesan merchant (Merchant Discount Rate), bukan biaya tambahan pelanggan."
-              : "Pilih minimal satu jenis kartu untuk mengatur MDR."}
+              ? "Catatan: biaya kartu (MDR) adalah potongan dari bank atau penyedia kartu ke toko, bukan tambahan bayar untuk pelanggan."
+              : "Pilih minimal satu jenis kartu untuk mengatur biaya kartu."}
           </p>
         )}
       </div>
 
       <div className="flex flex-col gap-3 border-t pt-6">
-        <SectionLabel>Override MDR berdasarkan Bank</SectionLabel>
+        <SectionLabel>Biaya Khusus per Bank</SectionLabel>
         <p className="-mt-1 text-xs text-muted-foreground">
-          Gunakan tarif khusus untuk bank tertentu. Jika dikosongkan, sistem akan menggunakan MDR Default
+          Isi biaya khusus untuk bank tertentu. Jika dikosongkan, dipakai biaya kartu umum
           {draft.surcharge ? ` (${draft.surcharge}%)` : ""}.
         </p>
         {banks.length === 0 ? (
           <p className="rounded-xl bg-muted/50 px-4 py-4 text-sm text-muted-foreground">
-            Belum ada bank toko yang aktif. Aktifkan bank di pengaturan Transfer Bank, lalu atur MDR-nya di sini.
+            Belum ada bank toko yang aktif. Aktifkan bank di pengaturan Transfer Bank, lalu atur biaya kartunya di sini.
           </p>
         ) : (
           <div className="overflow-x-auto rounded-xl border">
@@ -145,7 +145,7 @@ export function CardConfigPanel({
                               min={0}
                               max={100}
                               step="0.01"
-                              placeholder="Default"
+                              placeholder="Sama dengan umum"
                               value={value}
                               disabled={!acceptsCard}
                               aria-invalid={problem ? true : undefined}
@@ -170,7 +170,7 @@ export function CardConfigPanel({
                               : "inline-flex rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
                           }
                         >
-                          {isOverride ? "Override" : "Menggunakan default"}
+                          {isOverride ? "Biaya khusus" : "Pakai biaya umum"}
                         </span>
                       </td>
                     </tr>
@@ -242,7 +242,7 @@ export function ChannelConfigPanel({ type, accounts, onAdd, onEdit, onRemove, ad
                   <td className="px-4 py-3">{account.account_name || "-"}</td>
                   <td className="px-4 py-3">
                     <RowActions>
-                      <RowActionButton icon={PencilIcon} label={`Edit ${account.name}`} onClick={() => onEdit(account)} />
+                      <RowActionButton icon={PencilIcon} label={`Ubah ${account.name}`} onClick={() => onEdit(account)} />
                       <RowActionButton
                         icon={Trash2Icon}
                         tone="danger"

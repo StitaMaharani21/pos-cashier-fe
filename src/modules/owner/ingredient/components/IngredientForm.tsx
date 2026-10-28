@@ -97,8 +97,8 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
               </FormControl>
               {row && (
                 <p className="text-xs text-muted-foreground">
-                  Mengubah nilai ini menimpa stok secara langsung. Untuk menambah stok tanpa
-                  menghitung manual, gunakan tombol &quot;Tambah Stok&quot; pada tabel.
+                  Mengubah angka ini akan mengganti jumlah stok saat ini. Untuk menambah stok tanpa
+                  menghitung sendiri, pakai tombol &quot;Tambah Stok&quot; di daftar.
                 </p>
               )}
               <FormMessage />

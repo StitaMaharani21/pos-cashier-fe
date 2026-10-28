@@ -14,9 +14,9 @@ const REFERENCE_LABELS: Record<string, string> = {
   orders: "Pesanan",
   transaction: "Transaksi",
   purchase: "Pembelian",
-  adjustment: "Penyesuaian",
+  adjustment: "Koreksi stok",
   manual: "Manual",
-  opname: "Stok opname",
+  opname: "Hitung ulang stok",
 }
 
 function humanize(code: string): string {
@@ -47,9 +47,9 @@ export function movementKind(type: string, referenceType: string, delta: number)
     return { label: reference === "order" ? "Penjualan" : "Stok keluar", tone: "out" }
   }
   if (kind === "adjustment") {
-    if (delta > 0) return { label: "Penyesuaian (+)", tone: "in" }
-    if (delta < 0) return { label: "Penyesuaian (−)", tone: "out" }
-    return { label: "Penyesuaian", tone: "neutral" }
+    if (delta > 0) return { label: "Koreksi stok (tambah)", tone: "in" }
+    if (delta < 0) return { label: "Koreksi stok (kurang)", tone: "out" }
+    return { label: "Koreksi stok", tone: "neutral" }
   }
   return { label: humanize(type), tone: toneOf(delta) }
 }

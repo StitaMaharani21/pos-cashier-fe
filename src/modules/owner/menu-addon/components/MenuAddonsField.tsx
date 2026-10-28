@@ -79,7 +79,7 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
                       variant="ghost"
                       size="icon"
                       className="size-8 shrink-0"
-                      aria-label={`Edit ${entry.group.name}`}
+                      aria-label={`Ubah ${entry.group.name}`}
                       onClick={() => onEdit({ entry })}
                     >
                       <PencilIcon className="size-4" />
@@ -168,7 +168,7 @@ export function MenuAddonEditorSheet({ editing, onClose, onSave }: MenuAddonEdit
     <Sheet open={editing !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="flex max-w-xl flex-col p-0">
         <SheetHeader className="pr-14">
-          <SheetTitle className="text-xl font-bold">{entry ? "Edit Grup Tambahan" : "Grup Tambahan Baru"}</SheetTitle>
+          <SheetTitle className="text-xl font-bold">{entry ? "Ubah Grup Tambahan" : "Grup Tambahan Baru"}</SheetTitle>
           <SheetDescription>
             Disimpan bersama menu saat Anda menekan Simpan Menu
           </SheetDescription>

@@ -23,11 +23,11 @@ const columns: CrudColumn<DailySalesItem>[] = [
   },
   {
     key: "total_orders",
-    header: "Total Order",
+    header: "Total Pesanan",
     align: "right",
     render: (row) => <span className="tabular-nums">{row.total_orders}</span>,
   },
-  { key: "gross_revenue", header: "Pendapatan Kotor", align: "right", render: (row) => money(row.gross_revenue) },
+  { key: "gross_revenue", header: "Penjualan Sebelum Diskon", align: "right", render: (row) => money(row.gross_revenue) },
   {
     key: "discount",
     header: "Diskon",
@@ -42,7 +42,7 @@ const columns: CrudColumn<DailySalesItem>[] = [
   { key: "tax", header: "Pajak", align: "right", render: (row) => money(row.tax) },
   {
     key: "net_revenue",
-    header: "Pendapatan Bersih",
+    header: "Penjualan Setelah Diskon",
     align: "right",
     render: (row) => <span className="font-semibold tabular-nums text-foreground">{formatRupiah(row.net_revenue)}</span>,
   },
@@ -70,7 +70,7 @@ export function DailyBreakdownTable({ from, to }: { from: string; to: string }) 
         getRowId={(row) => row.date}
         isLoading={query.isPending}
         isError={query.isError}
-        errorHint="Rincian harian tidak dapat dimuat. Coba lagi beberapa saat lagi."
+        errorHint="Rincian harian belum bisa dimuat. Coba lagi sebentar lagi."
         onRetry={() => query.refetch()}
         minWidth="min-w-[720px]"
         empty={{
@@ -87,7 +87,7 @@ export function DailyBreakdownTable({ from, to }: { from: string; to: string }) 
                 className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 bg-muted/40 px-4 py-3 text-sm"
               >
                 <span className="font-semibold text-foreground">Total</span>
-                <span className="tabular-nums text-muted-foreground">{totals.total_orders} order</span>
+                <span className="tabular-nums text-muted-foreground">{totals.total_orders} pesanan</span>
                 <span className="tabular-nums">{formatRupiah(totals.gross_revenue)}</span>
                 <span className="tabular-nums text-destructive">
                   {totals.discount > 0 ? `-${formatRupiah(totals.discount)}` : "—"}

@@ -17,8 +17,8 @@ import { Button } from "@/shared/ui/button"
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 
 const STEPS = [
-  "Daftar atau masuk ke dashboard Midtrans.",
-  "Salin Server Key (kunci rahasia) dari menu Settings → Access Keys.",
+  "Daftar atau masuk ke akun Midtrans Anda.",
+  "Salin kunci rahasia (disebut \"Server Key\") dari menu Settings → Access Keys.",
   "Tempel di formulir ini lalu simpan.",
   "Metode \"QRIS Midtrans\" muncul di kasir dan halaman pesan dari meja.",
 ]

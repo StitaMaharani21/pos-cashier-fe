@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ClockIcon, EyeIcon, PencilIcon, PlusIcon, StarIcon, StarOffIcon, UtensilsCrossedIcon } from "lucide-react"
@@ -50,7 +51,7 @@ const STATUS_OPTIONS = [
 ]
 
 function errorMessage(error: unknown): string {
-  return error instanceof CrudServiceError ? error.message : "Terjadi kesalahan"
+  return error instanceof CrudServiceError ? error.message : DEFAULT_ERROR_MESSAGE
 }
 
 function initials(name: string): string {
@@ -400,7 +401,7 @@ export function MenuSection() {
                   </TableCell>
                   <TableCell>
                     <RowActions>
-                      {canEdit && <RowActionButton icon={PencilIcon} label={`Edit ${row.name}`} onClick={() => openForm(row)} />}
+                      {canEdit && <RowActionButton icon={PencilIcon} label={`Ubah ${row.name}`} onClick={() => openForm(row)} />}
                       <RowActionButton icon={EyeIcon} label={`Lihat ${row.name}`} onClick={() => setPreviewing(row)} />
                     </RowActions>
                   </TableCell>

@@ -61,7 +61,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
         case "INVALID_SERVER_KEY":
           form.setError("serverKey", {
             message:
-              "Kunci rahasia ditolak Midtrans. Pastikan kuncinya benar dan sesuai mode akun Anda (uji coba atau asli).",
+              "Midtrans menolak kunci ini. Pastikan kunci benar dan cocok dengan mode akun Anda (percobaan atau asli).",
           })
           return
         case "PAYMENT_PROVIDER_UNAVAILABLE":
@@ -99,7 +99,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
           name="serverKey"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Kunci Rahasia Midtrans (Server Key)</FormLabel>
+              <FormLabel>Kunci Rahasia Midtrans</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -110,7 +110,7 @@ export function ServerKeyForm({ connected }: { connected: boolean }) {
                 />
               </FormControl>
               <FormDescription>
-                Cari di dashboard Midtrans: menu Settings → Access Keys, lalu salin bagian Server Key.
+                Buka akun Midtrans Anda, pilih menu Settings → Access Keys (menu berbahasa Inggris), lalu salin bagian "Server Key".
                 Kunci disimpan dengan aman dan tidak akan ditampilkan lagi.
               </FormDescription>
               <FormMessage />

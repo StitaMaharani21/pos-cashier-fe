@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react"
 import { Link } from "react-router-dom"
 
-import { PRIMARY_CTA } from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 
 interface PrimaryCtaProps {
@@ -13,7 +13,8 @@ interface PrimaryCtaProps {
 // session exists, so a logged-in owner is never told to sign up.
 export function PrimaryCta({ className, withArrow = false }: PrimaryCtaProps) {
   const isOwner = useIsOwnerSession()
-  const cta = isOwner ? PRIMARY_CTA.owner : PRIMARY_CTA.visitor
+  const { primaryCta } = useLandingContent().global
+  const cta = isOwner ? primaryCta.owner : primaryCta.visitor
 
   return (
     <Link to={cta.to} className={className}>

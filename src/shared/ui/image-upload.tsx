@@ -18,7 +18,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
-  hint = "PNG/JPG/WEBP, maks 2MB",
+  hint = "Foto PNG, JPG, atau WEBP, maksimal 2 MB",
   placeholder = "Klik untuk unggah foto",
   className,
   disabled,

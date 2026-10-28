@@ -9,7 +9,7 @@ import { StatusBadge } from "@/shared/ui/status-badge"
 async function copyWebhookUrl(url: string) {
   try {
     await navigator.clipboard.writeText(url)
-    toast.success("Alamat notifikasi disalin")
+    toast.success("Alamat pemberitahuan disalin")
   } catch {
     toast.error("Gagal menyalin. Salin alamatnya secara manual.")
   }
@@ -51,7 +51,7 @@ export function GatewayStatusCard({
           <dt className="text-muted-foreground">Mode akun</dt>
           <dd>
             <Badge variant={sandbox ? "secondary" : "default"}>
-              {sandbox ? "Uji coba (Sandbox)" : "Asli (Production)"}
+              {sandbox ? "Mode Percobaan" : "Mode Asli"}
             </Badge>
           </dd>
         </dl>
@@ -59,14 +59,14 @@ export function GatewayStatusCard({
 
       {configured && (
         <p className="text-xs text-muted-foreground">
-          Sistem Neela saat ini berjalan di mode {sandbox ? "uji coba" : "asli"}, jadi gunakan kunci{" "}
-          {sandbox ? "uji coba (diawali SB-Mid-server-)" : "asli (diawali Mid-server-)"}.
+          Neela sedang memakai mode {sandbox ? "percobaan" : "asli"}, jadi gunakan kunci{" "}
+          {sandbox ? "percobaan (diawali SB-Mid-server-)" : "asli (diawali Mid-server-)"}.
         </p>
       )}
 
       {configured && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-muted-foreground">Alamat Notifikasi Pembayaran (URL Webhook)</span>
+          <span className="text-xs font-semibold text-muted-foreground">Alamat Pemberitahuan Pembayaran</span>
           {notification_url ? (
             <div className="flex items-center gap-2">
               <code className="min-w-0 flex-1 truncate rounded-md border bg-muted/40 px-2.5 py-1.5 text-xs">
@@ -76,7 +76,7 @@ export function GatewayStatusCard({
                 type="button"
                 variant="outline"
                 size="icon"
-                aria-label="Salin alamat notifikasi pembayaran"
+                aria-label="Salin alamat pemberitahuan pembayaran"
                 onClick={() => copyWebhookUrl(notification_url)}
               >
                 <CopyIcon />
@@ -85,12 +85,12 @@ export function GatewayStatusCard({
           ) : (
             <p className="flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
               <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" />
-              Pembayaran online belum bisa dipakai pelanggan karena alamat notifikasi pembayaran belum
-              siap. Hubungi tim Neela.
+              Pembayaran online belum bisa dipakai pelanggan karena pengaturannya belum selesai di sisi
+              Neela. Hubungi tim Neela.
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            Alamat ini dipasang otomatis di setiap transaksi. Anda tidak perlu mengisinya di dashboard Midtrans.
+            Alamat ini sudah dipasang otomatis. Anda tidak perlu mengisinya di akun Midtrans.
           </p>
         </div>
       )}

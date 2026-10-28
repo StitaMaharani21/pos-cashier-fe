@@ -149,7 +149,7 @@ function PaymentFlow({ credentials, plan, planName, onPaid, onClose }: PaymentFl
         <DialogTitle className="text-neela-headline-md text-neela-on-primary-fixed">Pembayaran diterima</DialogTitle>
         <DialogDescription>
           Terima kasih! Paket {planName} 1 bulan sudah dibayar ({formatRupiah(payment.amount)}). Masa aktif dihitung
-          mulai toko kamu disetujui tim Neela.
+          mulai toko Anda disetujui tim Neela.
         </DialogDescription>
         <button type="button" className={`${PRIMARY_BUTTON} mt-2`} onClick={onClose}>
           Selesai
@@ -215,7 +215,7 @@ function PaymentFlow({ credentials, plan, planName, onPaid, onClose }: PaymentFl
       )}
 
       <p className="text-center text-neela-body-sm text-neela-on-surface-variant">
-        Halaman ini diperbarui otomatis setelah pembayaran terkonfirmasi. Kamu juga bisa menutupnya dan membayar nanti
+        Setelah Anda membayar, halaman ini berubah sendiri. Anda juga boleh menutupnya dan membayar nanti
         dari halaman pendaftaran.
       </p>
 

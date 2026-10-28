@@ -35,7 +35,7 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
       <div className="flex flex-wrap items-end gap-2.5">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="anomaly-threshold" className="text-xs text-muted-foreground">
-            Tampilkan jika selisih lebih dari (Rp)
+            Tampilkan jika uang kurang/lebih lebih dari (Rp)
           </Label>
           <Input
             id="anomaly-threshold"
@@ -53,10 +53,10 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
         icon={AlertTriangleIcon}
         tone="warning"
         iconTone="warning"
-        label="Shift dengan Selisih Tak Wajar"
+        label="Kasir dengan Selisih Besar"
         value={
           <>
-            {rows.length} <span className="text-sm font-normal text-muted-foreground">Shift</span>
+            {rows.length} <span className="text-sm font-normal text-muted-foreground">Kasir</span>
           </>
         }
         className="sm:max-w-sm"
@@ -68,8 +68,8 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
         // state (ReportStateCard's default "muted" tone, never "danger").
         <ReportStateCard
           icon={ShieldCheckIcon}
-          title="Tidak ada shift dengan selisih di atas batas pada periode ini"
-          hint="Uang tunai sesuai catatan pada rentang tanggal dan batas selisih ini."
+          title="Tidak ada uang kurang atau lebih yang besar pada periode ini"
+          hint="Uang tunai sesuai catatan pada tanggal dan batas yang dipilih."
         />
       ) : (
         <CrudTable
@@ -78,13 +78,13 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
           getRowId={(row) => row.shift_id}
           isLoading={query.isPending}
           isError={query.isError}
-          errorHint="Laporan kas mungkin memerlukan paket Pro atau fitur tambahan Laporan."
+          errorHint="Laporan ini mungkin hanya ada di paket Pro. Periksa paket langganan Anda."
           onRetry={() => query.refetch()}
           onRowClick={(row) => setSelectedShiftId(row.shift_id)}
           minWidth="min-w-[1080px]"
           empty={{
             icon: AlertTriangleIcon,
-            title: "Tidak ada shift dengan selisih tak wajar",
+            title: "Tidak ada selisih besar",
           }}
         />
       )}

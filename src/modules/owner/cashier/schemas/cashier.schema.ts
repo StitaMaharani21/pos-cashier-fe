@@ -5,7 +5,7 @@ import { z } from "zod"
 // required len=6 numeric, phone_no optional.
 export const cashierSchema = z.object({
   name: z.string().min(3, "Nama minimal 3 karakter"),
-  username: z.string().min(3, "Username minimal 3 karakter"),
+  username: z.string().min(3, "Nama pengguna minimal 3 karakter"),
   pin: z.string().regex(/^\d{6}$/, "PIN harus 6 digit angka"),
   phoneNo: z.string().optional(),
 })

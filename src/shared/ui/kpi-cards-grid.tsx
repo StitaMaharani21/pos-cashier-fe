@@ -110,13 +110,13 @@ export function KpiCardsGrid() {
       <div className="flex flex-col gap-6">
         {!hasShift && (
           <p className="rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground">
-            Tidak ada shift aktif. Ringkasan penjualan dan kas laci tampil setelah kasir membuka shift.
+            Kasir belum dibuka. Ringkasan penjualan dan uang di laci muncul setelah kasir mulai bekerja.
           </p>
         )}
 
         <CardGroup
           title="Ringkasan Penjualan"
-          description="Penjualan shift yang sedang berjalan. Kas awal tidak dihitung sebagai pendapatan."
+          description="Penjualan sejak kasir dibuka. Uang modal awal tidak dihitung sebagai penjualan."
           columns="xl:grid-cols-3"
         >
           <KpiCard
@@ -124,7 +124,7 @@ export function KpiCardsGrid() {
             icon={WalletIcon}
             label="Total Pendapatan"
             value={money(data?.total_revenue)}
-            footer={footerNote("Cash + Non-Cash − Refund")}
+            footer={footerNote("Tunai + non-tunai, dikurangi refund")}
           />
           <KpiCard
             testId="card-total-pesanan"
@@ -146,17 +146,17 @@ export function KpiCardsGrid() {
             testId="card-total-cash"
             icon={BanknoteIcon}
             iconTone="neutral"
-            label="Total Cash"
+            label="Total Tunai"
             value={money(data?.cash_sales)}
-            footer={footerNote("Nilai transaksi dibayar tunai")}
+            footer={footerNote("Penjualan yang dibayar tunai")}
           />
           <KpiCard
             testId="card-total-non-cash"
             icon={CreditCardIcon}
             iconTone="neutral"
-            label="Total Non-Cash"
+            label="Total Non-Tunai"
             value={money(data?.non_cash_sales)}
-            footer={footerNote("QRIS, Debit, Kredit & E-Wallet")}
+            footer={footerNote("QRIS, kartu, dan dompet digital")}
           />
           <KpiCard
             testId="card-total-refund"
@@ -164,13 +164,13 @@ export function KpiCardsGrid() {
             iconTone="neutral"
             label="Total Refund"
             value={money(data?.total_refunds)}
-            footer={footerNote("Refund tunai & non-tunai")}
+            footer={footerNote("Refund tunai dan non-tunai")}
           />
         </CardGroup>
 
         <CardGroup
-          title="Rekonsiliasi Kas Laci"
-          description="Uang fisik di laci kasir. Pembayaran non-cash tidak menambah saldo laci."
+          title="Uang di Laci"
+          description="Uang tunai yang ada di laci kasir. Pembayaran non-tunai tidak masuk ke laci."
           columns={hasShift ? "xl:grid-cols-4" : "xl:grid-cols-2"}
           action={
             hasShift && (
@@ -185,20 +185,20 @@ export function KpiCardsGrid() {
             testId="card-kas-awal"
             icon={LandmarkIcon}
             iconTone="neutral"
-            label="Kas Awal"
+            label="Uang Modal Awal"
             value={money(data?.opening_balance)}
-            footer={footerNote("Modal laci saat shift dibuka")}
+            footer={footerNote("Modal di laci saat kasir dibuka")}
           />
           <KpiCard
             testId="card-kas-diharapkan"
             icon={CalculatorIcon}
             iconTone="neutral"
-            label="Kas yang Diharapkan"
+            label="Uang Seharusnya Ada"
             value={money(expectedCash)}
             footer={
               hasShift &&
               footerNote(
-                `Awal + Cash + Masuk (${formatRupiah(data?.cash_in ?? 0)}) − Keluar (${formatRupiah(data?.cash_out ?? 0)}) − Refund (${formatRupiah(data?.cash_refunds ?? 0)})`
+                `Modal awal + penjualan tunai + uang masuk (${formatRupiah(data?.cash_in ?? 0)}) − uang keluar (${formatRupiah(data?.cash_out ?? 0)}) − refund (${formatRupiah(data?.cash_refunds ?? 0)})`
               )
             }
           />
@@ -210,7 +210,7 @@ export function KpiCardsGrid() {
           <KpiCard
             testId="card-kas-aktual"
             icon={WalletIcon}
-            label="Kas Aktual"
+            label="Uang Hasil Hitung"
             onClick={() => setCashDialogOpen(true)}
             value={!hasShift ? "—" : hasCount ? formatRupiah(countedCash) : "Belum dihitung"}
             footer={
@@ -219,7 +219,7 @@ export function KpiCardsGrid() {
                   {footerNote(
                     hasCount && lastCountedAt
                       ? `Dihitung pukul ${lastCountedAt}`
-                      : "Klik untuk catat hitungan kas"
+                      : "Ketuk untuk menghitung uang di laci"
                   )}
                   <Button
                     type="button"
@@ -232,7 +232,7 @@ export function KpiCardsGrid() {
                     }}
                   >
                     <LockIcon />
-                    Tutup Shift
+                    Tutup Kasir
                   </Button>
                 </div>
               )
@@ -243,7 +243,7 @@ export function KpiCardsGrid() {
             icon={ScaleIcon}
             iconTone={status === "shortage" ? "warning" : "neutral"}
             tone={status === "shortage" ? "warning" : "default"}
-            label="Selisih Kas"
+            label="Uang Kurang/Lebih"
             value={difference === null ? "—" : formatSelisih(difference)}
             footer={
               status ? (
@@ -253,7 +253,7 @@ export function KpiCardsGrid() {
                   {SELISIH_STATUS_LABEL[status]}
                 </span>
               ) : (
-                footerNote("Menunggu hitungan kas aktual")
+                footerNote("Hitung uang di laci dulu")
               )
             }
           />

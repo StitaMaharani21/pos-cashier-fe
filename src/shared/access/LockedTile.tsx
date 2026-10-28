@@ -49,7 +49,7 @@ export function LockedTile({ badge, title, description, cta, href, className }: 
         to="/app/business-settings?tab=paket"
         className="text-sm text-muted-foreground underline-offset-4 hover:underline"
       >
-        Lihat semua paket & addon
+        Lihat semua paket dan fitur tambahan
       </Link>
     </div>
   )

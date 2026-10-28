@@ -68,7 +68,7 @@ export function CashierForm({ isSubmitting, onSubmit }: CashierFormProps) {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Nama Pengguna</FormLabel>
               <FormControl>
                 <Input placeholder="budi" {...field} />
               </FormControl>

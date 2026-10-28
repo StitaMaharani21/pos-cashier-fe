@@ -6,13 +6,14 @@ import type { OrderType } from "@/entities/order-type/model/order-type.types"
 import { listOrderTypes, updateOrderType } from "@/modules/owner/order-type/api/order-type.service"
 import { CrudServiceError } from "@/shared/api/crud/types"
 import { useRowReorder } from "@/shared/hooks/useRowReorder"
+import { ORDER_TYPE_LABEL } from "@/shared/lib/order-type-label"
 import { DragHandle } from "@/shared/ui/drag-handle"
 import { Switch } from "@/shared/ui/switch"
 
 const ORDER_TYPE_META: Record<string, { label: string; icon: LucideIcon }> = {
-  dine_in: { label: "Dine-in (Makan di Tempat)", icon: UtensilsIcon },
-  takeaway: { label: "Takeaway (Bungkus)", icon: ShoppingBagIcon },
-  delivery: { label: "Delivery (Pesan Antar)", icon: BikeIcon },
+  dine_in: { label: ORDER_TYPE_LABEL.dine_in, icon: UtensilsIcon },
+  takeaway: { label: ORDER_TYPE_LABEL.takeaway, icon: ShoppingBagIcon },
+  delivery: { label: ORDER_TYPE_LABEL.delivery, icon: BikeIcon },
 }
 
 const QUERY_KEY = ["order-types"]
@@ -70,9 +71,9 @@ export function OrderTypeSection() {
 
   return (
     <div className="flex flex-col gap-1 rounded-[18px] border bg-card px-6 py-6">
-      <h1 className="text-xl font-bold text-foreground">Jenis Order</h1>
+      <h1 className="text-xl font-bold text-foreground">Jenis Pesanan</h1>
       <p className="mb-4 text-sm text-muted-foreground">
-        Atur tipe order yang bisa dipilih kasir. Seret untuk mengubah urutan tampilnya.
+        Atur jenis pesanan yang bisa dipilih kasir. Seret untuk mengubah urutan tampilnya.
       </p>
 
       <div className="flex flex-col gap-3">
@@ -80,7 +81,7 @@ export function OrderTypeSection() {
 
         {!isPending && orderTypes.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            Belum ada jenis order.
+            Belum ada jenis pesanan.
           </p>
         )}
 

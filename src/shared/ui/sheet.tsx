@@ -65,7 +65,7 @@ function SheetContent({
         {children}
         <SheetPrimitive.Close className="absolute top-4 right-4 flex size-7 items-center justify-center rounded-md border opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
           <XIcon className="size-3.5" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">Tutup</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>
     </SheetPortal>

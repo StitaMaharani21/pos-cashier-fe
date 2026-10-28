@@ -19,10 +19,10 @@ export function VarianceTrendTab() {
     <div className="flex flex-col gap-6 rounded-2xl border bg-card p-5 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Tren Selisih Kas {days} Hari Terakhir</h2>
+          <h2 className="text-xl font-bold text-foreground">Tren Uang Kurang/Lebih {days} Hari Terakhir</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Selisih kas per shift yang sudah ditutup — di atas garis nol berarti kas lebih, di bawah
-            berarti kas kurang.
+            Uang kurang atau lebih tiap kasir yang sudah ditutup — di atas garis nol berarti uang lebih, di bawah
+            berarti uang kurang.
           </p>
         </div>
 

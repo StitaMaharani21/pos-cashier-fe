@@ -15,19 +15,19 @@ const cashierCashSummaryColumns: CrudColumn<CashierCashSummaryItem>[] = [
   },
   {
     key: "shift_count",
-    header: "Jumlah Shift",
+    header: "Jumlah Sesi Kasir",
     align: "right",
     render: (row) => <span className="tabular-nums">{row.shift_count}</span>,
   },
   {
     key: "closed_shift_count",
-    header: "Shift Selesai",
+    header: "Sesi Sudah Ditutup",
     align: "right",
     render: (row) => <span className="tabular-nums">{row.closed_shift_count}</span>,
   },
   {
     key: "total_variance",
-    header: "Total Selisih",
+    header: "Total Uang Kurang/Lebih",
     align: "right",
     render: (row) => (
       <span className={cn("tabular-nums font-semibold", selisihToneClassName(row.total_variance))}>
@@ -55,8 +55,8 @@ export function CashierRecapTab({ from, to }: { from: string; to: string }) {
       onRetry={() => query.refetch()}
       empty={{
         icon: UsersIcon,
-        title: "Belum ada shift pada periode ini",
-        hint: "Tidak ada rekap kas per kasir untuk rentang tanggal ini.",
+        title: "Belum ada kasir yang dibuka pada periode ini",
+        hint: "Belum ada rekap uang per kasir untuk tanggal ini.",
       }}
     />
   )

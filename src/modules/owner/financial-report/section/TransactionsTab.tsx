@@ -22,7 +22,7 @@ const ALL_STATUSES = "all-statuses"
 const STATUS_OPTIONS = [
   { value: "selesai", label: "Selesai" },
   { value: "dibatalkan", label: "Dibatalkan" },
-  { value: "direfund", label: "Direfund" },
+  { value: "direfund", label: "Ada Refund" },
 ]
 
 interface TransactionsTabProps {
@@ -127,7 +127,7 @@ export function TransactionsTab({
           value={status ?? ALL_STATUSES}
           onValueChange={(value) => onStatusChange(value === ALL_STATUSES ? undefined : value)}
         >
-          <SelectTrigger className="w-[160px]" aria-label="Status Order">
+          <SelectTrigger className="w-[160px]" aria-label="Status Pesanan">
             <SelectValue placeholder="Semua Status" />
           </SelectTrigger>
           <SelectContent>
@@ -145,7 +145,7 @@ export function TransactionsTab({
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Cari No. Order..."
+            placeholder="Cari No. Pesanan..."
             className="pl-9"
           />
         </div>
@@ -158,7 +158,7 @@ export function TransactionsTab({
         onRowClick={setSelectedOrder}
         isLoading={isLoading}
         isError={isError}
-        errorHint="Laporan transaksi mungkin memerlukan paket Pro atau fitur tambahan Laporan."
+        errorHint="Laporan ini mungkin hanya ada di paket Pro. Periksa paket langganan Anda."
         onRetry={() => refetch()}
         minWidth="min-w-[960px]"
         empty={{

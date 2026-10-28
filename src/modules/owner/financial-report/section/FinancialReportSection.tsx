@@ -60,7 +60,7 @@ const GROUPS: { id: Group; label: string; leaves: PageTab<Tab>[] }[] = [
       { id: "cashier", label: "Kasir" },
       { id: "category", label: "Kategori" },
       { id: "top-products", label: "Produk Terlaris" },
-      { id: "peak-hours", label: "Jam Sibuk" },
+      { id: "peak-hours", label: "Jam Ramai" },
     ],
   },
   { id: "transactions", label: "Transaksi", leaves: [{ id: "transactions", label: "Detail Transaksi" }] },
@@ -205,7 +205,7 @@ export function FinancialReportSection() {
           ) : (
             <DownloadIcon />
           )}
-          Export
+          Unduh Excel
         </Button>
       </div>
 

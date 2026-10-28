@@ -35,7 +35,7 @@ export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
   },
   {
     key: "minimum_qty",
-    header: "Min. Qty",
+    header: "Min. Beli",
     align: "right",
     render: (row) => ((row.minimum_qty ?? 0) > 1 ? `${row.minimum_qty} item` : "—"),
   },

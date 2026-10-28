@@ -208,8 +208,8 @@ export function BusinessSettingsForm({
             <div>
               <h3 className="text-sm font-extrabold text-foreground">Lokasi Kafe (Pesan dari Meja)</h3>
               <p className="text-xs text-muted-foreground">
-                Dipakai untuk memberi tanda pada pesanan dari QR meja yang dikirim dari luar kafe, supaya kasir tahu. Pesanan
-                tetap diterima. Tekan tombol "Gunakan lokasi saya sekarang" saat Anda sedang berada di kafe.
+                Dipakai untuk menandai pesanan dari QR meja yang dikirim saat pelanggan tidak ada di kafe, supaya kasir tahu.
+                Pesanan tetap diterima. Tekan tombol "Gunakan lokasi saya sekarang" saat Anda sedang berada di kafe.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3.5">
@@ -218,7 +218,7 @@ export function BusinessSettingsForm({
                 name="latitude"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Garis lintang (Latitude)</FormLabel>
+                    <FormLabel>Posisi lintang</FormLabel>
                     <FormControl>
                       <Input inputMode="decimal" placeholder="-6.175392" {...field} />
                     </FormControl>
@@ -231,7 +231,7 @@ export function BusinessSettingsForm({
                 name="longitude"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Garis bujur (Longitude)</FormLabel>
+                    <FormLabel>Posisi bujur</FormLabel>
                     <FormControl>
                       <Input inputMode="decimal" placeholder="106.827153" {...field} />
                     </FormControl>

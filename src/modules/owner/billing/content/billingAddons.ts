@@ -29,6 +29,6 @@ export const BILLING_ADDONS: BillingAddon[] = [
   {
     code: "EXTRA_CASHIER",
     title: "Kasir Tambahan",
-    description: "Tambah kuota akun kasir di luar batas paket Anda.",
+    description: "Tambah jatah akun kasir di luar batas paket Anda.",
   },
 ]

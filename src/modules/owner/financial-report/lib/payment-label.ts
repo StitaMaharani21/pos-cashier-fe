@@ -2,13 +2,13 @@ import type { ReportTransaction } from "@/modules/owner/financial-report/financi
 
 // Detailed payment label for the transaction table and detail drawer:
 // category plus the provider/bank behind it, e.g. "E-Wallet (GoPay)",
-// "Debit (BCA)", "Transfer (BCA)", "QRIS (Dinamis)", "Tunai".
+// "Debit (BCA)", "Transfer (BCA)", "QRIS", "Tunai".
 //
 // Built from structured fields rather than the free-text method name so it
 // stays consistent however the owner named the method. The bank/e-wallet
 // comes from the payment's channel (card/transfer/e-wallet only — the backend
-// stores no bank for QRIS or cash); a Midtrans-backed QRIS is the dynamic one,
-// every other QRIS is the static printed code.
+// stores no bank for QRIS or cash); a QRIS is just "QRIS" — dynamic vs static is
+// not something the owner needs to tell apart here.
 export interface PaymentLabelInput {
   type?: string
   name?: string
@@ -21,7 +21,7 @@ function withDetail(label: string, detail?: string) {
   return detail ? `${label} (${detail})` : label
 }
 
-export function formatPaymentLabel({ type, name, channel, cardType, provider }: PaymentLabelInput): string {
+export function formatPaymentLabel({ type, name, channel, cardType }: PaymentLabelInput): string {
   switch (type) {
     case "cash":
       return "Tunai"
@@ -34,7 +34,7 @@ export function formatPaymentLabel({ type, name, channel, cardType, provider }: 
       return withDetail(kind, channel)
     }
     case "qris":
-      return withDetail("QRIS", provider === "midtrans" ? "Dinamis" : "Statis")
+      return "QRIS"
     default:
       // Unknown or future types fall back to the name the owner gave the method.
       return name || "—"

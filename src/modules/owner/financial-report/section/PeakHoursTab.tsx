@@ -54,7 +54,7 @@ export function PeakHoursTab({ from, to }: { from: string; to: string }) {
     return (
       <ReportStateCard
         tone="danger"
-        title="Gagal memuat data jam sibuk"
+        title="Data jam ramai belum bisa dimuat"
         hint="Coba lagi beberapa saat lagi, atau ubah rentang tanggal."
         onRetry={() => query.refetch()}
       />
@@ -80,7 +80,7 @@ export function PeakHoursTab({ from, to }: { from: string; to: string }) {
   return (
     <Card className="p-6">
       <div className="flex flex-wrap items-center justify-between gap-2 pb-4">
-        <h3 className="text-sm font-semibold text-foreground">Kepadatan Transaksi per Jam</h3>
+        <h3 className="text-sm font-semibold text-foreground">Jam Ramai</h3>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span>Sepi</span>
           <div className="flex gap-0.5">

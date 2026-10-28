@@ -99,7 +99,7 @@ export function StockHistorySection() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Riwayat Stok"
-        description="Daftar bahan baku dan menu yang stoknya dilacak. Buka riwayat untuk melihat stok masuk dan keluar tiap item."
+        description="Daftar bahan baku dan menu yang stoknya Anda catat. Buka riwayat untuk melihat stok masuk dan keluar."
       />
 
       <PageTabs
@@ -127,12 +127,12 @@ export function StockHistorySection() {
         minWidth="min-w-[640px]"
         empty={
           debouncedSearch
-            ? { title: "Tidak ada item yang cocok", hint: "Ubah kata kunci pencarian." }
+            ? { title: "Tidak ada yang cocok", hint: "Ubah kata kunci pencarian." }
             : source === "ingredient"
-              ? { icon: PackageIcon, title: "Belum ada bahan baku", hint: "Tambahkan bahan baku di Master Data → Bahan Baku." }
+              ? { icon: PackageIcon, title: "Belum ada bahan baku", hint: "Tambahkan bahan baku lewat menu Data Toko → Bahan Baku." }
               : {
                   icon: UtensilsIcon,
-                  title: "Belum ada menu dengan stok per menu",
+                  title: "Belum ada menu yang stoknya dicatat per menu",
                   hint: 'Aktifkan "Hitung stok" → "Per menu" pada menu agar stoknya tercatat di sini.',
                 }
         }

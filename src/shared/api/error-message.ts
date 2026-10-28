@@ -1,6 +1,6 @@
 import { ApiError, NETWORK_ERROR_MESSAGE, NetworkError } from "@/shared/api/client"
 
-export const DEFAULT_ERROR_MESSAGE = "Terjadi kesalahan. Coba lagi."
+export const DEFAULT_ERROR_MESSAGE = "Maaf, ada yang tidak berjalan. Coba lagi sebentar lagi."
 
 // Pesan error backend tidak pernah ditampilkan apa adanya: sebagian berbahasa
 // Inggris dan berisi istilah teknis. Pemetaan spesifik per fitur (kode →
@@ -15,26 +15,26 @@ export function friendlyErrorMessage(error: unknown, fallback: string = DEFAULT_
   }
 
   if (/DUPLICATE|ALREADY_EXISTS|CONFLICT|IN_USE/.test(error.code)) {
-    return "Data ini sudah ada atau sedang dipakai."
+    return "Sudah ada data yang sama, atau data ini sedang dipakai di tempat lain."
   }
 
   switch (error.status) {
     case 400:
     case 422:
-      return "Data yang diisi belum sesuai. Periksa lagi, lalu coba kembali."
+      return "Isian belum sesuai. Periksa lagi, lalu coba kembali."
     case 401:
-      return "Masa login Anda sudah habis. Silakan masuk lagi."
+      return "Sesi Anda sudah berakhir. Silakan masuk lagi."
     case 403:
-      return "Anda tidak punya akses untuk melakukan ini."
+      return "Anda tidak punya izin untuk melakukan ini. Hubungi pemilik toko bila perlu."
     case 404:
       return "Data tidak ditemukan."
     case 409:
-      return "Data ini sudah ada atau sedang dipakai."
+      return "Sudah ada data yang sama, atau data ini sedang dipakai di tempat lain."
     case 429:
       return "Terlalu banyak percobaan. Tunggu sebentar, lalu coba lagi."
   }
   if (error.status !== undefined && error.status >= 500) {
-    return "Sedang ada gangguan di sistem kami. Coba lagi sebentar lagi."
+    return "Layanan sedang bermasalah. Coba lagi sebentar lagi."
   }
   return fallback
 }

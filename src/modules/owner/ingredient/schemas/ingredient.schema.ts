@@ -7,24 +7,24 @@ export const ingredientSchema = z.object({
     .string()
     .trim()
     .min(1, "Satuan wajib diisi")
-    .refine((value) => Number.isNaN(Number(value)), "Satuan harus berupa teks, mis. gram, kg, ml, pcs"),
+    .refine((value) => Number.isNaN(Number(value)), "Isi nama satuan, mis. gram, kg, ml, pcs"),
   stock: z
     .string()
     .min(1, "Stok wajib diisi")
-    .refine((value) => !Number.isNaN(Number(value)) && Number(value) >= 0, "Stok tidak valid"),
+    .refine((value) => !Number.isNaN(Number(value)) && Number(value) >= 0, "Isi stok dengan angka 0 atau lebih"),
   minStock: z
     .string()
     .optional()
     .refine(
       (value) => !value || (!Number.isNaN(Number(value)) && Number(value) >= 0),
-      "Stok minimum tidak valid"
+      "Isi batas stok dengan angka 0 atau lebih"
     ),
   purchasePrice: z
     .string()
     .optional()
     .refine(
       (value) => !value || (!Number.isNaN(Number(value)) && Number(value) >= 0),
-      "Harga beli tidak valid"
+      "Isi harga beli dengan angka 0 atau lebih"
     ),
 })
 

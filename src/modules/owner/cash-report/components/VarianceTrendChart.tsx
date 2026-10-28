@@ -82,8 +82,8 @@ export function VarianceTrendChart({ points, isPending }: VarianceTrendChartProp
   if (points.length === 0) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-1 text-center text-sm text-muted-foreground">
-        <p className="font-semibold text-foreground">Belum ada shift selesai</p>
-        <p>Tidak ada shift yang sudah ditutup pada rentang hari ini.</p>
+        <p className="font-semibold text-foreground">Belum ada kasir yang ditutup</p>
+        <p>Belum ada kasir yang ditutup dalam rentang hari ini.</p>
       </div>
     )
   }

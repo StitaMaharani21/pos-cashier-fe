@@ -2,7 +2,7 @@ import { ChevronDown, LayoutDashboard, User } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { PrimaryCta } from "@/modules/public/landing/presentation/components/PrimaryCta"
-import { NAV_LINKS } from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 import { NeelaWordmark } from "@/modules/public/shared/NeelaWordmark"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 
@@ -10,6 +10,7 @@ import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 // light text and scrolls away with the hero rather than staying fixed.
 export function LandingHeader() {
   const isOwner = useIsOwnerSession()
+  const { navLinks, global } = useLandingContent()
   const portalHref = isOwner ? "/app" : "/login"
 
   return (
@@ -20,7 +21,7 @@ export function LandingHeader() {
         </a>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -42,7 +43,7 @@ export function LandingHeader() {
               <ChevronDown aria-hidden className="size-4 transition-transform group-open:rotate-180" />
             </summary>
             <nav className="absolute top-full right-0 mt-2 flex w-48 flex-col gap-1 rounded-xl border border-neela-border bg-white p-2 shadow-lg">
-              {NAV_LINKS.map((link) => (
+              {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
@@ -59,14 +60,14 @@ export function LandingHeader() {
               to="/login"
               className="hidden items-center justify-center rounded-full px-3 py-2 text-neela-label-md text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white sm:inline-flex"
             >
-              Masuk
+              {global.loginLabel}
             </Link>
           )}
           <PrimaryCta className="inline-flex h-10 items-center justify-center rounded-full bg-white px-5 text-center text-neela-label-md text-neela-brand outline-none transition-colors hover:bg-neela-surface-subtle focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neela-brand" />
           {/* Phone-only icon link, since "Masuk" is hidden below `sm` */}
           <Link
             to={portalHref}
-            aria-label={isOwner ? "Buka Dashboard" : "Masuk"}
+            aria-label={isOwner ? "Buka Beranda" : "Masuk"}
             className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white outline-none transition-colors hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white sm:hidden"
           >
             {isOwner ? <LayoutDashboard className="size-4" aria-hidden /> : <User className="size-4" aria-hidden />}

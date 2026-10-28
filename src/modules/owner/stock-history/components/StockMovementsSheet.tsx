@@ -143,11 +143,11 @@ function SheetBody({ item, onAddStock }: { item: StockItem; onAddStock?: (item: 
           minWidth="min-w-[820px]"
           empty={{
             icon: HistoryIcon,
-            title: direction === "all" ? "Belum ada pergerakan stok" : "Tidak ada pergerakan yang cocok",
+            title: direction === "all" ? "Belum ada catatan stok masuk dan keluar" : "Tidak ada catatan yang cocok",
             hint:
               direction === "all"
-                ? "Belum ada penjualan, stok masuk, atau penyesuaian untuk item ini."
-                : "Ubah filter untuk melihat pergerakan lainnya.",
+                ? "Belum ada penjualan, stok masuk, atau koreksi stok untuk barang ini."
+                : "Ubah pilihan untuk melihat catatan lainnya.",
           }}
           footer={
             !isLoading &&

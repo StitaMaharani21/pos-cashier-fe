@@ -13,7 +13,7 @@ import { ProductTourSection } from "@/modules/public/landing/presentation/compon
 import { QuickFactsSection } from "@/modules/public/landing/presentation/components/QuickFactsSection"
 import { SelfOrderSection } from "@/modules/public/landing/presentation/components/SelfOrderSection"
 import { TestimonialSection } from "@/modules/public/landing/presentation/components/TestimonialSection"
-import { TESTIMONIALS } from "@/modules/public/landing/presentation/landing.content"
+import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 
 // Public homepage ("/"). Always the landing page, logged in or not — the
 // owner console lives at /app, reached via "Masuk"/login.
@@ -22,6 +22,8 @@ import { TESTIMONIALS } from "@/modules/public/landing/presentation/landing.cont
 // solution → Product tour → Offline honesty → Features+devices → Self-order
 // (Pro) → Pricing → Early access → FAQ → Closing CTA → Footer.
 export function LandingPage() {
+  const { visible } = useLandingContent()
+
   // Smooth in-page anchor scrolling (header nav → #fitur, #harga, ...), set
   // on <html> only while this page is mounted so the owner console keeps
   // the browser default. In an effect, not during render — see the SSR note
@@ -43,8 +45,9 @@ export function LandingPage() {
         <FeatureSection />
         <SelfOrderSection />
         <PricingSection />
-        {/* Early-access perks until there are real customer quotes. */}
-        {TESTIMONIALS.length > 0 ? <TestimonialSection /> : <EarlyAccessSection />}
+        {/* Early-access perks until there are real customer quotes: the CMS shows
+            testimonials only when that section is visible AND has approved quotes. */}
+        {visible.testimonials ? <TestimonialSection /> : visible.earlyAccess ? <EarlyAccessSection /> : null}
         <FAQSection />
         <FinalCtaSection />
       </main>

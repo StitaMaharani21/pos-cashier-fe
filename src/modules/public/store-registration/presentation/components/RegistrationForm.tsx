@@ -109,7 +109,7 @@ export function RegistrationForm({
             autoComplete="tel"
             registration={register("ownerPhoneNo")}
             error={errors.ownerPhoneNo?.message}
-            hint="Untuk dihubungi tim kami saat pendampingan setup."
+            hint="Untuk dihubungi tim kami saat pendampingan pemasangan awal."
           />
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -128,7 +128,7 @@ export function RegistrationForm({
           />
           <TextField
             id="ownerUsername"
-            label="Nama Pengguna Pemilik"
+            label="Nama Akun Pemilik"
             icon={AtSign}
             required
             placeholder="budi_kopitemu"

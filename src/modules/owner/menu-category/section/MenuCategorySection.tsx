@@ -1,3 +1,4 @@
+import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { LayoutGridIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
@@ -34,7 +35,7 @@ import { TableToolbar } from "@/shared/ui/table-toolbar"
 const COLUMNS = 6
 
 function errorMessage(error: unknown): string {
-  return error instanceof CrudServiceError ? error.message : "Terjadi kesalahan"
+  return error instanceof CrudServiceError ? error.message : DEFAULT_ERROR_MESSAGE
 }
 
 // "Kategori Menu" tab of /app/menu. All categories are loaded at once
@@ -189,7 +190,7 @@ export function MenuCategorySection() {
                   <TableCell>
                     <RowActions>
                       {can("menu", "edit") && (
-                        <RowActionButton icon={PencilIcon} label={`Edit ${row.name}`} onClick={() => openForm(row)} />
+                        <RowActionButton icon={PencilIcon} label={`Ubah ${row.name}`} onClick={() => openForm(row)} />
                       )}
                       {can("menu", "delete") && (
                         <RowActionButton

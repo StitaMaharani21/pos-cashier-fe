@@ -1,22 +1,19 @@
-import { BadgeCheck, CircleCheck, ClipboardList, Info, Lock, Rocket, type LucideIcon } from "lucide-react"
+import { BadgeCheck, CircleCheck, Info, Lock } from "lucide-react"
 
 import {
-  REGISTRATION_PLANS,
   type RegistrationPlan,
   type RegistrationPlanId,
+  type RegistrationStep,
 } from "@/modules/public/store-registration/presentation/registration-plans"
 import { cn } from "@/shared/lib/utils"
 
-// Mirrors what actually happens after submit (pos-kasir-be store_registration):
-// the request is queued as "pending" until an internal admin approves it,
-// and approval is what provisions the store — it is not instant.
-const STEPS: { icon: LucideIcon; title: string; body: string }[] = [
-  { icon: ClipboardList, title: "Isi formulir", body: "Data toko & akun pemilik." },
-  { icon: BadgeCheck, title: "Verifikasi tim Neela", body: "Kami tinjau & hubungi kamu." },
-  { icon: Rocket, title: "Toko siap dipakai", body: "Masuk dengan email & kata sandi." },
-]
-
 interface BenefitsPanelProps {
+  plans: RegistrationPlan[]
+  // Mirrors what actually happens after submit (pos-kasir-be store_registration):
+  // the request is queued as "pending" until an internal admin approves it,
+  // and approval is what provisions the store — it is not instant.
+  steps: RegistrationStep[]
+  stepsTitle: string
   plan: RegistrationPlan
   onPlanChange: (id: RegistrationPlanId) => void
   // Set when the visitor arrived asking for a plan that isn't selectable
@@ -28,11 +25,11 @@ interface BenefitsPanelProps {
   locked?: boolean
 }
 
-// Left column of the Stitch design, driven by REGISTRATION_PLANS. The
+// Left column of the Stitch design, driven by the plans passed in. The
 // customer review card is dropped (no real customers yet), and the "Paket
 // Pro Gratis — Akses Penuh" framing is replaced by the plan the backend
 // actually provisions.
-export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: BenefitsPanelProps) {
+export function BenefitsPanel({ plans, steps, stepsTitle, plan, onPlanChange, requestedPlan, locked }: BenefitsPanelProps) {
   return (
     // order-2 below lg: on phones the form comes first, benefits after it.
     <div className="order-2 flex flex-col gap-6 lg:order-none lg:col-span-5">
@@ -42,7 +39,7 @@ export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: Ben
             rather than a segmented pill — an unavailable plan's extra
             "Segera hadir" line no longer throws the two options out of line. */}
         <div role="radiogroup" aria-label="Paket langganan" className="grid grid-cols-2 gap-3">
-          {REGISTRATION_PLANS.map((option) => {
+          {plans.map((option) => {
             const selected = option.id === plan.id
             return (
               <button
@@ -81,7 +78,7 @@ export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: Ben
                   )}
                 </span>
                 <span className={cn("text-neela-body-sm", option.available ? "text-neela-on-surface-variant" : "text-neela-outline")}>
-                  <span className="font-bold">{option.price}</span> / outlet / bln
+                  <span className="font-bold">{option.price}</span> / toko / bulan
                 </span>
               </button>
             )
@@ -92,7 +89,7 @@ export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: Ben
           <p className="mt-3 flex items-start gap-2 rounded-lg bg-neela-primary-fixed/50 px-3 py-2 text-neela-body-sm text-neela-on-primary-fixed-variant">
             <Info className="mt-px size-4 shrink-0" />
             <span>
-              Paket {requestedPlan.name} belum bisa dipilih saat pendaftaran. Toko kamu aktif di paket{" "}
+              Paket {requestedPlan.name} belum bisa dipilih saat pendaftaran. Toko Anda aktif di paket{" "}
               {plan.name} dulu — pindah ke {requestedPlan.name} dibantu tim kami setelah toko aktif.
             </span>
           </p>
@@ -128,9 +125,9 @@ export function BenefitsPanel({ plan, onPlanChange, requestedPlan, locked }: Ben
       </div>
 
       <div className="rounded-2xl bg-neela-surface-container-lowest p-6 shadow-sm">
-        <h3 className="mb-4 text-neela-label-lg text-neela-on-surface">Alur Pendaftaran</h3>
+        <h3 className="mb-4 text-neela-label-lg text-neela-on-surface">{stepsTitle}</h3>
         <ol className="flex flex-col gap-3">
-          {STEPS.map(({ icon: Icon, title, body }, index) => (
+          {steps.map(({ icon: Icon, title, body }, index) => (
             <li key={title} className="flex items-center gap-3">
               <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-neela-primary-fixed text-neela-primary">
                 <Icon className="size-[18px]" />

@@ -81,7 +81,7 @@ function AddStockForm({ item, onDone }: { item: StockItem; onDone: () => void })
       queryClient.invalidateQueries({ queryKey: ["stock-reconciliation"] })
       onDone()
     },
-    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Terjadi kesalahan"),
+    onError: (error) => toast.error(error instanceof CrudServiceError ? error.message : "Stok belum berhasil ditambahkan. Coba lagi."),
   })
 
   const qty = Number(form.watch("qty"))
@@ -147,7 +147,7 @@ function AddStockForm({ item, onDone }: { item: StockItem; onDone: () => void })
               <FormItem>
                 <FormLabel>Keterangan (opsional)</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="mis. Belanja di pasar, atau barang datang dari supplier" {...field} />
+                  <Textarea placeholder="mis. Belanja di pasar, atau barang datang dari pemasok" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

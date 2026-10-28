@@ -24,21 +24,21 @@ import { useAuthStore } from "@/shared/auth/store"
 import { cn } from "@/shared/lib/utils"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 
-const DASHBOARD_ITEM = { to: "/app", label: "Dashboard", icon: LayoutGridIcon }
+const DASHBOARD_ITEM = { to: "/app", label: "Beranda", icon: LayoutGridIcon }
 
 // Grouping/labels mirror the Figma sidenav (SideNavBar shared component).
 // "Meja" isn't shown in that particular screen, but it's an existing,
 // working feature — kept here under Master Data rather than dropped.
 const NAV_GROUPS = [
   {
-    label: "Master Data",
+    label: "Data Toko",
     icon: FolderIcon,
     items: [
       // Kategori Menu + Menu + Tambahan are tabs of this one page.
       { to: "/app/menu", label: "Menu" },
       { to: "/app/ingredient", label: "Bahan Baku" },
       { to: "/app/payment-method", label: "Metode Pembayaran" },
-      { to: "/app/order-type", label: "Jenis Order" },
+      { to: "/app/order-type", label: "Jenis Pesanan" },
       { to: "/app/table", label: "Meja" },
     ],
   },
@@ -57,7 +57,7 @@ const NAV_GROUPS = [
       { to: "/app/financial-report", label: "Laporan Keuangan" },
       { to: "/app/cash-report", label: "Laporan Kas" },
       { to: "/app/stock-history", label: "Riwayat Stok" },
-      { to: "/app/stock-reconciliation", label: "Cek Selisih Stok" },
+      { to: "/app/stock-reconciliation", label: "Cocokkan Stok" },
     ],
   },
   {
@@ -65,10 +65,10 @@ const NAV_GROUPS = [
     icon: SettingsIcon,
     items: [
       { to: "/app/profile", label: "Profil" },
-      { to: "/app/business-settings", label: "Bisnis" },
+      { to: "/app/business-settings", label: "Info Toko & Paket" },
       // Cashier accounts + devices belong with the business, not master data.
-      { to: "/app/users", label: "Pengguna" },
-      { to: "/app/payment-gateway", label: "Pembayaran Online" },
+      { to: "/app/users", label: "Kasir & Perangkat" },
+      { to: "/app/payment-gateway", label: "Terima Bayar Online" },
     ],
   },
 ]

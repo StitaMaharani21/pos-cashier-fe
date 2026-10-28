@@ -42,7 +42,7 @@ export function TransactionHistoryMock() {
     <div className="flex w-full flex-col items-center gap-3.5">
       <MockCard>
         <MockHead className="flex-wrap">
-          <MockTitle title="Riwayat transaksi" subtitle="Akun owner · Hari ini" />
+          <MockTitle title="Riwayat transaksi" subtitle="Akun pemilik · Hari ini" />
           <div role="group" aria-label="Filter metode bayar" className="flex gap-1.5">
             {FILTERS.map((option) => (
               <button

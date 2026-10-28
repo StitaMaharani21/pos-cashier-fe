@@ -50,7 +50,7 @@ export function accountNumberError(value: string): string | null {
   const text = value.trim()
   if (text === "") return null
   if (text.length > 50) return "Maksimal 50 karakter"
-  if (!/^[0-9 +-]+$/.test(text)) return "Hanya angka, spasi, - dan +"
+  if (!/^[0-9 +-]+$/.test(text)) return "Hanya boleh angka, spasi, tanda - dan +"
   return null
 }
 
@@ -75,6 +75,6 @@ export function hasBankSurchargeError(draft: MethodDraft): boolean {
 export function surchargeError(value: string): string | null {
   if (value.trim() === "") return null
   const number = Number(value)
-  if (!Number.isFinite(number) || number < 0 || number > 100) return "Isi angka 0–100"
+  if (!Number.isFinite(number) || number < 0 || number > 100) return "Isi persen antara 0 sampai 100"
   return null
 }
