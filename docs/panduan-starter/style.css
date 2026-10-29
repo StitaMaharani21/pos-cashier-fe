@@ -51,7 +51,7 @@ body {
 .cover::before { width: 140mm; height: 140mm; right: -50mm; top: -30mm; }
 .cover::after { width: 110mm; height: 110mm; left: -40mm; bottom: -35mm; }
 .cover > * { position: relative; z-index: 1; }
-.cover .logo { width: 28mm; height: 28mm; border-radius: 7mm; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.cover .logo { height: 13mm; width: auto; align-self: flex-start; display: block; }
 .cover .eyebrow { margin-top: 38mm; letter-spacing: .28em; font-size: 9pt; font-weight: 500; opacity: .85; text-transform: uppercase; }
 .cover h1 { font-size: 40pt; line-height: 1.1; margin: 6mm 0 5mm; font-weight: 700; letter-spacing: -.01em; }
 .cover .sub { font-size: 13pt; font-weight: 300; max-width: 120mm; opacity: .92; }

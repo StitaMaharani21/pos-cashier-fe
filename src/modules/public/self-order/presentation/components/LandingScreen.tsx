@@ -2,14 +2,14 @@ import { ArrowRightIcon, ClockIcon, UsersIcon } from "lucide-react"
 
 import type { GuestSession } from "@/modules/public/self-order/domain/self-order.types"
 import { formatClock } from "@/modules/public/self-order/presentation/self-order-helpers"
-import { NeelaWordmark } from "@/modules/public/shared/NeelaWordmark"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 
 export function LandingScreen({ session, onStart }: { session: GuestSession; onStart: () => void }) {
   return (
     <div className="so-landing">
       <div>
         <div className="so-brand">
-          <NeelaWordmark />
+          <NeelaLogo className="h-7" />
           <span className="tag">Pesan dari Meja</span>
         </div>
         <div className="so-stub">

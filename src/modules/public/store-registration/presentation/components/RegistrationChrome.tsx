@@ -2,7 +2,7 @@ import { Headset, User, Zap } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { COPYRIGHT_HOLDER, SUPPORT_HOURS, waLink } from "@/modules/public/shared/contact"
-import { NeelaWordmark } from "@/modules/public/shared/NeelaWordmark"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 
 // Header + footer of the Stitch registration page. The design's
 // "Pendaftaran / Data Outlet / Sinkron Perangkat" step nav is dropped — the
@@ -14,7 +14,7 @@ export function RegistrationHeader() {
       <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-3 px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2" aria-label="Kembali ke beranda Neela">
-            <NeelaWordmark />
+            <NeelaLogo className="h-7" />
           </Link>
           <span className="hidden h-5 w-px bg-neela-outline-variant sm:inline-block" />
           <span className="hidden items-center gap-1 rounded bg-neela-surface-container-low px-2 py-1 text-neela-label-sm tracking-wider text-neela-on-surface-variant uppercase sm:inline-flex">
@@ -25,7 +25,7 @@ export function RegistrationHeader() {
 
         <div className="flex items-center gap-3">
           <a
-            href={waLink("Halo Neela POS, saya butuh bantuan pendaftaran toko")}
+            href={waLink("Halo Neela, saya butuh bantuan pendaftaran toko")}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden items-center gap-2 rounded-full bg-neela-surface-container-low px-3 py-1 text-neela-label-sm text-neela-on-surface-variant md:flex"
@@ -62,7 +62,7 @@ export function RegistrationFooter() {
           © {new Date().getFullYear()} {COPYRIGHT_HOLDER}. Aplikasi kasir untuk usaha kuliner Indonesia.
         </div>
         <a
-          href={waLink("Halo Neela POS, saya butuh bantuan")}
+          href={waLink("Halo Neela, saya butuh bantuan")}
           target="_blank"
           rel="noopener noreferrer"
           className="transition-colors hover:text-neela-on-surface"

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 
 import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
 import { waLink } from "@/modules/public/shared/contact"
-import { NeelaWordmark } from "@/modules/public/shared/NeelaWordmark"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 
 const LINK = "text-neela-blue-100 transition-colors hover:text-white"
 
@@ -18,7 +18,7 @@ export function LandingFooter() {
       <div className="mx-auto max-w-[1280px] px-4 pt-16 pb-10 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 pb-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col items-start gap-3 sm:col-span-2 lg:col-span-2">
-            <NeelaWordmark tone="dark" />
+            <NeelaLogo variant="white" className="h-8" />
             <p className="max-w-sm text-neela-body-sm text-neela-blue-100">{footer.tagline}</p>
           </div>
 

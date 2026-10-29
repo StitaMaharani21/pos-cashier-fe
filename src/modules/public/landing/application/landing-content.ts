@@ -161,15 +161,15 @@ export interface LandingContent {
 // Text that used to be hardcoded in the section components.
 const DEFAULT_TEXT = {
   loginLabel: "Masuk",
-  waConsult: "Halo Neela POS, saya ingin konsultasi soal aplikasi kasir",
-  waInterest: "Halo Neela POS, saya tertarik tanya soal aplikasi kasir",
-  waHelp: "Halo Neela POS, saya butuh bantuan",
-  waPlan: "Halo Neela POS, saya ingin konsultasi paket {plan_name}",
-  waOwnerPlan: "Halo Neela POS, saya pemilik toko dan ingin tanya soal paket {plan_name}",
+  waConsult: "Halo Neela, saya ingin konsultasi soal aplikasi kasir",
+  waInterest: "Halo Neela, saya tertarik tanya soal aplikasi kasir",
+  waHelp: "Halo Neela, saya butuh bantuan",
+  waPlan: "Halo Neela, saya ingin konsultasi paket {plan_name}",
+  waOwnerPlan: "Halo Neela, saya pemilik toko dan ingin tanya soal paket {plan_name}",
   problems: {
     eyebrow: "Masalah yang Sering Terjadi",
     title: "Kendala operasional kasir yang sering bikin repot",
-    description: "Tiga masalah yang sering dialami pemilik kafe dan resto, dan bagaimana Neela POS menjawabnya.",
+    description: "Tiga masalah yang sering dialami pemilik kafe dan resto, dan bagaimana Neela menjawabnya.",
   },
   tour: {
     eyebrow: "Cara Kerja",
@@ -201,7 +201,7 @@ const DEFAULT_TEXT = {
   testimonials: {
     eyebrow: "Testimoni Merchant",
     title: "Cerita nyata dari pemilik kafe & resto",
-    description: "Langsung dari toko yang sudah memakai Neela POS.",
+    description: "Langsung dari toko yang sudah memakai Neela.",
   },
   faq: {
     eyebrow: "Tanya Jawab",

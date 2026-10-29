@@ -30,14 +30,14 @@ export function waLink(message: string, number?: string): string {
 // console's billing/PlanComparisonGrid — one message template so the two
 // surfaces never silently diverge.
 export function ownerPlanInquiryMessage(planName: string): string {
-  return `Halo Neela POS, saya pemilik toko dan ingin tanya soal paket ${planName}`
+  return `Halo Neela, saya pemilik toko dan ingin tanya soal paket ${planName}`
 }
 
 export const SUPPORT_HOURS = "07.00–24.00 WIB"
 
 // Brand name only — the legal entity (CV vs PT) and the official address
 // aren't settled yet; add them here once they are.
-export const COPYRIGHT_HOLDER = "NeelaPOS"
+export const COPYRIGHT_HOLDER = "Neela"
 
 // Public self-service store registration page (modules/public/store-registration).
 export const REGISTER_PATH = "/daftar"

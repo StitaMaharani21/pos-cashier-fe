@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 
 import { PrimaryCta } from "@/modules/public/landing/presentation/components/PrimaryCta"
 import { useLandingContent } from "@/modules/public/landing/application/useLandingContent"
-import { NeelaWordmark } from "@/modules/public/shared/NeelaWordmark"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 import { useIsOwnerSession } from "@/modules/public/shared/useIsOwnerSession"
 
 // Rendered inside the hero card (blue gradient), so it's transparent with
@@ -17,7 +17,7 @@ export function LandingHeader() {
     <header className="relative z-10">
       <div className="mx-auto flex h-18 max-w-[1400px] items-center justify-between gap-4 px-5 lg:px-8">
         <a href="#top" className="flex items-center gap-2 rounded outline-none focus-visible:ring-2 focus-visible:ring-white">
-          <NeelaWordmark tone="dark" />
+          <NeelaLogo variant="white" className="h-8" />
         </a>
 
         <nav className="hidden items-center gap-8 lg:flex">

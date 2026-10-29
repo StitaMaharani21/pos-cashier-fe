@@ -9,6 +9,7 @@ import { ApiError, apiClient } from "@/shared/api/client"
 import type { SingleResponse } from "@/shared/api/crud/types"
 import { useAuthStore } from "@/shared/auth/store"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 
 async function loginWithPassword(payload: LoginRequest): Promise<LoginResponse> {
   const response = await apiClient.post<SingleResponse<LoginResponse>>(
@@ -45,7 +46,7 @@ export function LoginSection() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10">
       <div className="flex w-full max-w-sm flex-col items-center">
-        <span className="mb-7 text-4xl font-extrabold tracking-tight text-primary-strong">Neela</span>
+        <NeelaLogo className="mb-7 h-12" />
 
         <div className="w-full rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
           <div className="mb-6 flex flex-col gap-1">

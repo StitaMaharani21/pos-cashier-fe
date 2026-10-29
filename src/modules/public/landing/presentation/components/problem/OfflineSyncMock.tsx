@@ -5,6 +5,7 @@ import { rp } from "@/modules/public/landing/presentation/components/problem/for
 import { Chip, MockCard, MockHead, MockTitle, type ChipTone } from "@/modules/public/landing/presentation/components/problem/mock-ui"
 import { useInView } from "@/modules/public/landing/presentation/components/problem/useInView"
 import { cn } from "@/shared/lib/utils"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 
 type Phase = "offline" | "syncing" | "synced"
 
@@ -73,10 +74,8 @@ export function OfflineSyncMock() {
       <MockCard>
         <MockHead>
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-neela-brand text-neela-body-md font-extrabold text-white">
-              N
-            </span>
-            <MockTitle title="Neela POS" subtitle="Kasir · Dewi" />
+            <NeelaLogo variant="symbol" className="h-7.5 shrink-0" />
+            <MockTitle title="Neela" subtitle="Kasir · Dewi" />
           </div>
           <span
             className={cn(

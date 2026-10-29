@@ -29,5 +29,5 @@ Things to know:
 - **Own axios client** (`infrastructure/guest-client.ts`), never `apiClient`: that one attaches the owner's token/store code and logs the owner out on 401, opens the upsell modal on 402 and toasts on 403.
 - The cart lives on the server; phones at the same table see each other's items via a 5 s poll. Totals (tax, grand total) are the server's.
 - "Nama pemesan" is sent as `ordered_by` and groups the cart; it is remembered per tab in `sessionStorage`.
-- Styling follows the Neela design: plain CSS under `.so-root` whose `--so-*` tokens alias the global `--color-neela-*` palette from `landing.css`, Plus Jakarta Sans, `NeelaWordmark`. Light only, like the landing page, and kept apart from the shadcn theme.
+- Styling follows the Neela design: plain CSS under `.so-root` whose `--so-*` tokens alias the global `--color-neela-*` palette from `landing.css`, Plus Jakarta Sans, `NeelaLogo` (`shared/ui/neela-logo`). Light only, like the landing page, and kept apart from the shadcn theme.
 - The link is built in `shared/lib/self-order-url.ts` (also used by the owner's table QR in `modules/owner/table`) — `modules/owner` and `modules/public` must not import each other.

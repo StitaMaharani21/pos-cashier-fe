@@ -68,7 +68,7 @@ export const NAV_LINKS: { href: string; label: string }[] = [
 
 export const HERO_HEADLINE = "Kasir tetap berjalan saat internet putus."
 export const HERO_SUBHEAD =
-  "Neela POS mencatat pesanan tunai dan mengelola sesi kasir walau internet mati. Begitu internet kembali, data langsung terkirim — tanpa Anda harus mengetik ulang."
+  "Neela mencatat pesanan tunai dan mengelola sesi kasir walau internet mati. Begitu internet kembali, data langsung terkirim — tanpa Anda harus mengetik ulang."
 
 export const HERO_BADGE = "Dibuat untuk kafe, resto & kedai di Indonesia"
 
@@ -149,7 +149,7 @@ export const TOUR_CASHIER: TourStep & { image: string; imageAlt: string } = {
   title: "Pilih menu, buat pesanan",
   body: "Katalog menu dan panel pesanan dalam satu layar. Kasir menambah item, mencatat catatan khusus, dan menerapkan diskon dalam hitungan detik.",
   image: orderScreen,
-  imageAlt: "Layar Buat Pesanan Neela POS: katalog menu di kiri, panel pesanan di kanan",
+  imageAlt: "Layar Buat Pesanan Neela: katalog menu di kiri, panel pesanan di kanan",
 }
 
 export const TOUR_PAYMENT: TourStep & { images: { src: string; alt: string }[] } = {
@@ -204,7 +204,7 @@ export const OFFLINE_NEEDS_INTERNET: { icon: LucideIcon; label: string }[] = [
 ]
 
 export const OFFLINE_NOTE =
-  "Neela POS tidak berjalan sepenuhnya offline — fitur di luar pesanan tunai dan sesi kasir (termasuk pengiriman laporan ke pusat data) butuh internet begitu tersedia lagi."
+  "Neela tidak berjalan sepenuhnya offline — fitur di luar pesanan tunai dan sesi kasir (termasuk pengiriman laporan ke pusat data) butuh internet begitu tersedia lagi."
 
 // ---------------------------------------------------------------------------
 // Features & supported devices (section 7)
@@ -377,7 +377,7 @@ export const EARLY_ACCESS = {
   eyebrow: "Program Pendaftar Awal",
   title: "Belum ada pelanggan yang bisa kami kutip — jadi kami jujur saja",
   description:
-    "Neela POS masih di tahap awal. Daripada testimoni yang belum ada, berikut yang Anda dapat kalau bergabung sekarang.",
+    "Neela masih di tahap awal. Daripada testimoni yang belum ada, berikut yang Anda dapat kalau bergabung sekarang.",
 } as const
 
 export const EARLY_ACCESS_PERKS: { icon: LucideIcon; title: string; body: string }[] = [

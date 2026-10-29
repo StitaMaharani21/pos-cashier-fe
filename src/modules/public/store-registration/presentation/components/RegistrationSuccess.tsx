@@ -66,7 +66,7 @@ export function RegistrationSuccess({ email, storeName, purchase }: Registration
           Kembali ke Beranda
         </Link>
         <a
-          href={waLink(`Halo Neela POS, saya baru mendaftarkan toko "${storeName}" (${email})`)}
+          href={waLink(`Halo Neela, saya baru mendaftarkan toko "${storeName}" (${email})`)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-neela-surface-container px-6 py-3 text-neela-label-md font-semibold text-neela-primary transition-colors hover:bg-neela-surface-container-high"

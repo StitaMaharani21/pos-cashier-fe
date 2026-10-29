@@ -22,7 +22,7 @@ CTAs are **session-aware** (`modules/public/shared/useIsOwnerSession`) — a log
 | Enterprise plan button | WhatsApp sales | WhatsApp sales |
 | Final banner lead | sign-up pitch | owner copy (`FINAL_CTA_LEAD`) |
 
-Sales/support buttons open WhatsApp via `waLink()` (`modules/public/shared/contact.ts` — `VITE_SALES_WA`, falling back to the number from the Stitch design; set the official one). Privacy/terms are plain text until those pages exist. The Stitch logo image was a temporary hosted URL, so the header/footer use a text wordmark (`modules/public/shared/NeelaWordmark`) until a real logo asset is added to `public/`.
+Sales/support buttons open WhatsApp via `waLink()` (`modules/public/shared/contact.ts` — `VITE_SALES_WA`, falling back to the number from the Stitch design; set the official one). Privacy/terms are plain text until those pages exist. The Stitch logo image was a temporary hosted URL, so the header/footer used a text wordmark (now replaced by the real logo) (`NeelaLogo`, `shared/ui/neela-logo`; artwork in `design/brand/`) until a real logo asset is added to `public/`.
 
 `STARTER_SOFT_DAILY_LIMIT` (`modules/public/shared/pricing.ts`, ±50 per the brief) must match `pos-kasir-be`'s `plan.StarterDailyTransactionLimit` — currently **80** there, and the backend has no "3 days in a row → upgrade notice" logic yet (the limit only feeds the owner dashboard widget; it never blocks checkout).
 

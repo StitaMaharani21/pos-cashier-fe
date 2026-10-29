@@ -22,6 +22,7 @@ import { UpsellModal } from "@/shared/access/UpsellModal"
 import { upsellStore } from "@/shared/access/upsellStore"
 import { useAuthStore } from "@/shared/auth/store"
 import { cn } from "@/shared/lib/utils"
+import { NeelaLogo } from "@/shared/ui/neela-logo"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 
 const DASHBOARD_ITEM = { to: "/app", label: "Beranda", icon: LayoutGridIcon }
@@ -331,9 +332,7 @@ export function OwnerLayout() {
       >
         <div className="flex flex-col">
           <div className="mb-6 flex items-center justify-between px-1">
-            {!collapsed && (
-              <span className="text-2xl font-extrabold tracking-tight text-primary-strong">Neela</span>
-            )}
+            {!collapsed && <NeelaLogo variant="auto" className="h-8" />}
             <button
               type="button"
               onClick={() => setCollapsed((value) => !value)}
@@ -366,8 +365,8 @@ export function OwnerLayout() {
           aria-label="Menu navigasi"
         >
           <SheetHeader className="border-b-0 pb-2">
-            <SheetTitle className="text-2xl font-extrabold tracking-tight text-primary-strong">
-              Neela
+            <SheetTitle>
+              <NeelaLogo variant="auto" className="h-8" />
             </SheetTitle>
           </SheetHeader>
 

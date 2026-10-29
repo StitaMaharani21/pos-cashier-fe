@@ -1,7 +1,7 @@
 /* Design tokens shared by every `modules/public/*` page (landing,
    self-order, store registration) — transcribed from the Stitch export's
    tailwind.config (Material 3 palette + type scale), plus the official
-   Neela POS palette added on top for the landing redesign.
+   Neela palette added on top for the landing redesign.
 
    Every token is namespaced `neela-` on purpose: the owner console's shadcn
    theme already defines `primary`/`secondary`/`background` with different
@@ -160,7 +160,7 @@
      HeroSection, ProblemSection, ProductTourSection, OfflineSection,
      FeatureSection, SelfOrderSection, PricingSection, EarlyAccessSection,
      FAQSection, FinalCtaSection, LandingFooter, SectionHeading, PrimaryCta,
-     HeroShowcase, NeelaWordmark). */
+     HeroShowcase, NeelaLogo). */
 
   /* Primary action: Blue 600 at rest, Blue 700 on hover. Blue 900 for strong
      brand emphasis (wordmark, dark-section headings). Blue 500/400 stay

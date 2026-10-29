@@ -197,7 +197,7 @@ export function StoreRegistrationPage() {
                 </div>
               </div>
               <a
-                href={waLink("Halo Neela POS, saya punya lebih dari 3 cabang dan ingin jadwalkan demo")}
+                href={waLink("Halo Neela, saya punya lebih dari 3 cabang dan ingin jadwalkan demo")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="shrink-0 rounded-xl bg-neela-surface-container px-4 py-2 text-neela-label-md font-semibold text-neela-primary transition-colors hover:bg-neela-surface-container-high"

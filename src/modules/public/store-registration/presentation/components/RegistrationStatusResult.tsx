@@ -162,7 +162,7 @@ export function RegistrationStatusResult({
           </button>
         )}
         <a
-          href={waLink(`Halo Neela POS, saya ingin menanyakan pendaftaran toko "${result.store_name}" (${email})`)}
+          href={waLink(`Halo Neela, saya ingin menanyakan pendaftaran toko "${result.store_name}" (${email})`)}
           target="_blank"
           rel="noopener noreferrer"
           className={cn(linkSecondary, "gap-2")}
