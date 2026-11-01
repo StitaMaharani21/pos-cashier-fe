@@ -25,7 +25,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
-import { Input } from "@/shared/ui/input"
+import { NumberInput } from "@/shared/ui/number-input"
 import { Textarea } from "@/shared/ui/textarea"
 
 export interface ShiftToClose {
@@ -113,7 +113,15 @@ export function CloseShiftDialog({ shift, onOpenChange }: CloseShiftDialogProps)
                 <FormItem>
                   <FormLabel>Uang Tunai di Laci (Rp)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={0} step={1} inputMode="numeric" autoFocus {...field} />
+                    <NumberInput
+                      maxDigits={12}
+                      autoFocus
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
                   {shift && (
                     <FormDescription>

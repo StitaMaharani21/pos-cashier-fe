@@ -1,9 +1,19 @@
 import type { CreateTablePayload, Table, TableQR, UpdateTablePayload } from "@/entities/table/model/table.types"
 import { apiClient } from "@/shared/api/client"
 import { createCrudService } from "@/shared/api/crud/createCrudService"
-import type { SingleResponse } from "@/shared/api/crud/types"
+import type { MasterStatus, SingleResponse } from "@/shared/api/crud/types"
 
-export const tableService = createCrudService<Table, CreateTablePayload, UpdateTablePayload>("/master/tables")
+const baseTableService = createCrudService<Table, CreateTablePayload, UpdateTablePayload>("/master/tables")
+
+// PATCH /master/tables/{id}/status needs the Pro plan (and the form is open to
+// every plan), so a table is switched on/off by resending it through the
+// regular PUT with only the status changed.
+export const tableService = {
+  ...baseTableService,
+  async setStatus(id: number | string, status: MasterStatus, row: Table): Promise<Table> {
+    return baseTableService.update(id, { number: row.number ?? "", status })
+  },
+}
 
 export const TABLE_QR_KEY = ["table-qr"] as const
 

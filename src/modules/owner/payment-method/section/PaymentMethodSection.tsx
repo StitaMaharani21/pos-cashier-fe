@@ -210,14 +210,14 @@ export function PaymentMethodSection() {
     onError: (error) => toast.error(errorMessage(error)),
   })
 
-  // Channels are never deleted (payments reference them) — "Hapus" turns one off.
+  // Channels are never deleted (payments reference them) — "Nonaktifkan" turns one off.
   const removeChannelMutation = useMutation({
     mutationFn: async (channel: PaymentChannel) => {
       if (channel.id == null) return
       await updatePaymentChannel(channel.id, channelPayload(channel, { status: "inactive" }))
     },
     onSuccess: (_, channel) => {
-      toast.success(`${channel.name} dihapus`)
+      toast.success(`${channel.name} dinonaktifkan`)
       refresh()
     },
     onError: (error) => toast.error(errorMessage(error)),

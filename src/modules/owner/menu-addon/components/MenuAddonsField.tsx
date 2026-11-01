@@ -5,9 +5,10 @@ import { describeSelection } from "@/modules/owner/menu-addon/columns/menu-addon
 import { AddonGroupForm } from "@/modules/owner/menu-addon/components/AddonGroupForm"
 import type { AddonGroupDraft } from "@/modules/owner/menu-addon/api/menu-addon.service"
 import type { MenuAddonEntry, useMenuAddons } from "@/modules/owner/menu-addon/lib/use-menu-addons"
-import { formatRupiah } from "@/shared/lib/utils"
+import { cn, formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { FormSection } from "@/shared/ui/form-section"
+import { StatusBadge } from "@/shared/ui/status-badge"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 
 export type MenuAddonsState = ReturnType<typeof useMenuAddons>
@@ -56,11 +57,17 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
           ) : (
             <div className="flex flex-col gap-3">
               {entries.map((entry) => (
-                <div key={entry.key} className="flex flex-col gap-2.5 rounded-xl border bg-card p-3.5">
+                <div
+                  key={entry.key}
+                  className={cn("flex flex-col gap-2.5 rounded-xl border bg-card p-3.5", entry.group.status === "inactive" && "bg-muted/40")}
+                >
                   <div className="flex items-start gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                        {entry.group.name}
+                        <span className={entry.group.status === "inactive" ? "text-muted-foreground" : undefined}>
+                          {entry.group.name}
+                        </span>
+                        <StatusBadge active={entry.group.status !== "inactive"} />
                         {entry.isNew && (
                           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary-strong">
                             Baru
@@ -72,7 +79,10 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
                           </span>
                         )}
                       </p>
-                      <p className="text-xs text-muted-foreground">{describeSelection(entry.group)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {entry.group.status === "inactive" && "Tidak tampil di kasir dan pesan mandiri. "}
+                        {describeSelection(entry.group)}
+                      </p>
                     </div>
                     <Button
                       type="button"
@@ -100,9 +110,17 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
                     {entry.group.options.map((option, index) => (
                       <span
                         key={`${option.id}-${index}`}
-                        className="rounded-full bg-muted px-2.5 py-1 text-xs whitespace-nowrap text-foreground"
+                        className={cn(
+                          "rounded-full bg-muted px-2.5 py-1 text-xs whitespace-nowrap text-foreground",
+                          (option.status === "inactive" || entry.group.status === "inactive") &&
+                            "text-muted-foreground line-through"
+                        )}
+                        title={option.status === "inactive" ? "Opsi nonaktif" : undefined}
                       >
                         {option.name}
+                        {(option.status === "inactive" || entry.group.status === "inactive") && (
+                          <span className="ml-1 text-[10px] font-bold uppercase no-underline">Nonaktif</span>
+                        )}
                         {option.price > 0 && (
                           <span className="text-muted-foreground"> +{formatRupiah(option.price)}</span>
                         )}
@@ -178,7 +196,6 @@ export function MenuAddonEditorSheet({ editing, onClose, onSave }: MenuAddonEdit
             key={entry?.key ?? "new"}
             row={entry?.group ?? null}
             isSubmitting={false}
-            isDeleting={false}
             showMenuPicker={false}
             submitLabel="Terapkan ke Menu"
             notice={

@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/shared/ui/form"
 import { Input } from "@/shared/ui/input"
+import { NumberInput } from "@/shared/ui/number-input"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 interface CashCountDialogProps {
@@ -78,7 +79,14 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
                 <FormItem>
                   <FormLabel>Jumlah Uang Hasil Hitung (Rp)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={0} step={1} {...field} />
+                    <NumberInput
+                      maxDigits={12}
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

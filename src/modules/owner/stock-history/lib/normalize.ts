@@ -18,6 +18,8 @@ export interface NormalizedStockMovement {
   referenceType: string
   referenceId?: number
   notes?: string
+  // Bahan baku only: price per unit at the time (see IngredientStockMovement).
+  unitCost?: number
   createdByName?: string
   createdAt: string
 }
@@ -35,6 +37,7 @@ function normalize(m: IngredientStockMovement | MenuStockMovement): NormalizedSt
     referenceType: m.reference_type ?? "",
     referenceId: m.reference_id,
     notes: m.notes,
+    unitCost: (m as IngredientStockMovement).unit_cost,
     createdByName: m.created_by_name,
     createdAt: m.created_at ?? "",
   }

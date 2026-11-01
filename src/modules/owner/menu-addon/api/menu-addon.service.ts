@@ -9,7 +9,13 @@ import type { Menu } from "@/entities/menu/model/menu.types"
 import { listMenus } from "@/modules/owner/menu/api/menu.service"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { createCrudService } from "@/shared/api/crud/createCrudService"
-import { CrudServiceError, type CrudService, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import {
+  CrudServiceError,
+  type CrudService,
+  type PaginatedResponse,
+  type SingleResponse,
+  type UpdateStatusPayload,
+} from "@/shared/api/crud/types"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 const RESOURCE = "/master/addon-groups"
@@ -47,7 +53,7 @@ function toServiceError(error: unknown): CrudServiceError {
   return new CrudServiceError("UNKNOWN", friendlyErrorMessage(error))
 }
 
-// Plain JSON list/delete come from the generic factory; create and update
+// Plain JSON list/setStatus come from the generic factory; create and update
 // fan out to the option and menu endpoints, so they're written out below.
 const base = createCrudService<AddonGroup, AddonGroupDraft, AddonGroupDraft>(RESOURCE)
 
@@ -123,11 +129,14 @@ async function update(id: number | string, draft: AddonGroupDraft): Promise<Addo
     const response = await apiClient.put<SingleResponse<AddonGroup>>(`${RESOURCE}/${groupId}`, body)
     const group = response.data.data
 
-    // Options: drop the removed ones first, then update/add in display order.
+    // Options are never deleted: one that disappeared from the form is
+    // switched off instead, then the rest are updated/added in display order.
     const keptIds = new Set(draft.options.flatMap((option) => (option.id ? [option.id] : [])))
     for (const option of original?.options ?? []) {
-      if (!keptIds.has(option.id)) {
-        await apiClient.delete(`${RESOURCE}/${groupId}/options/${option.id}`)
+      if (!keptIds.has(option.id) && option.status !== "inactive") {
+        await apiClient.patch(`${RESOURCE}/${groupId}/options/${option.id}/status`, {
+          status: "inactive",
+        } satisfies UpdateStatusPayload)
       }
     }
     for (const [index, option] of draft.options.entries()) {

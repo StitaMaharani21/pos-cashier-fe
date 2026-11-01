@@ -1,6 +1,19 @@
+import type { MasterStatus } from "@/shared/api/crud/types"
 import type { components, paths } from "@/shared/api/generated/owner-schema"
 
-export type Menu = components["schemas"]["dto.MenuResponse"]
+export type Menu = components["schemas"]["dto.MenuResponse"] & {
+  // Added after the generated schema (the generator can't be re-run — see
+  // ARCHITECTURE.md). `status` is the menu's own switch; `effective_active` is
+  // false as well when its category is inactive (`inactive_reason` says why).
+  // Inactive menus are hidden from the cashier app and self-order, unlike
+  // `is_available`, which only marks a menu sold out.
+  status?: MasterStatus
+  effective_active?: boolean
+  inactive_reason?: "self" | "category"
+  // Harga pokok per porsi typed in by the owner (menus without a recipe). Owner
+  // only; the cashier never receives it.
+  cost_price?: number
+}
 export type MenuStock = components["schemas"]["dto.MenuStockResponse"]
 export type MenuDiscount = components["schemas"]["dto.MenuDiscountResponse"]
 // Owner dashboard "Stok Hampir Habis" widget (Pro plan only).

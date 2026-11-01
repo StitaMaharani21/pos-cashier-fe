@@ -106,7 +106,7 @@ export function useMenuAddons(menuId: number | undefined) {
 
   const available = useMemo(() => {
     const attached = new Set(entries.map((entry) => entry.key))
-    return groups.filter((group) => !attached.has(`g${group.id}`))
+    return groups.filter((group) => group.status !== "inactive" && !attached.has(`g${group.id}`))
   }, [groups, entries])
 
   const addExisting = useCallback(

@@ -59,6 +59,7 @@ export const voucherColumns: CrudColumn<Voucher>[] = [
     key: "status",
     header: "Status",
     className: "w-32",
+    // Replaced by CrudSection's Status toggle for roles that can edit.
     render: (row) => (
       <div className="flex flex-col items-start gap-1">
         <StatusBadge active={row.status === "active" && !isExpired(row)} />

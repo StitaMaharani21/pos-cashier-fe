@@ -190,8 +190,10 @@ export function MethodDetailPanel({
           <ConfirmDialog
             open={removing != null}
             onOpenChange={(open) => !open && setRemoving(null)}
-            title={`Hapus ${removing?.name ?? ""}?`}
-            description={`${removing?.name ?? "Akun ini"} tidak akan muncul lagi di kasir dan aplikasi pelanggan. Riwayat pembayaran tetap tersimpan.`}
+            title={`Nonaktifkan ${removing?.name ?? ""}?`}
+            description={`${removing?.name ?? "Akun ini"} tidak akan muncul lagi di kasir dan aplikasi pelanggan. Datanya dan riwayat pembayaran tetap tersimpan.`}
+            confirmLabel="Nonaktifkan"
+            pendingLabel="Menonaktifkan..."
             isPending={isRemovingChannel}
             onConfirm={() => {
               if (!removing) return

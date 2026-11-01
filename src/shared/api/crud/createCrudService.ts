@@ -1,7 +1,10 @@
+import { isAxiosError } from "axios"
+
 import { ApiError, apiClient } from "@/shared/api/client"
 import {
   CrudServiceError,
   type CrudService,
+  type UpdateStatusPayload,
   type PaginatedResponse,
   type SingleResponse,
 } from "@/shared/api/crud/types"
@@ -53,9 +56,14 @@ export function createCrudService<T, TCreate = Partial<T>, TUpdate = Partial<T>>
       }
     },
 
-    async remove(id) {
+    async setStatus(id, status) {
       try {
-        await apiClient.delete(`${resourcePath}/${id}`)
+        const payload: UpdateStatusPayload = { status }
+        const response = await apiClient.patch<SingleResponse<T>>(
+          `${resourcePath}/${id}/status`,
+          payload
+        )
+        return response.data.data
       } catch (error) {
         throw toCrudServiceError(error)
       }
@@ -66,6 +74,10 @@ export function createCrudService<T, TCreate = Partial<T>, TUpdate = Partial<T>>
 function toCrudServiceError(error: unknown): CrudServiceError {
   if (error instanceof ApiError) {
     return new CrudServiceError(error.code, friendlyErrorMessage(error))
+  }
+  // The client interceptor already opened the upsell modal for this one.
+  if (isAxiosError(error) && error.response?.status === 402) {
+    return new CrudServiceError("FEATURE_NOT_IN_PLAN", "Fitur ini belum aktif di paket toko Anda.")
   }
   return new CrudServiceError(
     "UNKNOWN",

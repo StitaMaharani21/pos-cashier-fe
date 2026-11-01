@@ -22,7 +22,9 @@ export const routeAccess: Record<string, AccessRule> = {
   "discount-auto": { feature: "discount", module: "discount" },
   "financial-report": { feature: "reports", module: "report" },
   "cash-report": { feature: "reports", module: "report" },
-  "stock-history": { feature: "inventory_full", module: "inventory" },
+  // Riwayat Stok: the Menu tab (stock per menu) works on every plan, so the page
+  // is gated like the menu form; the Bahan Baku tab checks inventory_full itself.
+  "stock-history": { feature: "pos", module: "menu" },
   "stock-reconciliation": { feature: "inventory_full", module: "inventory" },
   profile: {},
   // Header avatar menu only (not in the sidebar) — any logged-in owner.

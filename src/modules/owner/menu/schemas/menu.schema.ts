@@ -19,11 +19,12 @@ export const menuSchema = z
     isAvailable: z.boolean(),
     isFeatured: z.boolean(),
     stockDeductionMethod: z.enum(["none", "by_menu", "by_ingredient"]),
-    // Digits only. Required for a NEW by_menu menu (MenuForm checks that on
-    // create); on edit, empty keeps the stock as it is — a menu whose stock
-    // was never set, or went negative from overselling, must still be
-    // savable.
-    stockQty: z.string().optional(),
+    // Harga pokok per porsi/pcs, only for a menu without a recipe (the recipe
+    // costs the rest). Empty = not known / unchanged.
+    costPrice: z
+      .string()
+      .optional()
+      .refine((value) => !value || (Number.isFinite(Number(value)) && Number(value) >= 0), "Isi harga pokok dengan angka 0 atau lebih"),
   })
 
 export type MenuFormValues = z.infer<typeof menuSchema>

@@ -2,7 +2,15 @@
 
 Bill-of-materials linking a `by_ingredient` menu to the `Ingredient`s it consumes per unit sold (e.g. Cafe Latte → coffee beans + milk). Backed by `pos-kasir-be`'s `internal/master/recipe`: plain JSON CRUD at `/master/recipes` (`GET/POST/PUT/DELETE`, `:id` variants), filterable by `?menu_id=`.
 
-Fields: `menu_id`, `ingredient_id`, `quantity` (qty of ingredient consumed per 1 unit of menu sold). `PUT` only changes `quantity` — `menu_id`/`ingredient_id` are immutable; delete + recreate to repoint a row to a different ingredient.
+Fields: `menu_id`, `ingredient_id`, `quantity` (qty of ingredient consumed per 1 unit of menu sold) and an optional `addon_option_id` (see below). `PUT` only changes `quantity` — `menu_id`/`ingredient_id` are immutable; delete + recreate to repoint a row to a different ingredient.
+
+## Recipe per serving (Hot / Ice)
+
+A menu can have different recipes per serving. A line with `addon_option_id = null` applies to every order of the menu; a line with an option (e.g. "Ice" of the addon group "Penyajian") applies **only when that option is ordered** (`internal/transaction/orderstock` reads each order item's chosen addon options). So the Hot cup never consumes ice cubes. There is no separate variant concept — the serving is the addon option the cashier/customer already picks, which keeps carts, orders, offline sync and the mobile app unchanged.
+
+`RecipeManager` shows a block "Semua penyajian" plus one "Khusus <opsi>" block per active option of the addon groups attached (and saved) on the menu; "+ Tambah resep khusus penyajian" opens a block for an option that has no lines yet. Each block has its own ingredient picker (the same ingredient may appear once per block, e.g. coffee in "Semua penyajian" and ice only in "Khusus Ice"). Use a required, single-choice group (`max_select = 1`) for the serving so one item never matches two serving blocks. Lines tied to an option that is no longer attached/active are kept visible (marked "tidak aktif") so they can be removed, but never apply. Inactive ingredients are not offered for new lines (the backend rejects them with `INGREDIENT_INACTIVE`).
+
+Load errors are no longer hidden: a failed recipe/ingredient load shows an error with "Coba lagi", and a 402 (store without Inventori) shows a plan message. Pressing Enter in the edit-quantity input saves that line instead of submitting the whole menu form.
 
 ## Unit conversion (FE-only)
 
@@ -10,6 +18,6 @@ Fields: `menu_id`, `ingredient_id`, `quantity` (qty of ingredient consumed per 1
 
 ## Deliberately embedded-only, no standalone route
 
-Recipes are always menu-scoped — the backend's own primary access pattern is `?menu_id=`, and there's no cross-menu "all recipes" use case. Rather than a separate master page with a menu picker (which would just re-derive context the Menu edit screen already has), `components/RecipeManager.tsx` is embedded directly in `modules/owner/menu/components/MenuForm.tsx`, shown only when editing an existing menu with `stock_deduction_method === "by_ingredient"`.
+Recipes are always menu-scoped — the backend's own primary access pattern is `?menu_id=`, and there's no cross-menu "all recipes" use case. Rather than a separate master page with a menu picker (which would just re-derive context the Menu edit screen already has), `components/RecipeManager.tsx` is embedded directly in `modules/owner/menu/components/MenuForm.tsx`, shown only when editing an existing menu with `stock_deduction_method === "by_ingredient"` on a plan with Inventori.
 
-Sublayers: `api/` (service), `schemas/` (zod, for the "add ingredient to recipe" row), `components/` (`RecipeManager.tsx`).
+Sublayers: `api/` (service, `listMenuRecipes`, `listAllIngredients`), `schemas/` (zod, for the "add ingredient to recipe" row), `components/` (`RecipeManager.tsx` — loads data and lays out the blocks, `RecipeSection.tsx` — one block of lines + its add form).

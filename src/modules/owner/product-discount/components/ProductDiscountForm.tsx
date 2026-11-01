@@ -54,8 +54,6 @@ interface ProductDiscountFormProps {
   isSubmitting: boolean
   onSubmit: (payload: CreateProductDiscountPayload) => void
   onCancel: () => void
-  onDelete?: () => void
-  isDeleting: boolean
 }
 
 // Chips shown before collapsing the rest into "+N lainnya".
@@ -70,14 +68,7 @@ interface MenuChip {
 // The "Tambah Diskon Otomatis" drawer: Informasi Diskon, Nilai Diskon,
 // Periode Berlaku (+ Atur hari & jam), Menu yang Kena Diskon (picked in
 // MenuPickerDialog), a summary, then Batal / Simpan Diskon.
-export function ProductDiscountForm({
-  row,
-  isSubmitting,
-  onSubmit,
-  onCancel,
-  onDelete,
-  isDeleting,
-}: ProductDiscountFormProps) {
+export function ProductDiscountForm({ row, isSubmitting, onSubmit, onCancel }: ProductDiscountFormProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const hasSchedule = (row?.active_days?.length ?? 0) > 0 || !!row?.start_time
   const [scheduleOpen, setScheduleOpen] = useState(hasSchedule)
@@ -430,8 +421,6 @@ export function ProductDiscountForm({
           submitLabel="Simpan Diskon"
           isSubmitting={isSubmitting}
           onCancel={onCancel}
-          onDelete={onDelete}
-          isDeleting={isDeleting}
         />
       </form>
 

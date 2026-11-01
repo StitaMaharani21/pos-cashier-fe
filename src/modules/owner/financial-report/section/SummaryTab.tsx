@@ -14,6 +14,7 @@ import { DailyBreakdownTable } from "@/modules/owner/financial-report/components
 import { DeltaFooter } from "@/modules/owner/financial-report/components/DeltaFooter"
 import { KpiSkeletonGrid } from "@/modules/owner/financial-report/components/KpiSkeletonGrid"
 import { PaymentChannelsCard } from "@/modules/owner/financial-report/components/PaymentChannelsCard"
+import { ProfitCard } from "@/modules/owner/financial-report/components/ProfitCard"
 import { ReportStateCard } from "@/modules/owner/financial-report/components/ReportStateCard"
 import { useDiscountImpact, useSalesSummary } from "@/modules/owner/financial-report/financial-report.queries"
 import { formatRupiah } from "@/shared/lib/utils"
@@ -156,6 +157,7 @@ export function SummaryTab({
             />
           </div>
 
+          <ProfitCard from={from} to={to} />
           <PaymentChannelsCard from={from} to={to} />
           <DailyBreakdownTable from={from} to={to} />
         </>

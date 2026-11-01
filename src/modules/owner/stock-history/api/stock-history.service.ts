@@ -1,3 +1,4 @@
+import type { AdjustIngredientStockPayload } from "@/entities/ingredient/model/ingredient.types"
 import type {
   AddIngredientStockPayload,
   AddMenuStockPayload,
@@ -72,10 +73,32 @@ function toServiceError(error: unknown): CrudServiceError {
 
 // POST /master/ingredients/{id}/stock-in — goods received. Recorded as
 // "Stok masuk" (IN / PURCHASE); a purchase_price also updates the
-// ingredient's harga beli.
+// ingredient's harga beli, recalculates its average cost (HPP) and lands in
+// the price history.
 export async function addIngredientStock(id: number, payload: AddIngredientStockPayload): Promise<void> {
   try {
     await apiClient.post(`/master/ingredients/${id}/stock-in`, payload)
+  } catch (error) {
+    throw toServiceError(error)
+  }
+}
+
+// PATCH /master/ingredients/{id}/stock — "Koreksi" for a bahan baku: a signed,
+// non-zero delta with a required reason, recorded as a "Koreksi stok".
+export async function adjustIngredientStock(id: number, payload: AdjustIngredientStockPayload): Promise<void> {
+  try {
+    await apiClient.patch(`/master/ingredients/${id}/stock`, payload)
+  } catch (error) {
+    throw toServiceError(error)
+  }
+}
+
+// PATCH /master/menus/{id}/stock — "Koreksi" for a menu tracked per item: a
+// signed, non-zero delta with a required reason, recorded as a "Koreksi stok".
+// Menus that ran out become available again once restocked.
+export async function adjustMenuStock(id: number, payload: { delta: number; keterangan: string }): Promise<void> {
+  try {
+    await apiClient.patch(`/master/menus/${id}/stock`, payload)
   } catch (error) {
     throw toServiceError(error)
   }

@@ -1,12 +1,12 @@
-import type {
-  CreateMenuPayload,
-  Menu,
-  MenuStock,
-  UpdateMenuPayload,
-  UpsertMenuStockPayload,
-} from "@/entities/menu/model/menu.types"
+import type { CreateMenuPayload, Menu, UpdateMenuPayload } from "@/entities/menu/model/menu.types"
 import { ApiError, apiClient } from "@/shared/api/client"
-import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import {
+  CrudServiceError,
+  type MasterStatus,
+  type PaginatedResponse,
+  type SingleResponse,
+  type UpdateStatusPayload,
+} from "@/shared/api/crud/types"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 // Hand-written, not `createCrudService` — POST/PUT are multipart/form-data
@@ -16,16 +16,20 @@ const RESOURCE = "/master/menus"
 
 // openapi-typescript renders the generated `image` field as `string`
 // (format: binary) — correct for the wire format, useless for a browser
-// File input. Override just that field with the real runtime type. `stock_qty`
-// isn't part of the multipart body at all — it's set via a separate
-// `PUT /master/menus/:id/stock` call, sequenced below (`by_menu` mode only).
+// File input. Override just that field with the real runtime type.
+//
+// There is no stock on create or update: a menu's stock starts at 0 and is only
+// ever changed from Riwayat Stok (Ubah Stok). The form used to resend the stock
+// it had loaded, which overwrote sales made since and wrote a bogus adjustment
+// when only the price changed. `cost_price` (harga pokok per porsi, for a menu
+// without a recipe) is added after the generated schema; omitted = unchanged.
 export type CreateMenuFormPayload = Omit<CreateMenuPayload, "image"> & {
   image: File
-  stock_qty?: number
+  cost_price?: number
 }
 export type UpdateMenuFormPayload = Omit<UpdateMenuPayload, "image"> & {
   image?: File | null
-  stock_qty?: number
+  cost_price?: number
 }
 
 export interface ListMenusParams {
@@ -59,6 +63,7 @@ function toFormData(payload: CreateMenuFormPayload | UpdateMenuFormPayload): For
   formData.append("is_available", String(payload.is_available ?? false))
   formData.append("is_featured", String(payload.is_featured ?? false))
   formData.append("stock_deduction_method", payload.stock_deduction_method ?? "none")
+  if (payload.cost_price != null) formData.append("cost_price", String(payload.cost_price))
   if (payload.image) formData.append("image", payload.image)
   return formData
 }
@@ -119,7 +124,7 @@ export async function setMenuAvailability(id: number, isAvailable: boolean): Pro
 
 // The star in the list. There's no dedicated endpoint, so this resends the
 // row's own fields through the regular PUT (no image = keep the current
-// one; no stock_qty = stock untouched) with is_featured flipped.
+// one; no cost_price = unchanged) with is_featured flipped.
 export async function setMenuFeatured(menu: Menu, isFeatured: boolean): Promise<Menu> {
   return updateMenu(menu.id ?? 0, {
     category_id: menu.category_id ?? 0,
@@ -134,29 +139,10 @@ export async function setMenuFeatured(menu: Menu, isFeatured: boolean): Promise<
   } as UpdateMenuFormPayload)
 }
 
-// stock_qty lives on a separate endpoint (`dto.UpsertStockRequest` only has
-// this one field — no low_stock_threshold, which the backend doesn't expose
-// for editing at all).
-export async function upsertMenuStock(menuId: number, stockQty: number): Promise<MenuStock> {
-  try {
-    const response = await apiClient.put<SingleResponse<MenuStock>>(`${RESOURCE}/${menuId}/stock`, {
-      stock_qty: stockQty,
-    } satisfies UpsertMenuStockPayload)
-    return response.data.data
-  } catch (error) {
-    throw toServiceError(error)
-  }
-}
-
 export async function createMenu(payload: CreateMenuFormPayload): Promise<Menu> {
   try {
     const response = await apiClient.post<SingleResponse<Menu>>(RESOURCE, toFormData(payload))
-    let menu = response.data.data
-    if (payload.stock_deduction_method === "by_menu" && payload.stock_qty != null && menu.id != null) {
-      await upsertMenuStock(menu.id, payload.stock_qty)
-      menu = { ...menu, stock_qty: payload.stock_qty }
-    }
-    return menu
+    return response.data.data
   } catch (error) {
     throw toServiceError(error)
   }
@@ -168,20 +154,20 @@ export async function updateMenu(id: number, payload: UpdateMenuFormPayload): Pr
       `${RESOURCE}/${id}`,
       toFormData(payload)
     )
-    let menu = response.data.data
-    if (payload.stock_deduction_method === "by_menu" && payload.stock_qty != null) {
-      await upsertMenuStock(id, payload.stock_qty)
-      menu = { ...menu, stock_qty: payload.stock_qty }
-    }
-    return menu
+    return response.data.data
   } catch (error) {
     throw toServiceError(error)
   }
 }
 
-export async function deleteMenu(id: number): Promise<void> {
+// Menus are never deleted, only switched off. Unlike is_available ("sold out",
+// still shown greyed out in the cashier app) an inactive menu is hidden there.
+export async function setMenuStatus(id: number, status: MasterStatus): Promise<Menu> {
   try {
-    await apiClient.delete(`${RESOURCE}/${id}`)
+    const response = await apiClient.patch<SingleResponse<Menu>>(`${RESOURCE}/${id}/status`, {
+      status,
+    } satisfies UpdateStatusPayload)
+    return response.data.data
   } catch (error) {
     throw toServiceError(error)
   }

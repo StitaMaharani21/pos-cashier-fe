@@ -1,19 +1,21 @@
 # modules/owner/ingredient
 
-Master data for raw materials ("Bahan Baku") consumed by `by_ingredient` menus — e.g. coffee beans, milk. Backed by `pos-kasir-be`'s `internal/master/ingredient`: plain JSON CRUD at `/master/ingredients` (`GET/POST/PUT/DELETE`, `:id` variants, paginated with `page`/`per_page`/`search`).
+Master data for raw materials ("Bahan Baku") consumed by `by_ingredient` menus — e.g. coffee beans, milk. Backed by `pos-kasir-be`'s `internal/master/ingredient`: plain JSON CRUD at `/master/ingredients` (`GET/POST/PUT`, `PATCH :id/status`, paginated with `page`/`per_page`/`search`).
 
-Fields: `name`, `unit` (free text — no unit/UOM enum on the backend), `stock`, `min_stock`, `purchase_price`.
+Fields: `name`, `unit` (free text — no unit/UOM enum on the backend), `stock` (read-only here), `min_stock`, `purchase_price` (harga beli terakhir), `average_cost` (harga pokok rata-rata, owner only — the HPP basis).
 
 Hand-wired like `modules/owner/menu` (not the generic `CrudSection`) because the list needs pagination + debounced search, which `CrudSection` doesn't model — but uses a centered `CrudDialogFrame` (like `menu-category`) instead of a `Sheet`, since there's no image upload and the form is short.
 
-## Stock adjustment
+## Stock and harga beli are not edited here
 
-`PATCH /master/ingredients/{id}/stock` (`dto.AdjustIngredientStockRequest{delta, keterangan}`, both required) is the real stock-adjustment endpoint — `api/ingredient.service.ts`'s `adjustIngredientStock(id, payload)` calls it directly. `delta` can be either sign (positive for goods received, negative for a stock-opname correction); the backend atomically updates `mtr_ingredient.stok` and logs a `trx_stock_movement` row (type `ADJUSTMENT`, `reference_type` `MANUAL`) in the same call — there's no separate audit-log step on the frontend side. The "Sesuaikan Stok" row action/dialog (`components/AdjustIngredientStockDialog.tsx`) is for corrections (*Penyesuaian*). Goods received go through the "Tambah stok" row action (`modules/owner/stock-history/components/AddStockDialog.tsx` → `POST /master/ingredients/{id}/stock-in`, recorded as *Stok masuk*, optionally updating the harga beli); a new ingredient's initial stock is recorded as "Stok awal". the full edit form (`IngredientForm.tsx`) still lets you overwrite `stock` directly via `PUT /master/ingredients/:id`, which does **not** get logged — prefer "Sesuaikan Stok" whenever the change needs a reason on record.
+Stock changes in one place only: **Riwayat Stok → Ubah Stok** (`modules/owner/stock-history`, *Stok Masuk* for goods received, *Koreksi* for a correction with a reason). This module only shows the stock and its row action *Kelola stok* opens Riwayat Stok. The form has no "Stok Awal": a new ingredient starts at 0.
+
+The **harga beli** is set once at creation ("Harga Beli Awal", which is also the starting average cost) and afterwards changes only through *Stok Masuk* — so the average cost (HPP) and the price history follow real purchases. On edit it is shown read-only (with the average cost); the backend ignores `purchase_price` on `PUT`. The *Riwayat harga beli* row action opens `modules/owner/price-history`.
 
 Stock is allowed to go negative by design (the payment deduction logic never blocks on insufficient stock) — don't clamp displayed/validated stock at 0.
 
 For this ingredient's movement history or a store-wide drift check, see `modules/owner/stock-history` and `modules/owner/stock-reconciliation` — both call the audit-trail/reconciliation endpoints this module doesn't surface itself.
 
-List page: the shared table pattern (`shared/ui/README.md` "Tabel") with server-side search and paging (10 per page). "Aksi": Tambah stok, Sesuaikan stok, Edit, Hapus (with confirmation). A stock at or below its minimum shows a "Menipis" badge.
+List page: the shared table pattern (`shared/ui/README.md` "Tabel") with server-side search and paging (10 per page). "Aksi": Kelola stok (→ Riwayat Stok), Riwayat harga beli, Edit; the Status column is an Aktif / Nonaktif toggle. Ingredients are never deleted; an inactive one is no longer offered for recipes or new stock, while menus whose recipe already uses it stay active. A stock at or below its minimum shows a "Menipis" badge.
 
-Sublayers: `api/` (service + pagination + stock-adjustment call), `components/` (form + adjust-stock dialog), `schemas/` (zod), `columns/` (`CrudColumn<Ingredient>[]`), `section/` (`IngredientSection.tsx`).
+Sublayers: `api/` (service + pagination), `components/` (form), `schemas/` (zod), `columns/` (`CrudColumn<Ingredient>[]`), `section/` (`IngredientSection.tsx`).

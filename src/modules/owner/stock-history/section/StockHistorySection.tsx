@@ -7,7 +7,7 @@ import { listIngredients } from "@/modules/owner/ingredient/api/ingredient.servi
 import { listMenus } from "@/modules/owner/menu/api/menu.service"
 import { MENUS_KEY } from "@/modules/owner/menu/constants/menu-display"
 import { stockItemColumns } from "@/modules/owner/stock-history/columns/stock-item.columns"
-import { AddStockDialog } from "@/modules/owner/stock-history/components/AddStockDialog"
+import { StockChangeDialog } from "@/modules/owner/stock-history/components/StockChangeDialog"
 import { StockMovementsSheet } from "@/modules/owner/stock-history/components/StockMovementsSheet"
 import {
   ingredientToStockItem,
@@ -36,13 +36,16 @@ const SOURCE_FOR: Record<Tab, StockSource> = { "bahan-baku": "ingredient", menu:
 // opens that item's stock turnover (StockMovementsSheet) or adds stock.
 export function StockHistorySection() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab: Tab = searchParams.get("tab") === "menu" ? "menu" : "bahan-baku"
+  const { can, hasFeature } = useCapabilities()
+  // Stock per menu is available on every plan; bahan baku stock needs Inventori
+  // (Pro, or Starter + addon), so that tab only exists for those stores.
+  const ingredientAccess = hasFeature("inventory_full") && can("inventory", "view")
+  const tab: Tab = searchParams.get("tab") === "menu" || !ingredientAccess ? "menu" : "bahan-baku"
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [historyItem, setHistoryItem] = useState<StockItem | null>(null)
-  const [addStockItem, setAddStockItem] = useState<StockItem | null>(null)
-  const { can } = useCapabilities()
+  const [changeStockItem, setChangeStockItem] = useState<StockItem | null>(null)
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search), 400)
@@ -58,7 +61,7 @@ export function StockHistorySection() {
   const ingredientsQuery = useQuery({
     queryKey: [...INGREDIENTS_KEY, "stock-history", page, debouncedSearch],
     queryFn: () => listIngredients({ page, perPage: PER_PAGE, search: debouncedSearch }),
-    enabled: tab === "bahan-baku",
+    enabled: tab === "bahan-baku" && ingredientAccess,
   })
   const menusQuery = useQuery({
     queryKey: [...MENUS_KEY, "stock-history", page, debouncedSearch],
@@ -70,6 +73,7 @@ export function StockHistorySection() {
   const { data: ingredientTotal } = useQuery({
     queryKey: [...INGREDIENTS_KEY, "stock-history", "total"],
     queryFn: () => listIngredients({ page: 1, perPage: 1 }).then((result) => result.total),
+    enabled: ingredientAccess,
   })
   const { data: menuTotal } = useQuery({
     queryKey: [...MENUS_KEY, "stock-history", "total"],
@@ -85,13 +89,16 @@ export function StockHistorySection() {
   const totalPages = active.data?.totalPages ?? 0
 
   const tabs: PageTab<Tab>[] = [
-    { id: "bahan-baku", label: "Bahan Baku", count: ingredientTotal },
+    ...(ingredientAccess ? [{ id: "bahan-baku" as const, label: "Bahan Baku", count: ingredientTotal }] : []),
     { id: "menu", label: "Menu", count: menuTotal },
   ]
 
+  // Menu stock is gated by the menu module (every plan); bahan baku by inventory.
+  const canEditStock = tab === "menu" ? can("menu", "edit") : can("inventory", "edit")
+
   const columns = stockItemColumns({
     onViewHistory: setHistoryItem,
-    onAddStock: can("inventory", "edit") ? setAddStockItem : undefined,
+    onChangeStock: canEditStock ? setChangeStockItem : undefined,
   })
   const source = SOURCE_FOR[tab]
 
@@ -99,7 +106,7 @@ export function StockHistorySection() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Riwayat Stok"
-        description="Daftar bahan baku dan menu yang stoknya Anda catat. Buka riwayat untuk melihat stok masuk dan keluar."
+        description="Satu-satunya tempat mengubah stok bahan baku dan menu: gunakan Ubah Stok untuk barang masuk atau koreksi. Buka riwayat untuk melihat stok masuk dan keluar."
       />
 
       <PageTabs
@@ -154,9 +161,9 @@ export function StockHistorySection() {
       <StockMovementsSheet
         item={historyItem}
         onOpenChange={(open) => !open && setHistoryItem(null)}
-        onAddStock={can("inventory", "edit") ? setAddStockItem : undefined}
+        onChangeStock={canEditStock ? setChangeStockItem : undefined}
       />
-      <AddStockDialog item={addStockItem} onOpenChange={(open) => !open && setAddStockItem(null)} />
+      <StockChangeDialog item={changeStockItem} onOpenChange={(open) => !open && setChangeStockItem(null)} />
     </div>
   )
 }

@@ -94,7 +94,7 @@ export function LowStockCard() {
       </div>
 
       <Button variant="outline" className="w-full" asChild>
-        <Link to="/app/menu?tab=menu">
+        <Link to="/app/stock-history?tab=menu">
           <PackageIcon />
           Kelola Stok
         </Link>

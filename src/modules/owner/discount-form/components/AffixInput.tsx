@@ -1,11 +1,11 @@
 import type { ReactNode, Ref } from "react"
 
+import { useNumberField } from "@/shared/hooks/useNumberField"
 import { cn } from "@/shared/lib/utils"
 
-const thousands = new Intl.NumberFormat("id-ID")
-
-// Digits-only text input with an optional "Rp" prefix / "%" suffix box.
-// The value stays plain digits ("10000"); `grouped` shows it as "10.000".
+// Number input with an optional "Rp" prefix / "%" suffix box. The value stays a
+// plain number string ("10000"); `grouped` shows it as "10.000" (the shared
+// useNumberField behaviour: caret kept, paste understood, decimals optional).
 export function AffixInput({
   value,
   onChange,
@@ -17,6 +17,8 @@ export function AffixInput({
   grouped = false,
   placeholder = "0",
   maxLength,
+  decimals,
+  allowNegative,
   disabled,
   invalid,
   id,
@@ -30,11 +32,25 @@ export function AffixInput({
   suffix?: ReactNode
   grouped?: boolean
   placeholder?: string
+  // Max digits of the whole part (not the length of the displayed text).
   maxLength?: number
+  // Digits allowed after the decimal comma; default whole numbers.
+  decimals?: number
+  allowNegative?: boolean
   disabled?: boolean
   invalid?: boolean
   id?: string
 }) {
+  const { inputProps } = useNumberField({
+    value,
+    onValueChange: onChange,
+    onBlur: () => onBlur?.(),
+    decimals,
+    allowNegative,
+    maxDigits: maxLength,
+    group: grouped,
+  })
+
   return (
     <div
       className={cn(
@@ -48,19 +64,13 @@ export function AffixInput({
       )}
       <input
         id={id}
-        inputMode="numeric"
+        {...inputProps}
         placeholder={placeholder}
         className="w-full min-w-0 bg-transparent px-3 text-sm outline-none"
         name={name}
         ref={inputRef}
-        onBlur={onBlur}
         disabled={disabled}
         aria-invalid={invalid || undefined}
-        value={grouped && value ? thousands.format(Number(value)) : value}
-        onChange={(event) => {
-          const digits = event.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "")
-          onChange(maxLength ? digits.slice(0, maxLength) : digits)
-        }}
       />
       {suffix && (
         <span className="flex items-center border-l bg-muted px-3.5 text-sm text-muted-foreground">{suffix}</span>

@@ -16,6 +16,8 @@ export interface StockItem {
   // Bahan baku only: the "Menipis" threshold and the current purchase price.
   minStock?: number
   purchasePrice?: number
+  // Weighted-average cost per unit (HPP basis); owner only.
+  averageCost?: number
 }
 
 export function ingredientToStockItem(row: Ingredient): StockItem {
@@ -27,6 +29,7 @@ export function ingredientToStockItem(row: Ingredient): StockItem {
     stock: row.stock ?? 0,
     minStock: row.min_stock,
     purchasePrice: row.purchase_price,
+    averageCost: row.average_cost,
   }
 }
 

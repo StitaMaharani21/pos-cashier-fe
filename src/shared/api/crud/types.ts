@@ -37,11 +37,21 @@ export interface CrudColumn<T> {
   className?: string
 }
 
+// Master data is never deleted, only switched off. Matches pos-kasir-be's
+// masterstatus package (PATCH …/{id}/status body).
+export type MasterStatus = "active" | "inactive"
+
+export interface UpdateStatusPayload {
+  status: MasterStatus
+}
+
 export interface CrudService<T, TCreate = Partial<T>, TUpdate = Partial<T>> {
   // Never throws — logs and returns [] on failure, matching oasis's contract
   // (list failures degrade to an empty state, not a thrown error).
   list: (params?: Record<string, unknown>) => Promise<T[]>
   create: (payload: TCreate) => Promise<T>
   update: (id: number | string, payload: TUpdate) => Promise<T>
-  remove: (id: number | string) => Promise<void>
+  // Activate / deactivate instead of deleting. `row` is the row being toggled,
+  // for resources that have to resend it (a PUT) rather than PATCH the status.
+  setStatus: (id: number | string, status: MasterStatus, row: T) => Promise<T>
 }

@@ -1,17 +1,17 @@
 import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ClockIcon, EyeIcon, PencilIcon, PlusIcon, StarIcon, StarOffIcon, UtensilsCrossedIcon } from "lucide-react"
+import { ClockIcon, EyeIcon, HistoryIcon, PencilIcon, PlusIcon, StarIcon, StarOffIcon, UtensilsCrossedIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import type { Menu } from "@/entities/menu/model/menu.types"
 import {
   createMenu,
-  deleteMenu,
   listMenus,
   reorderMenus,
   setMenuAvailability,
   setMenuFeatured,
+  setMenuStatus,
   updateMenu,
   type CreateMenuFormPayload,
   type UpdateMenuFormPayload,
@@ -20,9 +20,10 @@ import { MenuForm } from "@/modules/owner/menu/components/MenuForm"
 import { MenuPreviewSheet } from "@/modules/owner/menu/components/MenuPreviewSheet"
 import { MENUS_KEY, stockLabel } from "@/modules/owner/menu/constants/menu-display"
 import { listMenuCategories } from "@/modules/owner/menu-category/api/menu-category.service"
+import { PriceHistorySheet, type PriceHistoryTarget } from "@/modules/owner/price-history/components/PriceHistorySheet"
 import { MENU_CATEGORIES_KEY } from "@/modules/owner/menu-category/constants/query-keys"
 import { useCapabilities } from "@/shared/access/useCapabilities"
-import { CrudServiceError } from "@/shared/api/crud/types"
+import { CrudServiceError, type MasterStatus } from "@/shared/api/crud/types"
 import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { useRowReorder } from "@/shared/hooks/useRowReorder"
 import { formatRupiah } from "@/shared/lib/utils"
@@ -33,6 +34,7 @@ import { FilterSelect } from "@/shared/ui/filter-select"
 import { PageHeader } from "@/shared/ui/page-header"
 import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
+import { StatusToggle } from "@/shared/ui/status-toggle"
 import { Switch } from "@/shared/ui/switch"
 import { Table, TableBody, TableCard, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { TitleCell } from "@/shared/ui/table-cells"
@@ -43,7 +45,7 @@ import { TableToolbar } from "@/shared/ui/table-toolbar"
 type CommitAddons = (menuId: number) => Promise<void>
 
 const PER_PAGE = TABLE_PER_PAGE
-const COLUMNS = 9
+const COLUMNS = 10
 const STATUS_OPTIONS = [
   { value: "all", label: "Semua" },
   { value: "available", label: "Tersedia" },
@@ -73,6 +75,7 @@ export function MenuSection() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingRow, setEditingRow] = useState<Menu | null>(null)
   const [previewing, setPreviewing] = useState<Menu | null>(null)
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryTarget | null>(null)
   // Bumped to remount the form after a partial save, so it reloads the
   // addon groups from the server instead of replaying its local edits.
   const [formSession, setFormSession] = useState(0)
@@ -225,15 +228,23 @@ export function MenuSection() {
     onError: (error) => toast.error(errorMessage(error)),
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteMenu,
-    onSuccess: () => {
-      toast.success("Menu dihapus")
-      setPreviewing(null)
+  // Menus are never deleted, only switched off — an inactive menu is hidden
+  // from the cashier app and self-order (unlike "Tersedia", which only marks it
+  // sold out).
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: MasterStatus }) => setMenuStatus(id, status),
+    onSuccess: (menu, { status }) => {
+      toast.success(status === "active" ? "Menu diaktifkan" : "Menu dinonaktifkan")
+      setPreviewing((current) => (current && current.id === menu.id ? menu : current))
       invalidate()
     },
     onError: (error) => toast.error(errorMessage(error)),
   })
+
+  function toggleStatus(menu: Menu) {
+    if (menu.id == null) return
+    statusMutation.mutate({ id: menu.id, status: menu.status === "inactive" ? "active" : "inactive" })
+  }
 
   const filtering = search.trim() !== "" || status !== "all" || categoryId !== "all"
   const canEdit = can("menu", "edit")
@@ -294,7 +305,7 @@ export function MenuSection() {
           )
         }
       >
-        <Table className="min-w-[980px]">
+        <Table className="min-w-[1080px]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-16">Urut</TableHead>
@@ -304,6 +315,7 @@ export function MenuSection() {
               <TableHead className="text-right">Stok</TableHead>
               <TableHead>Estimasi</TableHead>
               <TableHead className="text-center">Tersedia</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-center">Unggulan</TableHead>
               <TableHead className="w-28 text-right">Aksi</TableHead>
             </TableRow>
@@ -384,6 +396,24 @@ export function MenuSection() {
                     />
                   </TableCell>
                   <TableCell className="text-center">
+                    {/* Shows the effective state: a menu of an inactive category reads
+                        "Nonaktif" and can't be switched on until its category is. */}
+                    <StatusToggle
+                      active={row.effective_active ?? row.status !== "inactive"}
+                      label={row.name ?? "menu"}
+                      disabled={
+                        !canEdit ||
+                        row.inactive_reason === "category" ||
+                        (statusMutation.isPending && statusMutation.variables?.id === id)
+                      }
+                      onToggle={() => toggleStatus(row)}
+                      className="justify-center"
+                    />
+                    {row.inactive_reason === "category" && (
+                      <span className="mt-1 block text-xs text-muted-foreground">Ikut kategori</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
                     <button
                       type="button"
                       disabled={!canEdit || (featuredMutation.isPending && featuredMutation.variables?.menu.id === id)}
@@ -402,6 +432,11 @@ export function MenuSection() {
                   <TableCell>
                     <RowActions>
                       {canEdit && <RowActionButton icon={PencilIcon} label={`Ubah ${row.name}`} onClick={() => openForm(row)} />}
+                      <RowActionButton
+                        icon={HistoryIcon}
+                        label={`Riwayat harga ${row.name}`}
+                        onClick={() => setPriceHistory({ type: "menu", id: row.id ?? 0, name: row.name ?? "" })}
+                      />
                       <RowActionButton icon={EyeIcon} label={`Lihat ${row.name}`} onClick={() => setPreviewing(row)} />
                     </RowActions>
                   </TableCell>
@@ -415,12 +450,14 @@ export function MenuSection() {
       <MenuPreviewSheet
         menu={previewing}
         canEdit={canEdit}
-        canDelete={can("menu", "delete")}
-        isDeleting={deleteMutation.isPending}
+        isTogglingStatus={statusMutation.isPending}
         onClose={() => setPreviewing(null)}
         onEdit={(menu) => openForm(menu)}
-        onDelete={(menu) => menu.id != null && deleteMutation.mutate(menu.id)}
+        onToggleStatus={toggleStatus}
       />
+
+
+      <PriceHistorySheet target={priceHistory} onOpenChange={(open) => !open && setPriceHistory(null)} />
 
       <Sheet open={sheetOpen} onOpenChange={(open) => (open ? setSheetOpen(true) : requestClose())}>
         <SheetContent className="flex max-w-xl flex-col p-0">

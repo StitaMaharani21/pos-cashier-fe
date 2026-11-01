@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/shared/ui/form"
 import { Input } from "@/shared/ui/input"
+import { NumberInput } from "@/shared/ui/number-input"
 import { Textarea } from "@/shared/ui/textarea"
 
 interface BusinessSettingsFormPayload {
@@ -179,7 +180,17 @@ export function BusinessSettingsForm({
             <FormItem>
               <FormLabel>Pajak (%)</FormLabel>
               <FormControl>
-                <Input type="number" min={0} max={100} className="max-w-40" {...field} />
+                <NumberInput
+                  decimals={2}
+                  max={100}
+                  group={false}
+                  className="max-w-40"
+                  name={field.name}
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  value={field.value ?? ""}
+                  onValueChange={field.onChange}
+                />
               </FormControl>
               <p className="text-xs text-muted-foreground">
                 Diterapkan otomatis ke setiap transaksi
@@ -247,7 +258,16 @@ export function BusinessSettingsForm({
                 <FormItem>
                   <FormLabel>Jarak dari kafe (meter)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={10} max={2000} className="max-w-40" {...field} />
+                    <NumberInput
+                      maxDigits={4}
+                      group={false}
+                      className="max-w-40"
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
                   <p className="text-xs text-muted-foreground">
                     Standarnya 100 meter. Lokasi di dalam ruangan sering kurang tepat, jadi jangan diisi terlalu kecil.

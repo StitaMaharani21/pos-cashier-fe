@@ -1,4 +1,4 @@
-import { HistoryIcon, PackageIcon, PlusIcon, UtensilsIcon } from "lucide-react"
+import { HistoryIcon, PackageIcon, SlidersHorizontalIcon, UtensilsIcon } from "lucide-react"
 
 import type { StockItem } from "@/modules/owner/stock-history/lib/stock-item"
 import type { CrudColumn } from "@/shared/api/crud/types"
@@ -8,8 +8,9 @@ import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 
 interface StockItemColumnsArgs {
   onViewHistory: (item: StockItem) => void
-  // Omitted = the role can't add stock.
-  onAddStock?: (item: StockItem) => void
+  // "Ubah Stok" — the one dialog for goods received and corrections. Omitted =
+  // the role can't change stock.
+  onChangeStock?: (item: StockItem) => void
 }
 
 function isLow(item: StockItem): boolean {
@@ -17,7 +18,7 @@ function isLow(item: StockItem): boolean {
   return item.source === "ingredient" ? item.stock <= (item.minStock ?? 0) : item.stock <= 0
 }
 
-export function stockItemColumns({ onViewHistory, onAddStock }: StockItemColumnsArgs): CrudColumn<StockItem>[] {
+export function stockItemColumns({ onViewHistory, onChangeStock }: StockItemColumnsArgs): CrudColumn<StockItem>[] {
   return [
     {
       key: "name",
@@ -57,11 +58,13 @@ export function stockItemColumns({ onViewHistory, onAddStock }: StockItemColumns
     {
       key: "actions",
       header: "Aksi",
-      className: "w-36",
+      className: "w-44",
       render: (item) => (
         <RowActions>
           <RowActionButton icon={HistoryIcon} label={`Lihat riwayat stok ${item.name}`} onClick={() => onViewHistory(item)} />
-          {onAddStock && <RowActionButton icon={PlusIcon} label={`Tambah stok ${item.name}`} onClick={() => onAddStock(item)} />}
+          {onChangeStock && (
+            <RowActionButton icon={SlidersHorizontalIcon} label={`Ubah stok ${item.name}`} onClick={() => onChangeStock(item)} />
+          )}
         </RowActions>
       ),
     },

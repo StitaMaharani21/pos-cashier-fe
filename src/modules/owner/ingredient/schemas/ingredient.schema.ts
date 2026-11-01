@@ -8,10 +8,6 @@ export const ingredientSchema = z.object({
     .trim()
     .min(1, "Satuan wajib diisi")
     .refine((value) => Number.isNaN(Number(value)), "Isi nama satuan, mis. gram, kg, ml, pcs"),
-  stock: z
-    .string()
-    .min(1, "Stok wajib diisi")
-    .refine((value) => !Number.isNaN(Number(value)) && Number(value) >= 0, "Isi stok dengan angka 0 atau lebih"),
   minStock: z
     .string()
     .optional()

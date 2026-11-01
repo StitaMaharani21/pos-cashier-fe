@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import {
   BoxIcon,
   CameraIcon,
@@ -25,10 +26,12 @@ import {
   type AddonEditing,
 } from "@/modules/owner/menu-addon/components/MenuAddonsField"
 import { useMenuAddons } from "@/modules/owner/menu-addon/lib/use-menu-addons"
+import { PriceHistorySheet } from "@/modules/owner/price-history/components/PriceHistorySheet"
 import { RecipeManager } from "@/modules/owner/recipe/components/RecipeManager"
 import { useCapabilities } from "@/shared/access/useCapabilities"
 import { upsellStore } from "@/shared/access/upsellStore"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
+import { NumberInput } from "@/shared/ui/number-input"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
@@ -54,8 +57,6 @@ interface MenuFormProps {
   onDirtyChange?: (dirty: boolean) => void
 }
 
-const thousands = new Intl.NumberFormat("id-ID")
-
 const Section = FormSection
 const Required = RequiredMark
 
@@ -67,6 +68,7 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
   const [imageError, setImageError] = useState<string | null>(null)
   const addons = useMenuAddons(row?.id)
   const [editingAddon, setEditingAddon] = useState<AddonEditing | null>(null)
+  const [priceHistoryOpen, setPriceHistoryOpen] = useState(false)
   const { hasFeature, upgradeHint } = useCapabilities()
   // "Per bahan baku (resep)" needs Pro/Enterprise or Starter+addon Inventori
   // (entitlement.FeatInventory on the backend) — /master/ingredients and
@@ -88,9 +90,7 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
       isFeatured: row?.is_featured ?? false,
       stockDeductionMethod:
         (row?.stock_deduction_method as MenuFormValues["stockDeductionMethod"]) ?? "none",
-      // A negative stock (sold past what was left) isn't typeable, so it starts
-        // empty rather than as a value the owner can't reproduce.
-        stockQty: row?.stock_qty != null && row.stock_qty >= 0 ? String(row.stock_qty) : "",
+      costPrice: row?.cost_price != null ? String(row.cost_price) : "",
     },
   })
 
@@ -118,10 +118,6 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
       setImageError("Foto menu wajib diunggah")
       return
     }
-    if (!row && values.stockDeductionMethod === "by_menu" && !values.stockQty) {
-      form.setError("stockQty", { message: "Jumlah stok wajib diisi" }, { shouldFocus: true })
-      return
-    }
     setImageError(null)
     onSubmit(
       {
@@ -135,10 +131,10 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
         is_featured: values.isFeatured,
         image: imageFile as File,
         stock_deduction_method: values.stockDeductionMethod,
-        stock_qty:
-          values.stockDeductionMethod === "by_menu" && values.stockQty
-            ? Number(values.stockQty)
-            : undefined,
+        // Stock is never typed here — it starts at 0 and is changed only from
+        // Riwayat Stok. The cost is only meaningful without a recipe.
+        cost_price:
+          values.stockDeductionMethod !== "by_ingredient" && values.costPrice ? Number(values.costPrice) : undefined,
       },
       addons.commit
     )
@@ -224,11 +220,13 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={String(category.id)}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
+                          {categories
+                            .filter((category) => category.status !== "inactive" || String(category.id) === field.value)
+                            .map((category) => (
+                              <SelectItem key={category.id} value={String(category.id)}>
+                                {category.status === "inactive" ? `${category.name} (nonaktif)` : category.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -269,26 +267,43 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Harga
-                        <Required />
-                      </FormLabel>
+                      <div className="flex items-center justify-between gap-2">
+                        <FormLabel>
+                          Harga
+                          <Required />
+                        </FormLabel>
+                        {row?.id != null && (
+                          <button
+                            type="button"
+                            onClick={() => setPriceHistoryOpen(true)}
+                            className="cursor-pointer text-xs font-semibold text-primary-strong underline underline-offset-2"
+                          >
+                            Riwayat harga
+                          </button>
+                        )}
+                      </div>
                       <div className="flex h-11 overflow-hidden rounded-md border border-input bg-card focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
                         <span className="flex items-center border-r bg-muted px-3.5 text-sm text-muted-foreground">Rp</span>
                         <FormControl>
-                          <input
-                            inputMode="numeric"
+                          <NumberInput
+                            bare
                             placeholder="0"
                             className="w-full min-w-0 bg-transparent px-3 text-right text-sm outline-none"
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             // Stored as plain digits, shown as "28.000".
-                            value={field.value ? thousands.format(Number(field.value)) : ""}
-                            onChange={(event) => field.onChange(event.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, ""))}
+                            value={field.value ?? ""}
+                            onValueChange={field.onChange}
+                            maxDigits={12}
                           />
                         </FormControl>
                       </div>
+                      {row && (
+                        <p className="text-xs text-muted-foreground">
+                          Berlaku untuk pesanan baru. Laporan yang lama tidak berubah.
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -303,15 +318,16 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                       <div className="flex h-11 items-center gap-2 rounded-md border border-input bg-card px-3 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
                         <ClockIcon className="size-4 shrink-0 text-muted-foreground" />
                         <FormControl>
-                          <input
-                            inputMode="numeric"
+                          <NumberInput
+                            bare
                             placeholder="0"
                             className="w-full min-w-0 bg-transparent text-sm outline-none"
                             name={field.name}
                             ref={field.ref}
                             onBlur={field.onBlur}
                             value={field.value ?? ""}
-                            onChange={(event) => field.onChange(event.target.value.replace(/\D/g, ""))}
+                            onValueChange={field.onChange}
+                            maxDigits={4}
                           />
                         </FormControl>
                         <span className="text-sm text-muted-foreground">menit</span>
@@ -321,6 +337,40 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   )}
                 />
               </div>
+
+              {stockDeductionMethod !== "by_ingredient" && (
+                <FormField
+                  control={form.control}
+                  name="costPrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Harga Pokok per Porsi (opsional)</FormLabel>
+                      <div className="flex h-11 overflow-hidden rounded-md border border-input bg-card focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
+                        <span className="flex items-center border-r bg-muted px-3.5 text-sm text-muted-foreground">Rp</span>
+                        <FormControl>
+                          <NumberInput
+                            bare
+                            decimals={2}
+                            placeholder="0"
+                            className="w-full min-w-0 bg-transparent px-3 text-right text-sm outline-none"
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={field.value ?? ""}
+                            onValueChange={field.onChange}
+                            maxDigits={12}
+                          />
+                        </FormControl>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Modal satu porsi, dipakai laporan laba kotor untuk menu tanpa resep. Kosongkan bila belum diketahui
+                        (penjualannya tidak ikut dihitung labanya). Menu dengan resep menghitung modal dari bahan baku.
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </Section>
 
             <Section icon={BoxIcon} title="Stok" description="Pantau ketersediaan stok menu">
@@ -379,47 +429,47 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
               )}
 
               {stockDeductionMethod === "by_menu" && (
-                <FormField
-                  control={form.control}
-                  name="stockQty"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Jumlah Stok
-                        {!row && <Required />}
-                      </FormLabel>
-                      <div className="flex h-11 items-center gap-2 rounded-md border border-input bg-card px-3 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
-                        <FormControl>
-                          <input
-                            inputMode="numeric"
-                            placeholder="0"
-                            className="w-full min-w-0 bg-transparent text-sm outline-none"
-                            name={field.name}
-                            ref={field.ref}
-                            onBlur={field.onBlur}
-                            value={field.value ?? ""}
-                            onChange={(event) => field.onChange(event.target.value.replace(/\D/g, ""))}
-                          />
-                        </FormControl>
-                        <span className="text-sm text-muted-foreground">pcs</span>
-                      </div>
-                      {row && (
-                        <p className="text-xs text-muted-foreground">
-                          {row.stock_qty != null && row.stock_qty < 0
-                            ? `Stok tercatat ${row.stock_qty} (terjual melebihi persediaan). Isi jumlah baru untuk memperbaikinya, atau kosongkan agar tidak berubah.`
-                            : row.stock_qty == null
-                              ? "Stok belum pernah diisi. Isi jumlahnya, atau kosongkan agar tidak berubah."
-                              : "Mengisi jumlah baru mengganti stok saat ini."}
-                        </p>
+                <div className="flex flex-col gap-1.5 rounded-xl border bg-muted/40 p-3.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-medium text-foreground">Stok saat ini</span>
+                    <span
+                      className={cn(
+                        "text-sm font-bold tabular-nums",
+                        row && row.stock_qty != null && row.stock_qty <= 0 ? "text-destructive" : "text-foreground"
                       )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    >
+                      {!row ? "0 pcs" : row.stock_qty == null ? "Belum diisi" : `${row.stock_qty} pcs`}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {!row
+                      ? "Stok tidak diisi dari form ini; mulai dari 0. Setelah menu disimpan, isi stok awalnya lewat "
+                      : row.stock_deduction_method === "by_menu"
+                        ? "Stok tidak diubah dari form ini. Untuk barang masuk atau koreksi, buka "
+                        : "Setelah menu disimpan, isi stoknya lewat "}
+                    {row ? (
+                      <Link
+                        to="/app/stock-history?tab=menu"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-semibold text-primary-strong underline underline-offset-2"
+                      >
+                        Riwayat Stok
+                      </Link>
+                    ) : (
+                      <span className="font-semibold text-foreground">Riwayat Stok</span>
+                    )}
+                    {" → Ubah Stok."}
+                  </p>
+                </div>
               )}
 
               {stockDeductionMethod === "by_ingredient" &&
-                (row?.id != null ? (
+                (!canUseIngredientStock ? (
+                  <p className="rounded-lg border border-dashed bg-card p-3 text-xs text-muted-foreground">
+                    Resep bahan baku butuh paket Pro atau addon Inventori.
+                  </p>
+                ) : row?.id != null ? (
                   <RecipeManager menuId={row.id} />
                 ) : (
                   <p className="rounded-lg border border-dashed bg-card p-3 text-xs text-muted-foreground">
@@ -497,6 +547,10 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
       </Form>
       {/* Beside the <form>, not inside it: a submit in the editor would
           otherwise bubble through the portal and submit the menu form. */}
+      <PriceHistorySheet
+        target={priceHistoryOpen && row?.id != null ? { type: "menu", id: row.id, name: row.name ?? "" } : null}
+        onOpenChange={(open) => !open && setPriceHistoryOpen(false)}
+      />
       <MenuAddonEditorSheet
         editing={editingAddon}
         onClose={() => setEditingAddon(null)}

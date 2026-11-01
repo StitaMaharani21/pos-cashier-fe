@@ -6,7 +6,7 @@ import { shiftCashColumns } from "@/modules/owner/cash-report/columns/shift-cash
 import { ShiftCashTransactionsSheet } from "@/modules/owner/cash-report/components/ShiftCashTransactionsSheet"
 import { ReportStateCard } from "@/modules/owner/financial-report/components/ReportStateCard"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
-import { Input } from "@/shared/ui/input"
+import { NumberInput } from "@/shared/ui/number-input"
 import { KpiCard } from "@/shared/ui/kpi-card"
 import { Label } from "@/shared/ui/label"
 
@@ -19,7 +19,8 @@ const DEFAULT_THRESHOLD = 20000
 // (tone="warning"/iconTone="warning") for visual consistency across the
 // app's reports.
 export function AnomaliesTab({ from, to }: { from: string; to: string }) {
-  const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD)
+  const [thresholdText, setThresholdText] = useState(String(DEFAULT_THRESHOLD))
+  const threshold = Number(thresholdText) || 0
   const [selectedShiftId, setSelectedShiftId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -37,13 +38,11 @@ export function AnomaliesTab({ from, to }: { from: string; to: string }) {
           <Label htmlFor="anomaly-threshold" className="text-xs text-muted-foreground">
             Tampilkan jika uang kurang/lebih lebih dari (Rp)
           </Label>
-          <Input
+          <NumberInput
             id="anomaly-threshold"
-            type="number"
-            min={0}
-            step={1000}
-            value={threshold}
-            onChange={(event) => setThreshold(Math.max(0, Number(event.target.value) || 0))}
+            maxDigits={12}
+            value={thresholdText}
+            onValueChange={setThresholdText}
             className="w-[160px]"
           />
         </div>

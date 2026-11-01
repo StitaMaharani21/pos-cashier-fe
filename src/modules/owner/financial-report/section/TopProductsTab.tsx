@@ -50,6 +50,27 @@ function buildColumns(sort: TopProductsSort): CrudColumn<RankedProduct>[] {
         </span>
       ),
     },
+    {
+      key: "cogs",
+      header: "Modal (HPP)",
+      align: "right",
+      render: (row) => (
+        <span className="tabular-nums text-muted-foreground">{row.cogs == null ? "—" : formatRupiah(row.cogs)}</span>
+      ),
+    },
+    {
+      key: "gross_profit",
+      header: "Laba Kotor",
+      align: "right",
+      render: (row) =>
+        row.gross_profit == null ? (
+          <span className="text-muted-foreground">—</span>
+        ) : (
+          <span className={cn("tabular-nums font-semibold", row.gross_profit < 0 ? "text-destructive" : "text-foreground")}>
+            {formatRupiah(row.gross_profit)}
+          </span>
+        ),
+    },
   ]
 }
 

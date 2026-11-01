@@ -1,4 +1,4 @@
-import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { PencilIcon, PlusIcon, PowerOffIcon } from "lucide-react"
 
 import type {
   CardType,
@@ -14,7 +14,7 @@ import {
 import { OptionChip } from "@/modules/owner/payment-method/components/OptionChip"
 import { Button } from "@/shared/ui/button"
 import { ImageUpload } from "@/shared/ui/image-upload"
-import { Input } from "@/shared/ui/input"
+import { NumberInput } from "@/shared/ui/number-input"
 import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
 
 function SectionLabel({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
@@ -74,21 +74,16 @@ export function CardConfigPanel({
           Dipakai bila bank tidak punya biaya sendiri.
         </p>
         <div className="relative max-w-48">
-          <Input
+          <NumberInput
             id="mdr-default"
-            type="number"
-            inputMode="decimal"
-            min={0}
+            decimals={2}
             max={100}
-            step="0.01"
+            group={false}
             placeholder="0"
             value={draft.surcharge}
             disabled={!acceptsCard}
             aria-invalid={surchargeError ? true : undefined}
-            onChange={(event) => {
-              const value = event.target.value
-              onChange(() => ({ surcharge: value }))
-            }}
+            onValueChange={(value) => onChange(() => ({ surcharge: value }))}
             className="pr-8"
           />
           <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">%</span>
@@ -138,21 +133,18 @@ export function CardConfigPanel({
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-1">
                           <div className="relative w-32">
-                            <Input
+                            <NumberInput
                               id={`bank-mdr-${bank.id}`}
-                              type="number"
-                              inputMode="decimal"
-                              min={0}
+                              decimals={2}
                               max={100}
-                              step="0.01"
+                              group={false}
                               placeholder="Sama dengan umum"
                               value={value}
                               disabled={!acceptsCard}
                               aria-invalid={problem ? true : undefined}
-                              onChange={(event) => {
-                                const next = event.target.value
+                              onValueChange={(next) =>
                                 onChange((d) => ({ bankSurcharges: { ...d.bankSurcharges, [key]: next } }))
-                              }}
+                              }
                               className="pr-8"
                             />
                             <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
@@ -244,9 +236,9 @@ export function ChannelConfigPanel({ type, accounts, onAdd, onEdit, onRemove, ad
                     <RowActions>
                       <RowActionButton icon={PencilIcon} label={`Ubah ${account.name}`} onClick={() => onEdit(account)} />
                       <RowActionButton
-                        icon={Trash2Icon}
+                        icon={PowerOffIcon}
                         tone="danger"
-                        label={`Hapus ${account.name}`}
+                        label={`Nonaktifkan ${account.name}`}
                         onClick={() => onRemove(account)}
                       />
                     </RowActions>

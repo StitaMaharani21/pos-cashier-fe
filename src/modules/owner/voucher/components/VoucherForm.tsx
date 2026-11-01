@@ -29,14 +29,12 @@ interface VoucherFormProps {
   isSubmitting: boolean
   onSubmit: (payload: CreateVoucherPayload) => void
   onCancel: () => void
-  onDelete?: () => void
-  isDeleting: boolean
 }
 
 // The "Tambah Voucher" drawer — same cards as diskon otomatis, with the
 // voucher's own fields: a code the cashier types, a minimum spend on the
 // order total, no menu picker and no day/hour schedule.
-export function VoucherForm({ row, isSubmitting, onSubmit, onCancel, onDelete, isDeleting }: VoucherFormProps) {
+export function VoucherForm({ row, isSubmitting, onSubmit, onCancel }: VoucherFormProps) {
   // An inactive voucher (switched off, or deactivated automatically once its
   // end date passed) can be switched back on, but only with a start date of
   // today or later.
@@ -205,8 +203,6 @@ export function VoucherForm({ row, isSubmitting, onSubmit, onCancel, onDelete, i
           submitLabel="Simpan Voucher"
           isSubmitting={isSubmitting}
           onCancel={onCancel}
-          onDelete={onDelete}
-          isDeleting={isDeleting}
         />
       </form>
     </Form>

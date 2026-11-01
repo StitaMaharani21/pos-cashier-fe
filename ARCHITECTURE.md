@@ -65,6 +65,18 @@ Current owner features (backed by `pos-kasir-be`'s `docs/design-plans/owner-dash
 
 `modules/public/*` still uses the original `domain/application/infrastructure/presentation` sublayering from Phase 1 — it has no real backend integration yet, so there was no reason to migrate it. If/when it gets a real data source, reconsider whether it should move to the same oasis-style convention as `owner` for consistency, or stay as-is if its needs turn out different (e.g. SSR-portability constraints, see below).
 
+## Master data is never deleted
+
+Every master-data screen (kategori menu, menu, grup/opsi addon, bahan baku, meja, voucher, diskon otomatis, metode/channel pembayaran) only **switches rows on or off** — there is no Hapus. `DELETE` on these resources answers `409 MASTER_DATA_CANNOT_BE_DELETED`; the status is changed with `PATCH …/{id}/status` `{status: "active"|"inactive"}` (`CrudService.setStatus`, the Aktif / Nonaktif `StatusToggle` in each table's Status column). Recipe lines are the exception: they are part of a menu's composition, not master data.
+
+Inactive state **cascades down as a derived value, not by rewriting children**: a menu is hidden while its category is inactive (`effective_active=false`, `inactive_reason="category"` on the owner list), and becomes visible again as soon as the category is reactivated. Addon groups/options and ingredients only hide themselves (the menus that use them keep selling). The backend hides inactive data from the cashier app and self-order (JWT role `cashier`, guests, offline catalog snapshot); the owner console keeps seeing everything. Pickers (menu form category, discount/addon menu pickers, recipe ingredient) only offer active rows, but keep an already-selected inactive one visible.
+
+## Stock and price rules
+
+- **Stock changes in one place:** Riwayat Stok → *Ubah Stok* (`modules/owner/stock-history`) — *Stok Masuk* for goods received (and an item's first stock), *Koreksi* for a correction with a reason. Menu and bahan baku forms, and the Bahan Baku page, only show stock read-only and link there; nothing else writes stock, and there is no "Stok Awal" field (a new item starts at 0).
+- **Prices only affect new orders.** Orders keep the unit price, addon price, discount, tax and cost (HPP) they were sold with, so past reports do not move when a price changes. Every change of a menu price, addon option price or bahan baku purchase price is kept in the price history (`modules/owner/price-history`).
+- **Harga beli** of a bahan baku is set once at creation and then only through *Stok Masuk*; the backend keeps a **weighted-average cost** per ingredient: `avg_new = (stock × avg + qty × price) ÷ (stock + qty)` (an empty/negative stock starts over from the incoming price; corrections and sales never change it). Each order line stores its HPP when stock is deducted; menus without a recipe use their own optional *Harga Pokok*. Gross profit = pendapatan sebelum pajak − HPP, counted only for orders whose every line has a recorded HPP, with the coverage always shown (`modules/owner/financial-report`). Cost data is owner-only: the cashier app and self-order never receive it.
+
 ## State management convention
 
 - **Server state** (menus, categories, payment methods, tables, business settings): `@tanstack/react-query`. For owner CRUD features this is entirely inside `shared/ui/crud/CrudSection.tsx` — feature `section/*.tsx` files don't hand-write query/mutation hooks, they configure `CrudSection` with a `CrudService` and column/form definitions.

@@ -29,6 +29,9 @@ export function VoucherSection() {
       searchText={(row) => `${row.name ?? ""} ${row.code ?? ""}`}
       searchPlaceholder="Cari nama atau kode voucher..."
       statusOf={(row) => (isExpired(row) ? "inactive" : row.status)}
+      statusNote={(row) =>
+        isExpired(row) ? <span className="text-xs text-muted-foreground">Kedaluwarsa</span> : undefined
+      }
       empty={{
         icon: TicketIcon,
         title: "Belum ada voucher",

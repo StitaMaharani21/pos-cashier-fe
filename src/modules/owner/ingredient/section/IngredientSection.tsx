@@ -2,6 +2,7 @@ import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { PackageIcon, PlusIcon } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import type {
@@ -9,21 +10,14 @@ import type {
   Ingredient,
   UpdateIngredientPayload,
 } from "@/entities/ingredient/model/ingredient.types"
-import {
-  adjustIngredientStock,
-  ingredientService,
-  listIngredients,
-} from "@/modules/owner/ingredient/api/ingredient.service"
-import { AdjustIngredientStockDialog } from "@/modules/owner/ingredient/components/AdjustIngredientStockDialog"
-import { AddStockDialog } from "@/modules/owner/stock-history/components/AddStockDialog"
-import { ingredientToStockItem, type StockItem } from "@/modules/owner/stock-history/lib/stock-item"
+import { ingredientService, listIngredients } from "@/modules/owner/ingredient/api/ingredient.service"
+import { PriceHistorySheet, type PriceHistoryTarget } from "@/modules/owner/price-history/components/PriceHistorySheet"
 import { IngredientForm } from "@/modules/owner/ingredient/components/IngredientForm"
 import { ingredientColumns } from "@/modules/owner/ingredient/columns/ingredient.columns"
 import { useCapabilities } from "@/shared/access/useCapabilities"
-import { CrudServiceError } from "@/shared/api/crud/types"
+import { CrudServiceError, type MasterStatus } from "@/shared/api/crud/types"
 import { TABLE_PER_PAGE } from "@/shared/hooks/useClientTable"
 import { Button } from "@/shared/ui/button"
-import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { CrudDialogFrame } from "@/shared/ui/crud/CrudDialogFrame"
 import { CrudTable } from "@/shared/ui/crud/CrudTable"
 import { PageHeader } from "@/shared/ui/page-header"
@@ -41,9 +35,8 @@ export function IngredientSection() {
     open: false,
     row: null,
   })
-  const [stockDialogRow, setStockDialogRow] = useState<Ingredient | null>(null)
-  const [addStockItem, setAddStockItem] = useState<StockItem | null>(null)
-  const [deleting, setDeleting] = useState<Ingredient | null>(null)
+  const navigate = useNavigate()
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryTarget | null>(null)
   const { can } = useCapabilities()
 
   useEffect(() => {
@@ -89,22 +82,13 @@ export function IngredientSection() {
     onError: (error) => toast.error(errorMessage(error)),
   })
 
-  const removeMutation = useMutation({
-    mutationFn: (id: number) => ingredientService.remove(id),
-    onSuccess: () => {
-      toast.success("Bahan baku dihapus")
-      setDeleting(null)
-      invalidate()
-    },
-    onError: (error) => toast.error(errorMessage(error)),
-  })
-
-  const adjustStockMutation = useMutation({
-    mutationFn: ({ id, delta, keterangan }: { id: number; delta: number; keterangan: string }) =>
-      adjustIngredientStock(id, { delta, keterangan }),
-    onSuccess: () => {
-      toast.success("Stok disesuaikan")
-      setStockDialogRow(null)
+  // Ingredients are never deleted, only switched off: an inactive one is no
+  // longer offered for recipes or new stock (menus already using it stay as is).
+  const statusMutation = useMutation({
+    mutationFn: ({ row, status }: { row: Ingredient; status: MasterStatus }) =>
+      ingredientService.setStatus(row.id ?? 0, status, row),
+    onSuccess: (_data, { status }) => {
+      toast.success(status === "active" ? "Bahan baku diaktifkan" : "Bahan baku dinonaktifkan")
       invalidate()
     },
     onError: (error) => toast.error(errorMessage(error)),
@@ -113,10 +97,13 @@ export function IngredientSection() {
   const isSubmitting = createMutation.isPending || updateMutation.isPending
 
   const columns = ingredientColumns({
-    onAddStock: can("inventory", "edit") ? (row) => setAddStockItem(ingredientToStockItem(row)) : undefined,
-    onAdjustStock: (row) => setStockDialogRow(row),
+    // Stock is changed in one place only: Riwayat Stok → Ubah Stok.
+    onManageStock: () => navigate("/app/stock-history"),
+    onViewPriceHistory: (row) => setPriceHistory({ type: "ingredient", id: row.id ?? 0, name: row.name ?? "" }),
     onEdit: can("inventory", "edit") ? (row) => setDialogState({ open: true, row }) : undefined,
-    onDelete: can("inventory", "delete") ? setDeleting : undefined,
+    onToggleStatus: can("inventory", "edit")
+      ? (row) => statusMutation.mutate({ row, status: row.status === "inactive" ? "active" : "inactive" })
+      : undefined,
   })
 
   return (
@@ -166,6 +153,8 @@ export function IngredientSection() {
         }
       />
 
+      <PriceHistorySheet target={priceHistory} onOpenChange={(open) => !open && setPriceHistory(null)} />
+
       <CrudDialogFrame
         open={dialogState.open}
         onOpenChange={(open) => setDialogState((state) => ({ ...state, open }))}
@@ -186,30 +175,6 @@ export function IngredientSection() {
           }}
         />
       </CrudDialogFrame>
-
-      <ConfirmDialog
-        open={deleting !== null}
-        onOpenChange={(open) => !open && setDeleting(null)}
-        title="Hapus bahan baku?"
-        description={deleting ? `"${deleting.name}" akan dihapus permanen.` : undefined}
-        isPending={removeMutation.isPending}
-        onConfirm={() => deleting && removeMutation.mutate(deleting.id ?? 0)}
-      />
-
-      <AddStockDialog item={addStockItem} onOpenChange={(open) => !open && setAddStockItem(null)} />
-
-      <AdjustIngredientStockDialog
-        row={stockDialogRow}
-        isSubmitting={adjustStockMutation.isPending}
-        onOpenChange={(open) => {
-          if (!open) setStockDialogRow(null)
-        }}
-        onSubmit={(delta, keterangan) => {
-          if (stockDialogRow) {
-            adjustStockMutation.mutate({ id: stockDialogRow.id ?? 0, delta, keterangan })
-          }
-        }}
-      />
     </div>
   )
 }

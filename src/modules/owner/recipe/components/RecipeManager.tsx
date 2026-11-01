@@ -1,365 +1,190 @@
-import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
-import { useEffect, useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { CheckIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
-import { toast } from "sonner"
+import { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { isAxiosError } from "axios"
 
-import type { Ingredient } from "@/entities/ingredient/model/ingredient.types"
 import type { Recipe } from "@/entities/recipe/model/recipe.types"
-import { recipeService } from "@/modules/owner/recipe/api/recipe.service"
 import {
-  convertUnit,
-  getSmallestUnit,
-  getUnitOptions,
-  roundUnitValue,
-} from "@/modules/owner/recipe/lib/unit-conversion"
-import { recipeRowSchema, type RecipeRowFormValues } from "@/modules/owner/recipe/schemas/recipe.schema"
-import { apiClient } from "@/shared/api/client"
-import { CrudServiceError, type PaginatedResponse } from "@/shared/api/crud/types"
-import { useCrudForm } from "@/shared/hooks/useCrudForm"
+  ADDON_GROUPS_KEY,
+  ADDON_LIST_PARAMS,
+  menuAddonService,
+} from "@/modules/owner/menu-addon/api/menu-addon.service"
+import { listAllIngredients, listMenuRecipes } from "@/modules/owner/recipe/api/recipe.service"
+import { RecipeSection } from "@/modules/owner/recipe/components/RecipeSection"
 import { Button } from "@/shared/ui/button"
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/shared/ui/form"
-import { Input } from "@/shared/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 
 interface RecipeManagerProps {
   menuId: number
 }
 
-// Self-contained one-page fetch (like menu-category.service's
-// listMenuCategories), rather than importing modules/owner/ingredient's paginated
-// service — keeps this component independent of that module.
-async function listAllIngredients(): Promise<Ingredient[]> {
-  try {
-    const response = await apiClient.get<PaginatedResponse<Ingredient>>("/master/ingredients", {
-      params: { page: 1, per_page: 100 },
-    })
-    return response.data.data
-  } catch (error) {
-    console.error("Failed to list ingredients for recipe picker", error)
-    return []
-  }
+interface ServingOption {
+  id: number
+  label: string
+  groupName: string
 }
 
+// "Resep / Bahan Baku" of one menu. Lines either apply to every serving
+// ("Semua penyajian") or only when an addon option such as Ice is ordered, so
+// a Hot cup never consumes ice cubes. The serving options come from the addon
+// groups already attached to the menu on the server.
 export function RecipeManager({ menuId }: RecipeManagerProps) {
-  const queryClient = useQueryClient()
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [editingQuantity, setEditingQuantity] = useState("")
-  const [editingUnit, setEditingUnit] = useState("")
-
   const recipesQueryKey = ["recipes", menuId]
-  const { data: recipes = [], isLoading } = useQuery({
+  const recipesQuery = useQuery({
     queryKey: recipesQueryKey,
-    queryFn: () => recipeService.list({ menu_id: menuId, page: 1, per_page: 100 }),
+    queryFn: () => listMenuRecipes(menuId),
+    retry: false,
   })
-
-  const { data: ingredients = [] } = useQuery({
+  const ingredientsQuery = useQuery({
     queryKey: ["ingredients", "all"],
     queryFn: listAllIngredients,
+    retry: false,
+  })
+  const groupsQuery = useQuery({
+    queryKey: [ADDON_GROUPS_KEY, ADDON_LIST_PARAMS],
+    queryFn: () => menuAddonService.list(ADDON_LIST_PARAMS),
+    staleTime: 30_000,
   })
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: recipesQueryKey })
+  // Serving options the owner opened a section for before adding any line.
+  const [openedOptionIds, setOpenedOptionIds] = useState<number[]>([])
 
-  const createMutation = useMutation({
-    mutationFn: recipeService.create,
-    onSuccess: () => {
-      toast.success("Bahan baku ditambahkan ke resep")
-      form.reset({ ingredientId: "", quantity: "", unit: "" })
-      invalidate()
-    },
-    onError: (error) => toast.error(errorMessage(error)),
-  })
+  const recipes = useMemo(() => recipesQuery.data ?? [], [recipesQuery.data])
+  const ingredients = ingredientsQuery.data ?? []
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, quantity }: { id: number; quantity: number }) =>
-      recipeService.update(id, { quantity }),
-    onSuccess: () => {
-      toast.success("Jumlah resep diperbarui")
-      setEditingId(null)
-      invalidate()
-    },
-    onError: (error) => toast.error(errorMessage(error)),
-  })
-
-  const removeMutation = useMutation({
-    mutationFn: (id: number) => recipeService.remove(id),
-    onSuccess: () => {
-      toast.success("Bahan baku dihapus dari resep")
-      invalidate()
-    },
-    onError: (error) => toast.error(errorMessage(error)),
-  })
-
-  const form = useCrudForm({
-    schema: recipeRowSchema,
-    defaultValues: { ingredientId: "", quantity: "", unit: "" },
-  })
-
-  const usedIngredientIds = new Set(recipes.map((row) => row.ingredient_id))
-  const availableIngredients = ingredients.filter((ingredient) => !usedIngredientIds.has(ingredient.id))
-
-  const selectedIngredientId = form.watch("ingredientId")
-  const selectedIngredient = availableIngredients.find(
-    (ingredient) => String(ingredient.id) === selectedIngredientId
+  const servingOptions = useMemo<ServingOption[]>(
+    () =>
+      (groupsQuery.data ?? [])
+        .filter((group) => group.status !== "inactive" && (group.menu_ids ?? []).includes(menuId))
+        .flatMap((group) =>
+          group.options
+            .filter((option) => option.status !== "inactive")
+            .map((option) => ({ id: option.id, label: option.name, groupName: group.name }))
+        ),
+    [groupsQuery.data, menuId]
   )
-  const entryUnitOptions = getUnitOptions(selectedIngredient?.unit)
 
-  // Default the entry unit to the smallest/friendliest unit in the chosen
-  // ingredient's group (e.g. picking "Biji Kopi" tracked in "kg" defaults
-  // the entry unit to "gram") whenever the selected ingredient changes.
-  useEffect(() => {
-    if (selectedIngredient) {
-      form.setValue("unit", getSmallestUnit(selectedIngredient.unit))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIngredientId])
+  const baseRows = recipes.filter((row) => row.addon_option_id == null)
+  const rowsByOption = new Map<number, Recipe[]>()
+  for (const row of recipes) {
+    if (row.addon_option_id == null) continue
+    rowsByOption.set(row.addon_option_id, [...(rowsByOption.get(row.addon_option_id) ?? []), row])
+  }
 
-  function handleAdd(values: RecipeRowFormValues) {
-    if (!selectedIngredient) return
-    const quantityInIngredientUnit = convertUnit(
-      Number(values.quantity),
-      values.unit,
-      selectedIngredient.unit ?? values.unit
+  const knownOptionIds = new Set(servingOptions.map((option) => option.id))
+  const shownOptions = servingOptions.filter((option) => rowsByOption.has(option.id) || openedOptionIds.includes(option.id))
+  const hiddenOptions = servingOptions.filter((option) => !shownOptions.includes(option))
+  // Lines tied to an option that is no longer attached to the menu (or was
+  // switched off): kept visible so they can be removed, but they never apply.
+  const orphanOptionIds = [...rowsByOption.keys()].filter((id) => !knownOptionIds.has(id))
+
+  if (recipesQuery.isError || ingredientsQuery.isError) {
+    const locked = [recipesQuery.error, ingredientsQuery.error].some(
+      (error) => isAxiosError(error) && error.response?.status === 402
     )
-    if (!(quantityInIngredientUnit > 0)) {
-      toast.error("Jumlah harus lebih dari 0")
-      return
-    }
-    createMutation.mutate({
-      menu_id: menuId,
-      ingredient_id: Number(values.ingredientId),
-      quantity: quantityInIngredientUnit,
-    })
+    return (
+      <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+        <h3 className="text-sm font-semibold text-foreground">Resep / Bahan Baku</h3>
+        <p className="text-sm text-muted-foreground">
+          {locked
+            ? "Resep bahan baku belum aktif di paket toko ini. Aktifkan paket Pro atau addon Inventori untuk memakainya."
+            : "Resep belum bisa dimuat. Periksa koneksi, lalu coba lagi."}
+        </p>
+        {!locked && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-fit"
+            onClick={() => {
+              void recipesQuery.refetch()
+              void ingredientsQuery.refetch()
+            }}
+          >
+            Coba lagi
+          </Button>
+        )}
+      </div>
+    )
   }
 
-  function startEdit(row: Recipe) {
-    const rawUnit = row.ingredient_unit ?? ""
-    const entryUnit = getSmallestUnit(rawUnit) || rawUnit
-    setEditingId(row.id ?? null)
-    setEditingUnit(entryUnit)
-    setEditingQuantity(String(roundUnitValue(convertUnit(row.quantity ?? 0, rawUnit, entryUnit))))
-  }
-
-  function handleEditingUnitChange(newUnit: string) {
-    const numeric = Number(editingQuantity)
-    if (!Number.isNaN(numeric) && editingUnit) {
-      setEditingQuantity(String(roundUnitValue(convertUnit(numeric, editingUnit, newUnit))))
-    }
-    setEditingUnit(newUnit)
-  }
-
-  function saveEdit(row: Recipe) {
-    const quantity = Number(editingQuantity)
-    if (!editingQuantity || Number.isNaN(quantity) || quantity <= 0) {
-      toast.error("Jumlah harus lebih dari 0")
-      return
-    }
-    const quantityInIngredientUnit = convertUnit(quantity, editingUnit, row.ingredient_unit ?? editingUnit)
-    updateMutation.mutate({ id: row.id ?? 0, quantity: quantityInIngredientUnit })
+  if (recipesQuery.isLoading || ingredientsQuery.isLoading) {
+    return <p className="py-2 text-sm text-muted-foreground">Memuat resep...</p>
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border p-3">
+    <div className="flex flex-col gap-3">
       <div>
         <h3 className="text-sm font-semibold text-foreground">Resep / Bahan Baku</h3>
         <p className="text-xs text-muted-foreground">
-          Jumlah bahan yang terpakai setiap 1 unit menu ini terjual — mis. Cafe Latte butuh 18g biji
-          kopi dan 150ml susu per gelas. Masukkan dalam satuan yang paling nyaman (mis. gram) — otomatis
-          diubah ke satuan stok bahan baku saat disimpan (misalnya gram ke kg, ml ke liter).
+          Jumlah bahan yang terpakai setiap 1 unit menu ini terjual — mis. Cafe Latte butuh 18g biji kopi dan 150ml
+          susu per gelas. Masukkan dalam satuan yang paling nyaman (mis. gram) — otomatis diubah ke satuan stok bahan
+          baku saat disimpan (misalnya gram ke kg, ml ke liter).
         </p>
       </div>
 
-      {isLoading ? (
-        <p className="py-2 text-sm text-muted-foreground">Memuat...</p>
-      ) : recipes.length === 0 ? (
-        <p className="py-2 text-sm text-muted-foreground">Belum ada bahan baku pada resep ini.</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {recipes.map((row) => {
-            const rawUnit = row.ingredient_unit ?? ""
-            const displayUnit = getSmallestUnit(rawUnit) || rawUnit
-            const displayQty = roundUnitValue(convertUnit(row.quantity ?? 0, rawUnit, displayUnit))
-            const showRaw = displayUnit !== rawUnit
+      <RecipeSection
+        menuId={menuId}
+        optionId={null}
+        title="Semua penyajian"
+        description="Berlaku untuk setiap pesanan menu ini, apa pun penyajiannya."
+        rows={baseRows}
+        ingredients={ingredients}
+        recipesQueryKey={recipesQueryKey}
+      />
 
-            return (
-              <div
-                key={row.id}
-                className="flex items-center justify-between gap-2 rounded-md border px-3 py-2"
-              >
-                <span className="text-sm font-medium text-foreground">{row.ingredient_name}</span>
+      {shownOptions.map((option) => (
+        <RecipeSection
+          key={option.id}
+          menuId={menuId}
+          optionId={option.id}
+          title={`Khusus ${option.label}`}
+          description={`Hanya terpakai bila pesanan memilih ${option.label} (${option.groupName}), di samping resep untuk semua penyajian.`}
+          rows={rowsByOption.get(option.id) ?? []}
+          ingredients={ingredients}
+          recipesQueryKey={recipesQueryKey}
+        />
+      ))}
 
-                {editingId === row.id ? (
-                  <div className="flex items-center gap-1.5">
-                    <Input
-                      type="number"
-                      min={0}
-                      step="any"
-                      value={editingQuantity}
-                      onChange={(event) => setEditingQuantity(event.target.value)}
-                      className="h-8 w-20"
-                      autoFocus
-                    />
-                    <Select value={editingUnit} onValueChange={handleEditingUnitChange}>
-                      <SelectTrigger className="h-8 w-24">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getUnitOptions(rawUnit).map((unit) => (
-                          <SelectItem key={unit} value={unit}>
-                            {unit}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <button
-                      type="button"
-                      onClick={() => saveEdit(row)}
-                      disabled={updateMutation.isPending}
-                      className="flex size-7 items-center justify-center rounded-md border text-muted-foreground hover:bg-muted"
-                    >
-                      <CheckIcon className="size-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="flex size-7 items-center justify-center rounded-md border text-muted-foreground hover:bg-muted"
-                    >
-                      <XIcon className="size-3.5" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm text-muted-foreground">
-                      {displayQty} {displayUnit}
-                      {showRaw && (
-                        <span className="ml-1 text-xs text-muted-foreground/70">
-                          ({row.quantity} {rawUnit})
-                        </span>
-                      )}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => startEdit(row)}
-                      className="flex size-7 items-center justify-center rounded-md border text-muted-foreground hover:bg-muted"
-                    >
-                      <PencilIcon className="size-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeMutation.mutate(row.id ?? 0)}
-                      disabled={removeMutation.isPending}
-                      className="flex size-7 items-center justify-center rounded-md border text-muted-foreground hover:bg-muted"
-                    >
-                      <Trash2Icon className="size-3.5" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      <Form {...form}>
-        {/* A <div>, not a <form>: this block renders inside the menu <form>, and a nested
-            submit would bubble up and submit (then close) the menu drawer. */}
-        <div className="flex flex-col gap-2 border-t pt-3">
-          <FormField
-            control={form.control}
-            name="ingredientId"
-            render={({ field }) => (
-              <FormItem>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih bahan baku" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {availableIngredients.map((ingredient) => (
-                      <SelectItem key={ingredient.id} value={String(ingredient.id)}>
-                        {ingredient.name} (stok: {ingredient.unit})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+      {orphanOptionIds.map((optionId) => {
+        const rows = rowsByOption.get(optionId) ?? []
+        return (
+          <RecipeSection
+            key={`orphan-${optionId}`}
+            menuId={menuId}
+            optionId={optionId}
+            title={`Khusus ${rows[0]?.addon_option_name || `opsi #${optionId}`} (tidak aktif)`}
+            description="Opsi ini tidak lagi terpasang atau aktif di menu, jadi bahan di bawah ini tidak dipakai. Hapus bila tidak perlu."
+            rows={rows}
+            ingredients={ingredients}
+            recipesQueryKey={recipesQueryKey}
           />
+        )
+      })}
 
-          <div className="flex items-end gap-2">
-            <FormField
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="any"
-                      placeholder="Jumlah per sajian"
-                      {...field}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault()
-                          void form.handleSubmit(handleAdd)()
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="unit"
-              render={({ field }) => (
-                <FormItem className="w-28">
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Satuan" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {entryUnitOptions.map((unit) => (
-                        <SelectItem key={unit} value={unit}>
-                          {unit}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              type="button"
-              onClick={() => void form.handleSubmit(handleAdd)()}
-              disabled={createMutation.isPending || !selectedIngredient}
-              size="icon"
-            >
-              <PlusIcon className="size-4" />
-            </Button>
-          </div>
-        </div>
-      </Form>
+      {hiddenOptions.length > 0 ? (
+        <Select
+          value=""
+          onValueChange={(value) => setOpenedOptionIds((current) => [...current, Number(value)])}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="+ Tambah resep khusus penyajian (mis. Ice)" />
+          </SelectTrigger>
+          <SelectContent>
+            {hiddenOptions.map((option) => (
+              <SelectItem key={option.id} value={String(option.id)}>
+                {option.label} ({option.groupName})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        servingOptions.length === 0 && (
+          <p className="rounded-lg border border-dashed bg-card p-3 text-xs text-muted-foreground">
+            Menu ini punya penyajian berbeda (mis. Hot dan Ice)? Pasang grup tambahan "Penyajian" di bagian Tambahan
+            Menu dan simpan menu; setelah itu resep khusus tiap penyajian bisa diatur di sini.
+          </p>
+        )
+      )}
     </div>
   )
-}
-
-function errorMessage(error: unknown): string {
-  if (error instanceof CrudServiceError) return error.message
-  return DEFAULT_ERROR_MESSAGE
 }

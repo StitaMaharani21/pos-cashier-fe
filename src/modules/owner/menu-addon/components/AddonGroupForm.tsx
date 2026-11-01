@@ -32,8 +32,6 @@ interface AddonGroupFormProps {
   isSubmitting: boolean
   onSubmit: (draft: AddonGroupDraft) => void
   onCancel: () => void
-  onDelete?: () => void
-  isDeleting: boolean
   // False when the group is edited from a menu's form: which menus use it is
   // decided there, so the picker is left out (and the group's menus kept).
   showMenuPicker?: boolean
@@ -51,8 +49,6 @@ export function AddonGroupForm({
   isSubmitting,
   onSubmit,
   onCancel,
-  onDelete,
-  isDeleting,
   showMenuPicker = true,
   notice,
   submitLabel = "Simpan Grup",
@@ -304,17 +300,21 @@ export function AddonGroupForm({
                       </FormItem>
                     )}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="size-11 shrink-0 text-muted-foreground hover:text-destructive"
-                    aria-label={`Hapus opsi ${index + 1}`}
-                    disabled={fields.length === 1}
-                    onClick={() => remove(index)}
-                  >
-                    <Trash2Icon className="size-4" />
-                  </Button>
+                  {/* Saved options are never deleted — the switch turns them off.
+                      Only a row that hasn't been saved yet can be dropped. */}
+                  {item.optionId == null && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-11 shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label={`Buang opsi ${index + 1}`}
+                      disabled={fields.length === 1}
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2Icon className="size-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
               {form.formState.errors.options?.root?.message && (
@@ -345,8 +345,6 @@ export function AddonGroupForm({
           submitLabel={submitLabel}
           isSubmitting={isSubmitting}
           onCancel={onCancel}
-          onDelete={onDelete}
-          isDeleting={isDeleting}
         />
       </form>
     </Form>
@@ -355,11 +353,16 @@ export function AddonGroupForm({
 
 function MenuPicker({ value, onChange }: { value: number[]; onChange: (ids: number[]) => void }) {
   const [search, setSearch] = useState("")
-  const { data: menus = [], isLoading, isError } = useQuery({
+  const { data: allMenus = [], isLoading, isError } = useQuery({
     queryKey: ADDON_MENU_PICKER_KEY,
     queryFn: listAllMenus,
     staleTime: 60_000,
   })
+  // Inactive menus aren't offered, except ones the group is already attached to.
+  const menus = useMemo(
+    () => allMenus.filter((menu) => menu.effective_active !== false || value.includes(menu.id ?? 0)),
+    [allMenus, value]
+  )
 
   const selected = useMemo(() => new Set(value), [value])
   const visible = useMemo(() => {

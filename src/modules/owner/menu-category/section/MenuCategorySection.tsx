@@ -1,21 +1,21 @@
 import { DEFAULT_ERROR_MESSAGE } from "@/shared/api/error-message"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { LayoutGridIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { LayoutGridIcon, PencilIcon, PlusIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import type { MenuCategory } from "@/entities/menu-category/model/menu-category.types"
 import {
-  deleteMenuCategory,
   listMenuCategories,
   reorderMenuCategories,
   saveMenuCategory,
+  setMenuCategoryStatus,
 } from "@/modules/owner/menu-category/api/menu-category.service"
 import { MenuCategoryForm } from "@/modules/owner/menu-category/components/MenuCategoryForm"
 import { categoryIcon } from "@/modules/owner/menu-category/constants/category-icon"
 import { MENU_CATEGORIES_KEY } from "@/modules/owner/menu-category/constants/query-keys"
 import { useCapabilities } from "@/shared/access/useCapabilities"
-import { CrudServiceError } from "@/shared/api/crud/types"
+import { CrudServiceError, type MasterStatus } from "@/shared/api/crud/types"
 import { STATUS_FILTER_OPTIONS, useClientTable } from "@/shared/hooks/useClientTable"
 import { useRowReorder } from "@/shared/hooks/useRowReorder"
 import { Button } from "@/shared/ui/button"
@@ -25,7 +25,7 @@ import { DragHandle } from "@/shared/ui/drag-handle"
 import { FilterSelect } from "@/shared/ui/filter-select"
 import { PageHeader } from "@/shared/ui/page-header"
 import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
-import { StatusBadge } from "@/shared/ui/status-badge"
+import { StatusToggle } from "@/shared/ui/status-toggle"
 import { Table, TableBody, TableCard, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table"
 import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 import { TablePagination } from "@/shared/ui/table-pagination"
@@ -45,7 +45,7 @@ export function MenuCategorySection() {
   const { can } = useCapabilities()
   const [editing, setEditing] = useState<MenuCategory | null>(null)
   const [formOpen, setFormOpen] = useState(false)
-  const [deleting, setDeleting] = useState<MenuCategory | null>(null)
+  const [deactivating, setDeactivating] = useState<MenuCategory | null>(null)
 
   const { data: categories = [], isPending, isError, refetch } = useQuery({
     queryKey: MENU_CATEGORIES_KEY,
@@ -55,7 +55,7 @@ export function MenuCategorySection() {
   const table = useClientTable({
     rows: categories,
     searchText: (category) => `${category.name ?? ""} ${category.description ?? ""}`,
-    filterValue: (category) => category.status,
+    filterValue: (category) => (category.status === "inactive" ? "inactive" : "active"),
   })
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: MENU_CATEGORIES_KEY })
@@ -88,16 +88,30 @@ export function MenuCategorySection() {
     onError: (error) => toast.error(errorMessage(error)),
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteMenuCategory,
-    onSuccess: () => {
-      toast.success("Kategori dihapus")
-      setDeleting(null)
+  // Categories are never deleted. While one is inactive its menus are hidden
+  // from the cashier app too, so the menu list is refreshed as well.
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: MasterStatus }) => setMenuCategoryStatus(id, status),
+    onSuccess: (_data, { status }) => {
+      toast.success(status === "active" ? "Kategori diaktifkan" : "Kategori dinonaktifkan")
+      setDeactivating(null)
       invalidate()
       queryClient.invalidateQueries({ queryKey: ["menus"] })
     },
-    onError: (error) => toast.error(errorMessage(error)),
+    onError: (error) => {
+      setDeactivating(null)
+      toast.error(errorMessage(error))
+    },
   })
+
+  // Switching on is immediate. Switching off asks first only when the category
+  // still has menus, since they all disappear from the cashier app with it.
+  function toggleStatus(row: MenuCategory) {
+    if (row.id == null) return
+    if (row.status === "inactive") statusMutation.mutate({ id: row.id, status: "active" })
+    else if ((row.menu_count ?? 0) > 0) setDeactivating(row)
+    else statusMutation.mutate({ id: row.id, status: "inactive" })
+  }
 
   function openForm(row: MenuCategory | null) {
     setEditing(row)
@@ -185,20 +199,17 @@ export function MenuCategorySection() {
                   <TableCell className="whitespace-normal text-muted-foreground">{row.description || "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{row.menu_count ?? 0} menu</TableCell>
                   <TableCell>
-                    <StatusBadge active={row.status === "active"} />
+                    <StatusToggle
+                      active={row.status !== "inactive"}
+                      label={row.name ?? "kategori"}
+                      disabled={!can("menu", "edit") || (statusMutation.isPending && statusMutation.variables?.id === id)}
+                      onToggle={() => toggleStatus(row)}
+                    />
                   </TableCell>
                   <TableCell>
                     <RowActions>
                       {can("menu", "edit") && (
                         <RowActionButton icon={PencilIcon} label={`Ubah ${row.name}`} onClick={() => openForm(row)} />
-                      )}
-                      {can("menu", "delete") && (
-                        <RowActionButton
-                          icon={Trash2Icon}
-                          tone="danger"
-                          label={`Hapus ${row.name}`}
-                          onClick={() => setDeleting(row)}
-                        />
                       )}
                     </RowActions>
                   </TableCell>
@@ -227,17 +238,20 @@ export function MenuCategorySection() {
       </CrudDialogFrame>
 
       <ConfirmDialog
-        open={deleting !== null}
-        onOpenChange={(open) => !open && setDeleting(null)}
-        title="Hapus kategori?"
+        open={deactivating !== null}
+        onOpenChange={(open) => !open && setDeactivating(null)}
+        title="Nonaktifkan kategori?"
         description={
-          deleting && (deleting.menu_count ?? 0) > 0
-            ? `"${deleting.name}" masih berisi ${deleting.menu_count} menu. Pindahkan menunya dulu sebelum menghapus.`
-            : `"${deleting?.name ?? ""}" akan dihapus permanen.`
+          deactivating && (deactivating.menu_count ?? 0) > 0
+            ? `"${deactivating.name}" berisi ${deactivating.menu_count} menu. Selama kategori nonaktif, semua menunya ikut disembunyikan dari kasir dan pesan mandiri; menunya tidak berubah dan tampil lagi saat kategori diaktifkan kembali.`
+            : `"${deactivating?.name ?? ""}" tidak akan tampil di kasir, tetapi datanya tetap tersimpan dan bisa diaktifkan kembali.`
         }
-        isPending={deleteMutation.isPending}
-        disabled={(deleting?.menu_count ?? 0) > 0}
-        onConfirm={() => deleting?.id != null && deleteMutation.mutate(deleting.id)}
+        confirmLabel="Nonaktifkan"
+        pendingLabel="Menonaktifkan..."
+        isPending={statusMutation.isPending}
+        onConfirm={() =>
+          deactivating?.id != null && statusMutation.mutate({ id: deactivating.id, status: "inactive" })
+        }
       />
     </div>
   )

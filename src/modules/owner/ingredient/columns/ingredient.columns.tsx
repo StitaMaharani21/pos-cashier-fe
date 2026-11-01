@@ -1,23 +1,28 @@
-import { PackageIcon, PencilIcon, PlusIcon, SlidersHorizontalIcon, Trash2Icon } from "lucide-react"
+import { ArrowRightLeftIcon, HistoryIcon, PackageIcon, PencilIcon } from "lucide-react"
 
 import type { Ingredient } from "@/entities/ingredient/model/ingredient.types"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Quantity } from "@/shared/ui/quantity"
 import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
+import { StatusBadge } from "@/shared/ui/status-badge"
+import { StatusToggle } from "@/shared/ui/status-toggle"
 import { IconTile, TitleCell } from "@/shared/ui/table-cells"
 
 interface IngredientColumnsArgs {
-  // Stok masuk (goods received) — recorded as "Stok masuk" in Riwayat Stok.
-  onAddStock?: (row: Ingredient) => void
-  // Correction up or down — recorded as "Penyesuaian".
-  onAdjustStock: (row: Ingredient) => void
-  // Omitted = the role can't edit / delete.
+  // Opens Riwayat Stok, the only place stock is changed (Ubah Stok: goods
+  // received or a correction).
+  onManageStock: (row: Ingredient) => void
+  // Opens the purchase-price history (every change of the harga beli).
+  onViewPriceHistory: (row: Ingredient) => void
+  // Omitted = the role can't edit.
   onEdit?: (row: Ingredient) => void
-  onDelete?: (row: Ingredient) => void
+  // Switch the ingredient on/off — ingredients are never deleted. Omitted = the
+  // role can't edit.
+  onToggleStatus?: (row: Ingredient) => void
 }
 
-export function ingredientColumns({ onAddStock, onAdjustStock, onEdit, onDelete }: IngredientColumnsArgs): CrudColumn<Ingredient>[] {
+export function ingredientColumns({ onManageStock, onViewPriceHistory, onEdit, onToggleStatus }: IngredientColumnsArgs): CrudColumn<Ingredient>[] {
   return [
     {
       key: "name",
@@ -60,17 +65,24 @@ export function ingredientColumns({ onAddStock, onAdjustStock, onEdit, onDelete 
       render: (row) => formatRupiah(row.purchase_price ?? 0),
     },
     {
+      key: "status",
+      header: "Status",
+      render: (row) =>
+        onToggleStatus ? (
+          <StatusToggle active={row.status !== "inactive"} label={row.name ?? "bahan baku"} onToggle={() => onToggleStatus(row)} />
+        ) : (
+          <StatusBadge active={row.status !== "inactive"} />
+        ),
+    },
+    {
       key: "actions",
       header: "Aksi",
       className: "w-44",
       render: (row) => (
         <RowActions>
-          {onAddStock && <RowActionButton icon={PlusIcon} label={`Tambah stok ${row.name}`} onClick={() => onAddStock(row)} />}
-          <RowActionButton icon={SlidersHorizontalIcon} label={`Sesuaikan stok ${row.name}`} onClick={() => onAdjustStock(row)} />
+          <RowActionButton icon={ArrowRightLeftIcon} label={`Kelola stok ${row.name} di Riwayat Stok`} onClick={() => onManageStock(row)} />
+          <RowActionButton icon={HistoryIcon} label={`Riwayat harga beli ${row.name}`} onClick={() => onViewPriceHistory(row)} />
           {onEdit && <RowActionButton icon={PencilIcon} label={`Ubah ${row.name}`} onClick={() => onEdit(row)} />}
-          {onDelete && (
-            <RowActionButton icon={Trash2Icon} tone="danger" label={`Hapus ${row.name}`} onClick={() => onDelete(row)} />
-          )}
         </RowActions>
       ),
     },

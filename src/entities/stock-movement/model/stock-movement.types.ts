@@ -10,6 +10,9 @@ import type { components } from "@/shared/api/generated/owner-schema"
 export type IngredientStockMovement =
   components["schemas"]["github_com_deltathrs_pos-kasir-be_internal_master_ingredient_dto.StockMovementResponse"] & {
     delta?: number
+    // Price per unit at the time: the purchase price for goods received, the
+    // average cost for everything else. Missing = not recorded.
+    unit_cost?: number
   }
 export type MenuStockMovement =
   components["schemas"]["github_com_deltathrs_pos-kasir-be_internal_master_menu_dto.StockMovementResponse"] & {

@@ -55,9 +55,15 @@ Every list in the owner dashboard follows one pattern. The Menu / Kategori Menu 
   - Has a `footer` slot.
 - `crud/CrudSection` — a whole page on top of a `CrudService`:
   - Client-side search, status filter and paging (`hooks/useClientTable`).
-  - An automatic "Aksi" column (Edit + Hapus with confirmation).
+  - An automatic "Aksi" column (Edit) and a Status column that becomes an Aktif / Nonaktif toggle (`status-toggle`) — master data is never deleted. A column keyed `"status"` is swapped for the toggle for roles that can edit.
   - The form in a dialog or a sheet.
 - Hand-written tables (drag reorder, inline switches) use the primitives in `table` — `TableCard`, `Table`, `TableHeader`, `TableRow`, `TableHead`, `TableCell` — which already carry the look, plus the `table-states` rows (`TableSkeletonRows`, `TableEmptyRow`, `TableErrorRow`).
+
+**Number inputs** (`number-input.tsx`, behaviour in `hooks/useNumberField.ts`, parsing in `lib/number-input.ts`):
+- Use `NumberInput` for every amount or quantity the user types: it shows Indonesian separators while typing (`1.000`, `10.000`, `1.250.000`, decimal comma `1.250,5`), keeps the caret in place, and understands pasted `Rp 1.250.000`.
+- The form keeps the **plain number string** (`"1250.5"`, `"-3"`, `""`), so zod schemas (`z.string()` + `Number(value)`) and the conversion at submit are unchanged: `<NumberInput value={field.value ?? ""} onValueChange={field.onChange} />`.
+- Props: `decimals` (digits after the comma, default 0), `allowNegative` (stock corrections; uses a text keyboard because phone numeric keypads have no minus), `maxDigits` (whole-part digits), `max` (typing past it is ignored), `group={false}` (no thousands dots: percent, counts), `bare` (a plain `<input>` inside a box the form draws itself, e.g. an "Rp" prefix). `AffixInput` (discount forms) is built on the same hook.
+- Do **not** use it for codes: account/phone numbers, PIN, voucher code, table number, latitude/longitude stay plain text inputs.
 
 **Cells:**
 - First column: `table-cells`' `TitleCell` (tile / avatar / photo + bold name + muted second line), with `IconTile` for an icon.
@@ -68,10 +74,10 @@ Every list in the owner dashboard follows one pattern. The Menu / Kategori Menu 
 - Rows are **not** clickable. Actions live in the last "Aksi" column: `row-actions`' `RowActions` + `RowActionButton` (outline icon buttons with `aria-label`/`title`).
   - Edit = `PencilIcon`.
   - Lihat = `EyeIcon`.
-  - Hapus = `Trash2Icon` with `tone="danger"`.
+  - There is no Hapus for master data: use `status-toggle`'s `StatusToggle` in the Status column instead.
   - One custom icon if needed.
   - At most 3 per row.
-- Deleting always goes through `confirm-dialog`'s `ConfirmDialog`.
+- Switching a row on or off is immediate; only a category that still has menus asks first (`confirm-dialog`'s `ConfirmDialog`), because all its menus disappear from the cashier app with it.
 
 **Two screens on one page:** `page-tabs`' `PageTabs` (underlined tabs with count badges, state in `?tab=`) — Menu (Kategori | Menu), Pengguna (Akun Kasir | Perangkat Kasir).
 

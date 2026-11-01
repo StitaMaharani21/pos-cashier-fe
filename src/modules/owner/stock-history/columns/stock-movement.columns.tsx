@@ -7,7 +7,7 @@ import {
 } from "@/modules/owner/stock-history/lib/labels"
 import type { NormalizedStockMovement } from "@/modules/owner/stock-history/lib/normalize"
 import type { CrudColumn } from "@/shared/api/crud/types"
-import { cn, formatNumber } from "@/shared/lib/utils"
+import { cn, formatNumber, formatRupiah } from "@/shared/lib/utils"
 
 const BADGE_TONE: Record<MovementTone, string> = {
   in: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400",
@@ -21,7 +21,9 @@ const AMOUNT_TONE: Record<MovementTone, string> = {
   neutral: "text-muted-foreground",
 }
 
-export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
+// `showUnitCost`: bahan baku only — the price per unit of each movement.
+export function stockMovementColumns({ showUnitCost }: { showUnitCost: boolean }): CrudColumn<NormalizedStockMovement>[] {
+  return [
   {
     key: "created_at",
     header: "Waktu",
@@ -67,6 +69,17 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
     className: "tabular-nums text-muted-foreground whitespace-nowrap",
     render: (row) => `${formatNumber(row.stockBefore)} → ${formatNumber(row.stockAfter)}`,
   },
+  ...(showUnitCost
+    ? [
+        {
+          key: "unit_cost",
+          header: "Harga per Satuan",
+          align: "right" as const,
+          className: "tabular-nums whitespace-nowrap",
+          render: (row: NormalizedStockMovement) => (row.unitCost == null ? "—" : formatRupiah(row.unitCost)),
+        },
+      ]
+    : []),
   {
     key: "reference",
     header: "Sumber Perubahan",
@@ -83,4 +96,5 @@ export const stockMovementColumns: CrudColumn<NormalizedStockMovement>[] = [
     header: "Oleh",
     render: (row) => row.createdByName || "—",
   },
-]
+  ]
+}

@@ -1,7 +1,13 @@
 import type { MenuCategory } from "@/entities/menu-category/model/menu-category.types"
 import type { MenuCategoryFormPayload } from "@/modules/owner/menu-category/components/MenuCategoryForm"
 import { ApiError, apiClient } from "@/shared/api/client"
-import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
+import {
+  CrudServiceError,
+  type MasterStatus,
+  type PaginatedResponse,
+  type SingleResponse,
+  type UpdateStatusPayload,
+} from "@/shared/api/crud/types"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
 
 const RESOURCE = "/master/menu-categories"
@@ -36,9 +42,15 @@ export async function saveMenuCategory(id: number | null, payload: MenuCategoryF
   }
 }
 
-export async function deleteMenuCategory(id: number): Promise<void> {
+// Categories are never deleted, only switched off. While a category is
+// inactive its menus are hidden from the cashier app (the menus themselves
+// aren't changed, so switching it back on restores them).
+export async function setMenuCategoryStatus(id: number, status: MasterStatus): Promise<MenuCategory> {
   try {
-    await apiClient.delete(`${RESOURCE}/${id}`)
+    const response = await apiClient.patch<SingleResponse<MenuCategory>>(`${RESOURCE}/${id}/status`, {
+      status,
+    } satisfies UpdateStatusPayload)
+    return response.data.data
   } catch (error) {
     throw toServiceError(error)
   }

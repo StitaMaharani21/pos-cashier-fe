@@ -167,6 +167,28 @@ export interface TopProductItem {
   menu_name: string
   qty: number
   revenue: number
+  // Modal (HPP) and gross profit from the sales whose cost was recorded; null
+  // when none of this product's sales has a recorded cost.
+  cogs: number | null
+  gross_profit: number | null
+}
+
+// GET /reports/sales/profit — gross profit with a fixed formula:
+//   pendapatan = Σ(subtotal − diskon) of completed orders, before tax
+//   laba kotor = pendapatan − HPP (cost snapshot taken when stock was deducted)
+// Only orders whose every line has a recorded HPP count toward the profit
+// ("tercakup"); `coverage_pct` says how much of the revenue that is. Orders from
+// before cost tracking, and menus without a recipe or a harga pokok, are not.
+export interface SalesProfit {
+  total_transactions: number
+  covered_transactions: number
+  revenue: number
+  covered_revenue: number
+  cogs: number
+  gross_profit: number
+  // null when there is no covered revenue / no revenue at all.
+  margin_pct: number | null
+  coverage_pct: number | null
 }
 
 export interface TopProductsReport {

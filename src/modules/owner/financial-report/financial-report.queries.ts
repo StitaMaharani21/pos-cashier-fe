@@ -11,6 +11,7 @@ import type {
   PaymentMethodBreakdown,
   PeakHoursHeatmap,
   ReportTransactionListResponse,
+  SalesProfit,
   SalesSummary,
   TopProductsReport,
   TopProductsSort,
@@ -34,6 +35,18 @@ export function useSalesSummary({ from, to }: DateRangeParams) {
     queryKey: ["financial-report", "summary", from, to],
     queryFn: async () => {
       const res = await apiClient.get<SingleResponse<SalesSummary>>("/reports/sales/summary", {
+        params: { from, to },
+      })
+      return res.data.data
+    },
+  })
+}
+
+export function useSalesProfit({ from, to }: DateRangeParams) {
+  return useQuery({
+    queryKey: ["financial-report", "profit", from, to],
+    queryFn: async () => {
+      const res = await apiClient.get<SingleResponse<SalesProfit>>("/reports/sales/profit", {
         params: { from, to },
       })
       return res.data.data

@@ -59,7 +59,10 @@ function PickerBody({
     const known = new Map(categories.map((c) => [c.id ?? 0, c.name ?? ""]))
     const byCategory = new Map<number, Menu[]>()
     for (const menu of menus) {
-      const matches =
+      // Inactive menus (or menus of an inactive category) can't be newly
+      // discounted; ones already in the discount stay so they can be removed.
+      if (menu.effective_active === false && !selectedIds.includes(menu.id ?? 0)) continue
+      const matches=
         !query || (menu.name ?? "").toLowerCase().includes(query) || (menu.code ?? "").toLowerCase().includes(query)
       if (!matches) continue
       const id = menu.category_id ?? 0
@@ -75,7 +78,7 @@ function PickerBody({
         const items = byCategory.get(id) ?? []
         return { id, name: known.get(id) || items[0]?.category_name || "Tanpa kategori", items }
       })
-  }, [menus, categories, query])
+  }, [menus, categories, query, selectedIds])
 
   const totalMatches = groups.reduce((sum, group) => sum + group.items.length, 0)
   const visibleGroups = category === "all" ? groups : groups.filter((group) => group.id === category)

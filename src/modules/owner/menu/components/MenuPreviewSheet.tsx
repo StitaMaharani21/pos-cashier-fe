@@ -1,4 +1,4 @@
-import { ClockIcon, PencilIcon, StarIcon, Trash2Icon } from "lucide-react"
+import { ClockIcon, PencilIcon, PowerIcon, PowerOffIcon, StarIcon } from "lucide-react"
 
 import type { Menu } from "@/entities/menu/model/menu.types"
 import { stockLabel } from "@/modules/owner/menu/constants/menu-display"
@@ -10,11 +10,11 @@ import { StatusBadge } from "@/shared/ui/status-badge"
 interface MenuPreviewSheetProps {
   menu: Menu | null
   canEdit: boolean
-  canDelete: boolean
-  isDeleting: boolean
+  isTogglingStatus: boolean
   onClose: () => void
   onEdit: (menu: Menu) => void
-  onDelete: (menu: Menu) => void
+  // Switch the menu on/off (menus are never deleted).
+  onToggleStatus: (menu: Menu) => void
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -26,17 +26,9 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   )
 }
 
-// The eye action: a read-only look at one menu, with edit/delete from here
-// (the list row itself only has edit + view, per the design).
-export function MenuPreviewSheet({
-  menu,
-  canEdit,
-  canDelete,
-  isDeleting,
-  onClose,
-  onEdit,
-  onDelete,
-}: MenuPreviewSheetProps) {
+// The eye action: a read-only look at one menu, with edit / nonaktifkan from
+// here (the list row itself only has edit + view, per the design).
+export function MenuPreviewSheet({ menu, canEdit, isTogglingStatus, onClose, onEdit, onToggleStatus }: MenuPreviewSheetProps) {
   return (
     <Sheet open={menu !== null} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="flex flex-col gap-0 p-0">
@@ -74,6 +66,12 @@ export function MenuPreviewSheet({
                     {menu.preparation_time ? `${menu.preparation_time} menit` : "—"}
                   </span>
                 </Row>
+                <Row label="Status">
+                  <StatusBadge
+                    active={menu.effective_active ?? menu.status !== "inactive"}
+                    inactiveLabel={menu.inactive_reason === "category" ? "Nonaktif (kategori)" : "Nonaktif"}
+                  />
+                </Row>
                 <Row label="Tersedia">
                   <StatusBadge active={menu.is_available ?? false} activeLabel="Tersedia" inactiveLabel="Tidak tersedia" />
                 </Row>
@@ -88,19 +86,22 @@ export function MenuPreviewSheet({
                 </Row>
               </div>
             </div>
-            {(canEdit || canDelete) && (
+            {canEdit && (
               <div className="flex gap-2.5 border-t px-6 py-4">
-                {canDelete && (
+                {menu.status === "inactive" ? (
+                  <Button variant="outline" disabled={isTogglingStatus} onClick={() => onToggleStatus(menu)}>
+                    <PowerIcon />
+                    Aktifkan
+                  </Button>
+                ) : (
                   <Button
                     variant="outline"
                     className="text-destructive hover:text-destructive"
-                    disabled={isDeleting}
-                    onClick={() => {
-                      if (window.confirm(`Hapus menu "${menu.name}"?`)) onDelete(menu)
-                    }}
+                    disabled={isTogglingStatus}
+                    onClick={() => onToggleStatus(menu)}
                   >
-                    <Trash2Icon />
-                    {isDeleting ? "Menghapus..." : "Hapus"}
+                    <PowerOffIcon />
+                    Nonaktifkan
                   </Button>
                 )}
                 {canEdit && (

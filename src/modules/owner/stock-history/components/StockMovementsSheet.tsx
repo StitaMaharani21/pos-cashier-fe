@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowDownToLineIcon, ArrowUpFromLineIcon, HistoryIcon, PlusIcon } from "lucide-react"
+import { ArrowDownToLineIcon, ArrowUpFromLineIcon, HistoryIcon, SlidersHorizontalIcon } from "lucide-react"
 
 import type {
   IngredientStockMovement,
@@ -38,24 +38,24 @@ interface StockMovementsSheetProps {
   // null = closed.
   item: StockItem | null
   onOpenChange: (open: boolean) => void
-  // Omitted = the role can't add stock.
-  onAddStock?: (item: StockItem) => void
+  // Omitted = the role can't change stock.
+  onChangeStock?: (item: StockItem) => void
 }
 
 // The stock turnover of one item: how much came in and went out in total,
 // and every movement (newest first), filterable to stock in / stock out.
-export function StockMovementsSheet({ item, onOpenChange, onAddStock }: StockMovementsSheetProps) {
+export function StockMovementsSheet({ item, onOpenChange, onChangeStock }: StockMovementsSheetProps) {
   return (
     <Sheet open={item != null} onOpenChange={onOpenChange}>
       <SheetContent className="w-full gap-0 sm:max-w-4xl">
         {/* Keyed + mounted only while open, so page and filter start fresh per item. */}
-        {item && <SheetBody key={`${item.source}-${item.id}`} item={item} onAddStock={onAddStock} />}
+        {item && <SheetBody key={`${item.source}-${item.id}`} item={item} onChangeStock={onChangeStock} />}
       </SheetContent>
     </Sheet>
   )
 }
 
-function SheetBody({ item, onAddStock }: { item: StockItem; onAddStock?: (item: StockItem) => void }) {
+function SheetBody({ item, onChangeStock }: { item: StockItem; onChangeStock?: (item: StockItem) => void }) {
   const [page, setPage] = useState(1)
   const [direction, setDirection] = useState<DirectionFilter>("all")
   const apiDirection = direction === "all" ? undefined : direction
@@ -74,6 +74,7 @@ function SheetBody({ item, onAddStock }: { item: StockItem; onAddStock?: (item: 
       : normalizeMenuMovement(row as MenuStockMovement)
   )
   const total = data?.total ?? 0
+  const columns = useMemo(() => stockMovementColumns({ showUnitCost: item.source === "ingredient" }), [item.source])
 
   return (
     <>
@@ -125,16 +126,16 @@ function SheetBody({ item, onAddStock }: { item: StockItem; onAddStock?: (item: 
               </button>
             ))}
           </div>
-          {onAddStock && (
-            <Button className="h-10" onClick={() => onAddStock(item)}>
-              <PlusIcon />
-              Tambah Stok
+          {onChangeStock && (
+            <Button className="h-10" onClick={() => onChangeStock(item)}>
+              <SlidersHorizontalIcon />
+              Ubah Stok
             </Button>
           )}
         </div>
 
         <CrudTable
-          columns={stockMovementColumns}
+          columns={columns}
           rows={rows}
           getRowId={(row) => row.id}
           isLoading={isLoading}
