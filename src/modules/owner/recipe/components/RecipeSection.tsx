@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import type { Ingredient } from "@/entities/ingredient/model/ingredient.types"
 import type { Recipe } from "@/entities/recipe/model/recipe.types"
 import { recipeService } from "@/modules/owner/recipe/api/recipe.service"
+import { formatQuantity, recipeLineAmount } from "@/modules/owner/recipe/lib/recipe-format"
 import {
   convertUnit,
   getSmallestUnit,
@@ -17,6 +18,7 @@ import { recipeRowSchema, type RecipeRowFormValues } from "@/modules/owner/recip
 import { CrudServiceError } from "@/shared/api/crud/types"
 import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { Button } from "@/shared/ui/button"
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/shared/ui/form"
 import { NumberInput } from "@/shared/ui/number-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
@@ -28,10 +30,19 @@ interface RecipeSectionProps {
   optionId: number | null
   title: string
   description?: string
+  // Shown while the block has no lines: what to put here.
+  emptyHint: string
   rows: Recipe[]
   // Every ingredient (inactive ones included, so existing lines still resolve).
   ingredients: Ingredient[]
   recipesQueryKey: unknown[]
+  // Only for a serving block opened by mistake that has no lines: closes it.
+  onClose?: () => void
+}
+
+// A small visible caption above a field of the add row.
+function FieldCaption({ children }: { children: string }) {
+  return <span className="text-xs font-medium text-muted-foreground">{children}</span>
 }
 
 // One block of recipe lines: either the lines shared by every serving, or the
@@ -43,11 +54,14 @@ export function RecipeSection({
   optionId,
   title,
   description,
+  emptyHint,
   rows,
   ingredients,
   recipesQueryKey,
+  onClose,
 }: RecipeSectionProps) {
   const queryClient = useQueryClient()
+  const [confirmClear, setConfirmClear] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingQuantity, setEditingQuantity] = useState("")
   const [editingUnit, setEditingUnit] = useState("")
@@ -85,6 +99,20 @@ export function RecipeSection({
     onError: (error) => toast.error(errorMessage(error)),
   })
 
+  // "Hapus semua": for a block (e.g. a serving's recipe) that is not wanted after all.
+  const clearMutation = useMutation({
+    mutationFn: () => Promise.all(rows.map((row) => recipeService.remove(row.id ?? 0))),
+    onSuccess: () => {
+      toast.success("Semua bahan di bagian ini dihapus")
+      setConfirmClear(false)
+      invalidate()
+    },
+    onError: (error) => {
+      toast.error(errorMessage(error))
+      invalidate()
+    },
+  })
+
   const form = useCrudForm({
     schema: recipeRowSchema,
     defaultValues: { ingredientId: "", quantity: "", unit: "" },
@@ -100,6 +128,8 @@ export function RecipeSection({
   const selectedIngredientId = form.watch("ingredientId")
   const selectedIngredient = availableIngredients.find((ingredient) => String(ingredient.id) === selectedIngredientId)
   const entryUnitOptions = getUnitOptions(selectedIngredient?.unit)
+  const enteredQuantity = Number(form.watch("quantity"))
+  const enteredUnit = form.watch("unit")
 
   // Default the entry unit to the smallest/friendliest unit in the chosen
   // ingredient's group (e.g. picking "Biji Kopi" tracked in "kg" defaults the
@@ -110,6 +140,22 @@ export function RecipeSection({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedIngredientId])
+
+  // What the line being typed means: the amount in the ingredient's own (stock)
+  // unit, and how many servings the current stock covers.
+  const preview = (() => {
+    if (!selectedIngredient || !enteredUnit || !(enteredQuantity > 0)) return null
+    const stockUnit = selectedIngredient.unit ?? enteredUnit
+    const inStockUnit = convertUnit(enteredQuantity, enteredUnit, stockUnit)
+    if (!(inStockUnit > 0)) return null
+    const stock = selectedIngredient.stock ?? 0
+    return {
+      converted: enteredUnit !== stockUnit ? `${formatQuantity(enteredQuantity)} ${enteredUnit} = ${formatQuantity(inStockUnit)} ${stockUnit}` : null,
+      stockUnit,
+      stock,
+      servings: stock > 0 ? Math.floor(stock / inStockUnit) : 0,
+    }
+  })()
 
   function handleAdd(values: RecipeRowFormValues) {
     if (!selectedIngredient) return
@@ -158,20 +204,41 @@ export function RecipeSection({
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border p-3">
-      <div>
-        <h4 className="text-sm font-semibold text-foreground">{title}</h4>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h4 className="text-sm font-semibold text-foreground">{title}</h4>
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </div>
+        {rows.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => setConfirmClear(true)}
+            className="shrink-0 cursor-pointer text-xs font-semibold text-destructive underline underline-offset-2"
+          >
+            Hapus semua
+          </button>
+        ) : (
+          onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={`Tutup ${title}`}
+              className="flex shrink-0 cursor-pointer items-center gap-1 text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              <XIcon className="size-3.5" />
+              Tutup
+            </button>
+          )
+        )}
       </div>
 
       {rows.length === 0 ? (
-        <p className="py-1 text-sm text-muted-foreground">Belum ada bahan baku di bagian ini.</p>
+        <p className="rounded-md border border-dashed bg-muted/30 px-3 py-2.5 text-sm text-muted-foreground">{emptyHint}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {rows.map((row) => {
-            const rawUnit = row.ingredient_unit ?? ""
-            const displayUnit = getSmallestUnit(rawUnit) || rawUnit
-            const displayQty = roundUnitValue(convertUnit(row.quantity ?? 0, rawUnit, displayUnit))
-            const showRaw = displayUnit !== rawUnit
+            const { qty, unit, rawQty, rawUnit } = recipeLineAmount(row)
+            const showRaw = unit !== rawUnit
 
             return (
               <div key={row.id} className="flex items-center justify-between gap-2 rounded-md border px-3 py-2">
@@ -204,9 +271,9 @@ export function RecipeSection({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {getUnitOptions(rawUnit).map((unit) => (
-                          <SelectItem key={unit} value={unit}>
-                            {unit}
+                        {getUnitOptions(rawUnit).map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -232,10 +299,10 @@ export function RecipeSection({
                 ) : (
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm text-muted-foreground">
-                      {displayQty} {displayUnit}
+                      {formatQuantity(qty)} {unit}
                       {showRaw && (
                         <span className="ml-1 text-xs text-muted-foreground/70">
-                          ({row.quantity} {rawUnit})
+                          ({formatQuantity(rawQty)} {rawUnit})
                         </span>
                       )}
                     </span>
@@ -268,41 +335,48 @@ export function RecipeSection({
         {/* A <div>, not a <form>: this block renders inside the menu <form>, and a nested
             submit would bubble up and submit (then close) the menu drawer. */}
         <div className="flex flex-col gap-2 border-t pt-3">
-          <FormField
-            control={form.control}
-            name="ingredientId"
-            render={({ field }) => (
-              <FormItem>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih bahan baku" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {availableIngredients.map((ingredient) => (
-                      <SelectItem key={ingredient.id} value={String(ingredient.id)}>
-                        {ingredient.name} (stok: {ingredient.unit})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <p className="text-xs font-semibold text-foreground">Tambah bahan</p>
 
-          <div className="flex items-end gap-2">
+          {/* Bahan on its own row, then jumlah · satuan · Tambah on the next. Every
+              field has a visible caption. */}
+          <div className="flex flex-wrap items-start gap-2">
+            <FormField
+              control={form.control}
+              name="ingredientId"
+              render={({ field }) => (
+                <FormItem className="basis-full gap-1">
+                  <FieldCaption>1. Bahan baku</FieldCaption>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih bahan baku" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableIngredients.map((ingredient) => (
+                        <SelectItem key={ingredient.id} value={String(ingredient.id)}>
+                          {ingredient.name} — stok {formatQuantity(ingredient.stock ?? 0)} {ingredient.unit}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="quantity"
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem className="min-w-28 flex-1 gap-1">
+                  <FieldCaption>2. Jumlah per porsi</FieldCaption>
                   <FormControl>
                     <NumberInput
                       decimals={3}
                       maxDigits={9}
-                      placeholder="Jumlah per sajian"
+                      placeholder="mis. 18"
+                      disabled={!selectedIngredient}
                       name={field.name}
                       ref={field.ref}
                       onBlur={field.onBlur}
@@ -325,11 +399,12 @@ export function RecipeSection({
               control={form.control}
               name="unit"
               render={({ field }) => (
-                <FormItem className="w-28">
-                  <Select value={field.value} onValueChange={field.onChange}>
+                <FormItem className="w-28 gap-1">
+                  <FieldCaption>Satuan</FieldCaption>
+                  <Select value={field.value} onValueChange={field.onChange} disabled={!selectedIngredient}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Satuan" />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="—" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -345,18 +420,44 @@ export function RecipeSection({
               )}
             />
 
-            <Button
-              type="button"
-              aria-label="Tambah bahan baku"
-              onClick={() => void form.handleSubmit(handleAdd)()}
-              disabled={createMutation.isPending || !selectedIngredient}
-              size="icon"
-            >
-              <PlusIcon className="size-4" />
-            </Button>
+            <div className="flex flex-col gap-1">
+              {/* Same height as a caption so the button lines up with the inputs. */}
+              <span aria-hidden className="text-xs">
+                &nbsp;
+              </span>
+              <Button
+                type="button"
+                onClick={() => void form.handleSubmit(handleAdd)()}
+                disabled={createMutation.isPending || !selectedIngredient}
+              >
+                <PlusIcon />
+                Tambah
+              </Button>
+            </div>
           </div>
+
+          {!selectedIngredient ? (
+            <p className="text-xs text-muted-foreground">Pilih bahan baku dulu; satuannya terisi otomatis.</p>
+          ) : preview ? (
+            <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              Setiap 1 porsi memakai <span className="font-semibold text-foreground">{preview.converted ?? `${formatQuantity(enteredQuantity)} ${enteredUnit}`}</span>
+              .{" "}
+              {preview.stock > 0
+                ? `Stok sekarang ${formatQuantity(preview.stock)} ${preview.stockUnit}, cukup untuk sekitar ${formatQuantity(preview.servings)} porsi.`
+                : "Stok bahan ini masih 0 — isi lewat Riwayat Stok → Ubah Stok → Stok Masuk."}
+            </p>
+          ) : null}
         </div>
       </Form>
+
+      <ConfirmDialog
+        open={confirmClear}
+        onOpenChange={setConfirmClear}
+        title={`Hapus semua bahan di "${title}"?`}
+        description={`${rows.length} bahan akan dihapus dari resep. Stok yang sudah terpotong oleh pesanan sebelumnya tidak berubah.`}
+        isPending={clearMutation.isPending}
+        onConfirm={() => clearMutation.mutate()}
+      />
     </div>
   )
 }

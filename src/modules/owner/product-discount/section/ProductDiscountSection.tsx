@@ -5,7 +5,7 @@ import type {
   ProductDiscount,
   UpdateProductDiscountPayload,
 } from "@/entities/product-discount/model/product-discount.types"
-import { productDiscountColumns } from "@/modules/owner/product-discount/columns/product-discount.columns"
+import { isExpired, productDiscountColumns } from "@/modules/owner/product-discount/columns/product-discount.columns"
 import { ProductDiscountForm } from "@/modules/owner/product-discount/components/ProductDiscountForm"
 import { createCrudService } from "@/shared/api/crud/createCrudService"
 import { CrudSection } from "@/shared/ui/crud/CrudSection"
@@ -30,7 +30,10 @@ export function ProductDiscountSection() {
       describeCount={(total) => `${total} diskon otomatis terdaftar`}
       searchText={(row) => `${row.name ?? ""} ${row.menus?.map((menu) => menu.menu_name).join(" ") ?? ""}`}
       searchPlaceholder="Cari nama diskon atau menu..."
-      statusOf={(row) => row.status}
+      statusOf={(row) => (isExpired(row) ? "inactive" : row.status)}
+      statusNote={(row) =>
+        isExpired(row) ? <span className="text-xs text-muted-foreground">Kedaluwarsa</span> : undefined
+      }
       minWidth="min-w-[860px]"
       empty={{
         icon: BadgePercentIcon,

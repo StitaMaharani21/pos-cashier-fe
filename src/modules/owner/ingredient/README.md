@@ -2,7 +2,7 @@
 
 Master data for raw materials ("Bahan Baku") consumed by `by_ingredient` menus — e.g. coffee beans, milk. Backed by `pos-kasir-be`'s `internal/master/ingredient`: plain JSON CRUD at `/master/ingredients` (`GET/POST/PUT`, `PATCH :id/status`, paginated with `page`/`per_page`/`search`).
 
-Fields: `name`, `unit` (free text — no unit/UOM enum on the backend), `stock` (read-only here), `min_stock`, `purchase_price` (harga beli terakhir), `average_cost` (harga pokok rata-rata, owner only — the HPP basis).
+Fields: `name`, `unit` (picked from a fixed dropdown, `constants/units.ts` — never typed, so "kg" is always spelled the same; locked after creation because stock and recipes are counted in it; the backend itself still stores a plain string, so an older free-text unit keeps showing), `stock` (read-only here), `min_stock`, `purchase_price` (harga beli terakhir), `average_cost` (harga pokok rata-rata, owner only — the HPP basis).
 
 Hand-wired like `modules/owner/menu` (not the generic `CrudSection`) because the list needs pagination + debounced search, which `CrudSection` doesn't model — but uses a centered `CrudDialogFrame` (like `menu-category`) instead of a `Sheet`, since there's no image upload and the form is short.
 
@@ -18,4 +18,4 @@ For this ingredient's movement history or a store-wide drift check, see `modules
 
 List page: the shared table pattern (`shared/ui/README.md` "Tabel") with server-side search and paging (10 per page). "Aksi": Kelola stok (→ Riwayat Stok), Riwayat harga beli, Edit; the Status column is an Aktif / Nonaktif toggle. Ingredients are never deleted; an inactive one is no longer offered for recipes or new stock, while menus whose recipe already uses it stay active. A stock at or below its minimum shows a "Menipis" badge.
 
-Sublayers: `api/` (service + pagination), `components/` (form), `schemas/` (zod), `columns/` (`CrudColumn<Ingredient>[]`), `section/` (`IngredientSection.tsx`).
+Sublayers: `api/` (service + pagination), `components/` (form), `constants/` (`units.ts`), `schemas/` (zod), `columns/` (`CrudColumn<Ingredient>[]`), `section/` (`IngredientSection.tsx`).

@@ -3,6 +3,7 @@ import type {
   Ingredient,
   UpdateIngredientPayload,
 } from "@/entities/ingredient/model/ingredient.types"
+import { INGREDIENT_UNITS } from "@/modules/owner/ingredient/constants/units"
 import {
   ingredientSchema,
   type IngredientFormValues,
@@ -13,10 +14,7 @@ import { Button } from "@/shared/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
 import { Input } from "@/shared/ui/input"
 import { NumberInput } from "@/shared/ui/number-input"
-
-// No backend enum for unit — this is just a UX nicety via <datalist>, still
-// free text underneath (Ingredient.unit is a plain string column).
-const UNIT_SUGGESTIONS = ["gram", "kg", "ml", "liter", "pcs", "dus", "box"]
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 
 interface IngredientFormProps {
   row: Ingredient | null
@@ -70,16 +68,32 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
           render={({ field }) => (
             <FormItem>
               <FormLabel>Satuan</FormLabel>
-              <FormControl>
-                <Input list="ingredient-unit-suggestions" placeholder="gram" {...field} />
-              </FormControl>
-              <datalist id="ingredient-unit-suggestions">
-                {UNIT_SUGGESTIONS.map((unit) => (
-                  <option key={unit} value={unit} />
-                ))}
-              </datalist>
+              {/* A dropdown, not free text: the same unit is always spelled the
+                  same way. It is fixed once the ingredient exists — stock and
+                  recipes are counted in it, so changing "kg" to "gram" would
+                  silently turn 10 kg into 10 gram. */}
+              <Select value={field.value} onValueChange={field.onChange} disabled={row != null}>
+                <FormControl>
+                  <SelectTrigger className="h-11 w-full bg-card">
+                    <SelectValue placeholder="Pilih satuan" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {/* An old free-text unit that is not on the list still shows. */}
+                  {field.value && !(INGREDIENT_UNITS as readonly string[]).includes(field.value) && (
+                    <SelectItem value={field.value}>{field.value}</SelectItem>
+                  )}
+                  {INGREDIENT_UNITS.map((unit) => (
+                    <SelectItem key={unit} value={unit}>
+                      {unit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
-                Nama satuan untuk menghitung stok (mis. gram, kg, ml, pcs), bukan angka.
+                {row
+                  ? "Satuan tidak bisa diubah karena stok dan resep dihitung dalam satuan ini. Buat bahan baru bila satuannya berbeda."
+                  : "Satuan untuk menghitung stok. Pilih dari daftar; tidak bisa diubah setelah disimpan."}
               </p>
               <FormMessage />
             </FormItem>

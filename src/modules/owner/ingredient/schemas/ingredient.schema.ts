@@ -2,12 +2,9 @@ import { z } from "zod"
 
 export const ingredientSchema = z.object({
   name: z.string().min(1, "Nama bahan wajib diisi"),
-  // Free text — the backend has no unit/UOM enum for Ingredient.
-  unit: z
-    .string()
-    .trim()
-    .min(1, "Satuan wajib diisi")
-    .refine((value) => Number.isNaN(Number(value)), "Isi nama satuan, mis. gram, kg, ml, pcs"),
+  // Picked from INGREDIENT_UNITS in the form. The backend has no unit enum, so
+  // an older free-text unit still loads and is kept as it is when editing.
+  unit: z.string().trim().min(1, "Satuan wajib dipilih"),
   minStock: z
     .string()
     .optional()

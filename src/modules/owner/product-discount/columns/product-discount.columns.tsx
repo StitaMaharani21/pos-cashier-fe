@@ -6,10 +6,21 @@ import {
   describeDays,
   describeHours,
   describeValue,
+  fromApiDate,
+  todayInput,
 } from "@/modules/owner/discount-form/lib/discount-rules"
 import type { CrudColumn } from "@/shared/api/crud/types"
 import { StatusBadge } from "@/shared/ui/status-badge"
 import { IconTile, TitleCell } from "@/shared/ui/table-cells"
+
+// The end date has passed. The backend switches such discounts to inactive on
+// its own (a scheduled job, plus whenever the list is read); this labels them
+// so they read as expired, not just switched off, and keeps a stale list (page
+// left open past midnight) from showing them as still active.
+export function isExpired(row: ProductDiscount): boolean {
+  const end = fromApiDate(row.end_date)
+  return end !== "" && end < todayInput()
+}
 
 export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
   {
@@ -67,6 +78,6 @@ export const productDiscountColumns: CrudColumn<ProductDiscount>[] = [
     key: "status",
     header: "Status",
     className: "w-32",
-    render: (row) => <StatusBadge active={row.status === "active"} />,
+    render: (row) => <StatusBadge active={row.status === "active" && !isExpired(row)} />,
   },
 ]
