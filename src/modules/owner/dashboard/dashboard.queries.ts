@@ -27,6 +27,14 @@ import type { SingleResponse } from "@/shared/api/crud/types"
 
 const CASH_SUMMARY_KEY = ["dashboard", "cash-summary"] as const
 
+// The drawer and sales cards describe the shift that is open RIGHT NOW, and it
+// is the cashier's phone that opens, counts and closes it — so this page cannot
+// learn about it from anything the owner does here. Poll while the tab is
+// visible (React Query pauses background tabs), so a shift closed on the phone
+// resets the cards within this time instead of showing stale figures until a
+// manual reload.
+const SHIFT_REFRESH_MS = 30_000
+
 export function useDailyTransactionLimit() {
   return useQuery({
     queryKey: ["dashboard", "daily-transaction-limit"],
@@ -56,6 +64,8 @@ export function useDashboardSummary(sinceShiftOpen = false) {
       )
       return res.data.data
     },
+    // Shift-scoped figures follow the running shift (see SHIFT_REFRESH_MS).
+    refetchInterval: sinceShiftOpen ? SHIFT_REFRESH_MS : false,
   })
 }
 
@@ -72,6 +82,9 @@ export function useCashSummary() {
       return res.data.data
     },
     retry: false,
+    // Also keeps polling through the 404 "no active shift" state, so the cards
+    // come back by themselves when the next cashier opens a shift.
+    refetchInterval: SHIFT_REFRESH_MS,
   })
 }
 

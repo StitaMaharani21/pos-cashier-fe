@@ -134,7 +134,9 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
             name="purchasePrice"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Harga Beli Awal</FormLabel>
+                <FormLabel>
+                  Harga Beli Awal per {form.watch("unit") || "satuan"} (Rp)
+                </FormLabel>
                 <FormControl>
                   <NumberInput decimals={2} maxDigits={12} name={field.name}
                   ref={field.ref}
@@ -142,6 +144,11 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
                   value={field.value ?? ""}
                   onValueChange={field.onChange} />
                 </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Harga untuk <span className="font-semibold">satu {form.watch("unit") || "satuan"}</span>, bukan total
+                  belanja. Contoh: beli 10 kg seharga Rp105.000 berarti Rp10.500 per kg; kalau satuannya gram, isi
+                  10,5.
+                </p>
                 <p className="text-xs text-muted-foreground">
                   Hanya diisi di sini sekali. Stok mulai dari 0: isi stok awal lewat Riwayat Stok → Ubah Stok → Stok Masuk,
                   dan harga beli berikutnya ikut di situ.
