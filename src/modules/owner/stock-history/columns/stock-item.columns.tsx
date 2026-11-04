@@ -13,9 +13,13 @@ interface StockItemColumnsArgs {
   onChangeStock?: (item: StockItem) => void
 }
 
-function isLow(item: StockItem): boolean {
-  if (item.stock == null) return false
-  return item.source === "ingredient" ? item.stock <= (item.minStock ?? 0) : item.stock <= 0
+// "Habis" (a menu at 0) / "Menipis" (at or under its stok minimum). A bahan baku has
+// no separate "Habis": it reads "Menipis" like before.
+function stockLevel(item: StockItem): "habis" | "menipis" | null {
+  if (item.stock == null) return null
+  if (item.source === "menu" && item.stock <= 0) return "habis"
+  if (item.stock <= (item.minStock ?? 0)) return "menipis"
+  return null
 }
 
 export function stockItemColumns({ onViewHistory, onChangeStock }: StockItemColumnsArgs): CrudColumn<StockItem>[] {
@@ -38,12 +42,13 @@ export function stockItemColumns({ onViewHistory, onChangeStock }: StockItemColu
       className: "tabular-nums",
       render: (item) => {
         if (item.stock == null) return <span className="text-muted-foreground">Belum diisi</span>
-        const low = isLow(item)
+        const level = stockLevel(item)
+        const low = level != null
         return (
           <span className="inline-flex items-center gap-2">
             {low && (
               <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-bold text-destructive">
-                {item.source === "menu" ? "Habis" : "Menipis"}
+                {level === "habis" ? "Habis" : "Menipis"}
               </span>
             )}
             <Quantity

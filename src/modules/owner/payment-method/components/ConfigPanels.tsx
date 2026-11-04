@@ -4,15 +4,16 @@ import type {
   CardType,
   PaymentMethodType,
 } from "@/entities/payment-method/model/payment-method.types"
+import type { CardBank } from "@/entities/card-bank/model/card-bank.types"
 import type { PaymentChannel } from "@/entities/payment-channel/model/payment-channel.types"
 import { CARD_TYPE_OPTIONS } from "@/modules/owner/payment-method/constants/payment-providers"
 import {
-  channelKey,
   surchargeError as surchargeErrorOf,
   type MethodDraft,
 } from "@/modules/owner/payment-method/components/method-draft"
 import { OptionChip } from "@/modules/owner/payment-method/components/OptionChip"
 import { Button } from "@/shared/ui/button"
+import { LabelWithInfo } from "@/shared/ui/info-tip"
 import { ImageUpload } from "@/shared/ui/image-upload"
 import { NumberInput } from "@/shared/ui/number-input"
 import { RowActionButton, RowActions } from "@/shared/ui/row-actions"
@@ -41,11 +42,20 @@ export function CardConfigPanel({
   draft,
   onChange,
   surchargeError,
-  channels,
-}: PanelProps & { surchargeError: string | null; channels: PaymentChannel[] }) {
+  cardBanks,
+}: PanelProps & { surchargeError: string | null; cardBanks: CardBank[] }) {
   const acceptsCard = draft.cardTypes.length > 0
-  // The banks the store accepts (the same list as Transfer Bank).
-  const banks = channels.filter((channel) => channel.type === "bank" && channel.status === "active")
+  const acceptsDebit = draft.cardTypes.includes("debit")
+  const acceptsCredit = draft.cardTypes.includes("credit")
+
+  function setRate(bank: string, kind: "debit" | "credit", value: string) {
+    onChange((d) => ({
+      cardBankRates: {
+        ...d.cardBankRates,
+        [bank]: { ...(d.cardBankRates[bank] ?? { debit: "", credit: "" }), [kind]: value },
+      },
+    }))
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -67,12 +77,25 @@ export function CardConfigPanel({
       </div>
 
       <div className="flex flex-col gap-2 border-t pt-6">
-        <label htmlFor="mdr-default" className="text-sm font-semibold text-foreground">
-          Biaya Kartu Umum (MDR)
-        </label>
-        <p className="text-xs text-muted-foreground">
-          Dipakai bila bank tidak punya biaya sendiri.
-        </p>
+        <LabelWithInfo
+          infoLabel="MDR Default"
+          info={
+            <>
+              <p>
+                MDR adalah potongan dari bank ke toko, bukan tambahan bayar untuk pelanggan. Pelanggan tetap membayar
+                total pesanan.
+              </p>
+              <p>
+                MDR Default dipakai bila bank penerbit kartu tidak punya tarif sendiri di tabel bawah, atau kasir tidak
+                memilih bank penerbit.
+              </p>
+            </>
+          }
+        >
+          <label htmlFor="mdr-default" className="text-sm font-semibold text-foreground">
+            MDR Default
+          </label>
+        </LabelWithInfo>
         <div className="relative max-w-48">
           <NumberInput
             id="mdr-default"
@@ -91,87 +114,97 @@ export function CardConfigPanel({
         {surchargeError ? (
           <p className="text-xs text-destructive">{surchargeError}</p>
         ) : (
-          <p className="text-xs text-muted-foreground italic">
-            {acceptsCard
-              ? "Catatan: biaya kartu (MDR) adalah potongan dari bank atau penyedia kartu ke toko, bukan tambahan bayar untuk pelanggan."
-              : "Pilih minimal satu jenis kartu untuk mengatur biaya kartu."}
-          </p>
+          !acceptsCard && (
+            <p className="text-xs text-muted-foreground italic">Pilih minimal satu jenis kartu untuk mengatur MDR.</p>
+          )
         )}
       </div>
 
       <div className="flex flex-col gap-3 border-t pt-6">
-        <SectionLabel>Biaya Khusus per Bank</SectionLabel>
-        <p className="-mt-1 text-xs text-muted-foreground">
-          Isi biaya khusus untuk bank tertentu. Jika dikosongkan, dipakai biaya kartu umum
-          {draft.surcharge ? ` (${draft.surcharge}%)` : ""}.
-        </p>
-        {banks.length === 0 ? (
-          <p className="rounded-xl bg-muted/50 px-4 py-4 text-sm text-muted-foreground">
-            Belum ada bank toko yang aktif. Aktifkan bank di pengaturan Transfer Bank, lalu atur biaya kartunya di sini.
-          </p>
-        ) : (
-          <div className="overflow-x-auto rounded-xl border">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                  <th className="px-4 py-2.5">Bank</th>
-                  <th className="px-4 py-2.5">MDR</th>
-                  <th className="px-4 py-2.5">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {banks.map((bank) => {
-                  const key = channelKey(bank.name ?? "")
-                  const value = draft.bankSurcharges[key] ?? ""
-                  const problem = surchargeErrorOf(value)
-                  const isOverride = value.trim() !== ""
-                  return (
-                    <tr key={bank.id}>
-                      <td className="px-4 py-3 font-medium text-foreground">
-                        <label htmlFor={`bank-mdr-${bank.id}`}>{bank.name}</label>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
-                          <div className="relative w-32">
-                            <NumberInput
-                              id={`bank-mdr-${bank.id}`}
-                              decimals={2}
-                              max={100}
-                              group={false}
-                              placeholder="Sama dengan umum"
-                              value={value}
-                              disabled={!acceptsCard}
-                              aria-invalid={problem ? true : undefined}
-                              onValueChange={(next) =>
-                                onChange((d) => ({ bankSurcharges: { ...d.bankSurcharges, [key]: next } }))
-                              }
-                              className="pr-8"
-                            />
-                            <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
-                              %
-                            </span>
+        <LabelWithInfo
+          infoLabel="MDR per bank penerbit"
+          info={
+            <>
+              <p>
+                MDR mengikuti <span className="font-semibold text-foreground">bank yang menerbitkan kartu pelanggan</span>
+                , bukan bank milik toko. Kasir memilih bank penerbit saat pembayaran kartu.
+              </p>
+              <p>
+                Kosongkan kolom untuk memakai MDR Default
+                {draft.surcharge ? ` (${draft.surcharge}%)` : ""}. Isi 0 bila bank itu tidak dikenai MDR. Tarif debit dan
+                kredit diatur sendiri-sendiri.
+              </p>
+            </>
+          }
+        >
+          <SectionLabel>MDR per Bank Penerbit Kartu</SectionLabel>
+        </LabelWithInfo>
+        <div className="overflow-x-auto rounded-xl border">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b bg-muted/40 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                <th className="px-4 py-2.5">Bank</th>
+                <th className="px-4 py-2.5">Debit</th>
+                <th className="px-4 py-2.5">Kredit</th>
+                <th className="px-4 py-2.5">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {cardBanks.map((bank) => {
+                const rate = draft.cardBankRates[bank.bank] ?? { debit: "", credit: "" }
+                const hasOwnRate = rate.debit.trim() !== "" || rate.credit.trim() !== ""
+                const cells: { kind: "debit" | "credit"; label: string; enabled: boolean }[] = [
+                  { kind: "debit", label: "Debit", enabled: acceptsDebit },
+                  { kind: "credit", label: "Kredit", enabled: acceptsCredit },
+                ]
+                return (
+                  <tr key={bank.bank}>
+                    <td className="px-4 py-3 font-medium text-foreground">{bank.bank}</td>
+                    {cells.map(({ kind, label, enabled }) => {
+                      const value = rate[kind]
+                      const problem = surchargeErrorOf(value)
+                      return (
+                        <td key={kind} className="px-4 py-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="relative w-28">
+                              <NumberInput
+                                aria-label={`MDR ${label} ${bank.bank}`}
+                                decimals={2}
+                                max={100}
+                                group={false}
+                                placeholder="Default"
+                                value={value}
+                                disabled={!enabled}
+                                aria-invalid={problem ? true : undefined}
+                                onValueChange={(next) => setRate(bank.bank, kind, next)}
+                                className="pr-8"
+                              />
+                              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
+                                %
+                              </span>
+                            </div>
+                            {problem && <p className="text-xs text-destructive">{problem}</p>}
                           </div>
-                          {problem && <p className="text-xs text-destructive">{problem}</p>}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={
-                            isOverride
-                              ? "inline-flex rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary-strong"
-                              : "inline-flex rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
-                          }
-                        >
-                          {isOverride ? "Biaya khusus" : "Pakai biaya umum"}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        </td>
+                      )
+                    })}
+                    <td className="px-4 py-3">
+                      <span
+                        className={
+                          hasOwnRate
+                            ? "inline-flex rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary-strong"
+                            : "inline-flex rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
+                        }
+                      >
+                        {hasOwnRate ? "Tarif khusus" : "Pakai MDR Default"}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

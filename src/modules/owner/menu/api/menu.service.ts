@@ -23,13 +23,17 @@ const RESOURCE = "/master/menus"
 // it had loaded, which overwrote sales made since and wrote a bogus adjustment
 // when only the price changed. `cost_price` (harga pokok per porsi, for a menu
 // without a recipe) is added after the generated schema; omitted = unchanged.
+// `min_stock` (stok minimum, the "menipis" limit) only applies to a per-menu
+// tracked menu; omitted = default on create, unchanged on update.
 export type CreateMenuFormPayload = Omit<CreateMenuPayload, "image"> & {
   image: File
   cost_price?: number
+  min_stock?: number
 }
 export type UpdateMenuFormPayload = Omit<UpdateMenuPayload, "image"> & {
   image?: File | null
   cost_price?: number
+  min_stock?: number
 }
 
 export interface ListMenusParams {
@@ -64,6 +68,7 @@ function toFormData(payload: CreateMenuFormPayload | UpdateMenuFormPayload): For
   formData.append("is_featured", String(payload.is_featured ?? false))
   formData.append("stock_deduction_method", payload.stock_deduction_method ?? "none")
   if (payload.cost_price != null) formData.append("cost_price", String(payload.cost_price))
+  if (payload.min_stock != null) formData.append("min_stock", String(payload.min_stock))
   if (payload.image) formData.append("image", payload.image)
   return formData
 }

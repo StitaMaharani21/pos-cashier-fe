@@ -6,7 +6,6 @@ import {
   CircleCheckIcon,
   ClockIcon,
   FileTextIcon,
-  InfoIcon,
   LockIcon,
   SlidersHorizontalIcon,
   StarIcon,
@@ -38,6 +37,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { FormSection, RequiredMark } from "@/shared/ui/form-section"
 import { ImageDropzone } from "@/shared/ui/image-dropzone"
 import { Input } from "@/shared/ui/input"
+import { LabelWithInfo } from "@/shared/ui/info-tip"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 import { Switch } from "@/shared/ui/switch"
 import { Textarea } from "@/shared/ui/textarea"
@@ -91,6 +91,8 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
       stockDeductionMethod:
         (row?.stock_deduction_method as MenuFormValues["stockDeductionMethod"]) ?? "none",
       costPrice: row?.cost_price != null ? String(row.cost_price) : "",
+      // The default (5) matches the backend for a menu without its own minimum.
+      minStock: String(row?.low_stock_threshold ?? 5),
     },
   })
 
@@ -135,6 +137,9 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
         // Riwayat Stok. The cost is only meaningful without a recipe.
         cost_price:
           values.stockDeductionMethod !== "by_ingredient" && values.costPrice ? Number(values.costPrice) : undefined,
+        // The "menipis" limit only exists for per-menu stock.
+        min_stock:
+          values.stockDeductionMethod === "by_menu" && values.minStock ? Number(values.minStock) : undefined,
       },
       addons.commit
     )
@@ -153,19 +158,23 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5">
-            <Section icon={CameraIcon} title="Foto Menu" description="Foto akan tampil di daftar menu & aplikasi pelanggan">
+            <Section
+              icon={CameraIcon}
+              title="Foto Menu"
+              info="Foto tampil di daftar menu dan di aplikasi pelanggan. Ukuran yang disarankan 800×600px."
+            >
               <ImageDropzone
                 value={row?.image_url}
                 onChange={(file) => {
                   setImageFile(file)
                   setImageError(null)
                 }}
-                hint="PNG, JPG, WEBP · maks 2MB · rekomendasi 800×600px"
+                hint="PNG, JPG, WEBP · maks 2MB"
                 error={imageError}
               />
             </Section>
 
-            <Section icon={FileTextIcon} title="Informasi Dasar" description="Nama dan kategori yang tampil di menu">
+            <Section icon={FileTextIcon} title="Informasi Dasar">
               <FormField
                 control={form.control}
                 name="name"
@@ -186,9 +195,14 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Same grid/label metrics as the FormItem beside it. */}
                 <div className="grid gap-2">
-                  <label htmlFor="menu-code" className="flex items-center gap-2 text-sm leading-none font-medium text-foreground">
-                    Kode Menu
-                  </label>
+                  <LabelWithInfo
+                    infoLabel="Kode Menu"
+                    info={row ? "Kode tidak dapat diubah." : "Dibuat otomatis saat menu disimpan (MNU-001, MNU-002, ...)."}
+                  >
+                    <label htmlFor="menu-code" className="flex items-center gap-2 text-sm leading-none font-medium text-foreground">
+                      Kode Menu
+                    </label>
+                  </LabelWithInfo>
                   <div className="relative">
                     <Input
                       id="menu-code"
@@ -199,9 +213,6 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                     />
                     <LockIcon className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {row ? "Kode tidak dapat diubah" : "Dibuat otomatis saat disimpan"}
-                  </p>
                 </div>
 
                 <FormField
@@ -260,7 +271,7 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
               />
             </Section>
 
-            <Section icon={WalletIcon} title="Harga & Penyajian" description="Atur harga jual dan estimasi waktu penyajian">
+            <Section icon={WalletIcon} title="Harga & Penyajian">
               <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -268,10 +279,15 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center justify-between gap-2">
-                        <FormLabel>
-                          Harga
-                          <Required />
-                        </FormLabel>
+                        <LabelWithInfo
+                          infoLabel="Harga"
+                          info="Berlaku untuk pesanan baru. Laporan penjualan yang lama tidak berubah."
+                        >
+                          <FormLabel>
+                            Harga
+                            <Required />
+                          </FormLabel>
+                        </LabelWithInfo>
                         {row?.id != null && (
                           <button
                             type="button"
@@ -299,11 +315,6 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                           />
                         </FormControl>
                       </div>
-                      {row && (
-                        <p className="text-xs text-muted-foreground">
-                          Berlaku untuk pesanan baru. Laporan yang lama tidak berubah.
-                        </p>
-                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -344,7 +355,12 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   name="costPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Harga Pokok per Porsi (opsional)</FormLabel>
+                      <LabelWithInfo
+                        infoLabel="Harga Pokok per Porsi"
+                        info="Modal satu porsi, dipakai laporan laba kotor untuk menu tanpa resep. Kosongkan bila belum diketahui (penjualannya tidak ikut dihitung labanya). Menu dengan resep menghitung modal dari bahan baku."
+                      >
+                        <FormLabel>Harga Pokok per Porsi (opsional)</FormLabel>
+                      </LabelWithInfo>
                       <div className="flex h-11 overflow-hidden rounded-md border border-input bg-card focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
                         <span className="flex items-center border-r bg-muted px-3.5 text-sm text-muted-foreground">Rp</span>
                         <FormControl>
@@ -362,10 +378,6 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                           />
                         </FormControl>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Modal satu porsi, dipakai laporan laba kotor untuk menu tanpa resep. Kosongkan bila belum diketahui
-                        (penjualannya tidak ikut dihitung labanya). Menu dengan resep menghitung modal dari bahan baku.
-                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -373,7 +385,27 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
               )}
             </Section>
 
-            <Section icon={BoxIcon} title="Stok" description="Pantau ketersediaan stok menu">
+            <Section
+              icon={BoxIcon}
+              title="Stok"
+              info={
+                <>
+                  <p>
+                    <span className="font-semibold text-foreground">Stok tidak dihitung:</span> menu selalu dianggap tersedia
+                    tanpa batas stok.
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">Per menu (satuan):</span> stok berkurang 1 setiap kali
+                    terjual, cocok untuk item satuan seperti kue atau minuman kemasan. Menu ditandai “Menipis” saat stok
+                    sama atau di bawah Stok Minimum.
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">Per bahan baku (resep):</span> stok bahan baku berkurang
+                    otomatis sesuai resep setiap menu ini terjual, cocok untuk item racikan.
+                  </p>
+                </>
+              }
+            >
               <div role="radiogroup" aria-label="Pencatatan stok" className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
                 {[
                   { value: false, label: "Stok tidak dihitung" },
@@ -400,8 +432,8 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
               {tracked && (
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {[
-                    { value: "by_menu" as const, label: "Per menu (satuan)", hint: "Stok dihitung per porsi/item" },
-                    { value: "by_ingredient" as const, label: "Per bahan baku (resep)", hint: "Mengurangi stok bahan sesuai resep" },
+                    { value: "by_menu" as const, label: "Per menu (satuan)" },
+                    { value: "by_ingredient" as const, label: "Per bahan baku (resep)" },
                   ].map((option) => {
                     const selected = stockDeductionMethod === option.value
                     const locked = option.value === "by_ingredient" && !canUseIngredientStock
@@ -421,7 +453,6 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                           {option.label}
                           {locked && <LockIcon className="size-3.5 text-muted-foreground" />}
                         </span>
-                        <span className="text-xs text-muted-foreground">{option.hint}</span>
                       </button>
                     )
                   })}
@@ -431,7 +462,18 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
               {stockDeductionMethod === "by_menu" && (
                 <div className="flex flex-col gap-1.5 rounded-xl border bg-muted/40 p-3.5">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium text-foreground">Stok saat ini</span>
+                    <LabelWithInfo
+                      infoLabel="Stok saat ini"
+                      info={
+                        !row
+                          ? "Stok tidak diisi dari form ini; mulai dari 0. Setelah menu disimpan, isi stok awalnya lewat Riwayat Stok → Ubah Stok."
+                          : row.stock_deduction_method === "by_menu"
+                            ? "Stok tidak diubah dari form ini. Untuk barang masuk atau koreksi, buka Riwayat Stok → Ubah Stok."
+                            : "Setelah menu disimpan, isi stoknya lewat Riwayat Stok → Ubah Stok."
+                      }
+                    >
+                      <span className="text-sm font-medium text-foreground">Stok saat ini</span>
+                    </LabelWithInfo>
                     <span
                       className={cn(
                         "text-sm font-bold tabular-nums",
@@ -441,26 +483,43 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                       {!row ? "0 pcs" : row.stock_qty == null ? "Belum diisi" : `${row.stock_qty} pcs`}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {!row
-                      ? "Stok tidak diisi dari form ini; mulai dari 0. Setelah menu disimpan, isi stok awalnya lewat "
-                      : row.stock_deduction_method === "by_menu"
-                        ? "Stok tidak diubah dari form ini. Untuk barang masuk atau koreksi, buka "
-                        : "Setelah menu disimpan, isi stoknya lewat "}
-                    {row ? (
-                      <Link
-                        to="/app/stock-history?tab=menu"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-semibold text-primary-strong underline underline-offset-2"
-                      >
-                        Riwayat Stok
-                      </Link>
-                    ) : (
-                      <span className="font-semibold text-foreground">Riwayat Stok</span>
+                  <FormField
+                    control={form.control}
+                    name="minStock"
+                    render={({ field }) => (
+                      <FormItem>
+                        <LabelWithInfo
+                          infoLabel="Stok Minimum"
+                          info="Saat stok sama atau di bawah angka ini, menu ditandai “Menipis” di Riwayat Stok, dashboard, dan kasir. Isi 0 bila hanya ingin ditandai saat habis."
+                        >
+                          <FormLabel>Stok Minimum</FormLabel>
+                        </LabelWithInfo>
+                        <FormControl>
+                          <NumberInput
+                            decimals={0}
+                            group={false}
+                            maxDigits={6}
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            value={field.value ?? ""}
+                            onValueChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                    {" → Ubah Stok."}
-                  </p>
+                  />
+                  {row && (
+                    <Link
+                      to="/app/stock-history?tab=menu"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-fit text-xs font-semibold text-primary-strong underline underline-offset-2"
+                    >
+                      Kelola di Riwayat Stok
+                    </Link>
+                  )}
                 </div>
               )}
 
@@ -477,19 +536,11 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   </p>
                 ))}
 
-              <p className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-primary-strong">
-                <InfoIcon className="mt-0.5 size-4 shrink-0" />
-                {stockDeductionMethod === "none" && "Menu selalu dianggap tersedia tanpa batas stok."}
-                {stockDeductionMethod === "by_menu" &&
-                  "Stok berkurang 1 setiap kali terjual — cocok untuk item satuan seperti kue atau minuman kemasan. Peringatan stok menipis muncul saat sisa 5 atau kurang (belum bisa diubah dari sini)."}
-                {stockDeductionMethod === "by_ingredient" &&
-                  "Stok bahan baku berkurang otomatis sesuai resep setiap menu ini terjual — cocok untuk item racikan."}
-              </p>
             </Section>
 
             <MenuAddonsField addons={addons} onEdit={setEditingAddon} />
 
-            <Section icon={SlidersHorizontalIcon} title="Pengaturan Tampilan" description="Atur bagaimana menu tampil ke pelanggan">
+            <Section icon={SlidersHorizontalIcon} title="Pengaturan Tampilan">
               <div className="flex flex-col divide-y">
                 <FormField
                   control={form.control}
@@ -497,10 +548,13 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center gap-3 pb-4">
                       <CircleCheckIcon className="size-5 shrink-0 text-primary-strong" />
-                      <div className="flex-1">
+                      <LabelWithInfo
+                        className="flex-1"
+                        infoLabel="Tersedia"
+                        info="Menu bisa dipesan pelanggan. Dimatikan = menu ditandai habis (tetap tampil abu-abu di kasir)."
+                      >
                         <FormLabel className="text-sm font-semibold">Tersedia</FormLabel>
-                        <p className="text-xs text-muted-foreground">Menu bisa dipesan pelanggan</p>
-                      </div>
+                      </LabelWithInfo>
                       <FormControl>
                         <Switch
                           checked={field.value}
@@ -517,10 +571,9 @@ export function MenuForm({ row, categories, isSubmitting, onSubmit, onCancel, on
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center gap-3 pt-4">
                       <StarIcon className="size-5 shrink-0 text-muted-foreground" />
-                      <div className="flex-1">
+                      <LabelWithInfo className="flex-1" infoLabel="Unggulan" info="Menu tampil di bagian rekomendasi.">
                         <FormLabel className="text-sm font-semibold">Tandai sebagai Unggulan</FormLabel>
-                        <p className="text-xs text-muted-foreground">Tampil di bagian rekomendasi</p>
-                      </div>
+                      </LabelWithInfo>
                       <FormControl>
                         <Switch
                           checked={field.value}

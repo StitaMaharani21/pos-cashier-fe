@@ -169,10 +169,14 @@ function PaymentBlock({ detail }: { detail: OrderDetail }) {
           type: payment.payment_method_type,
           name: payment.payment_method_name,
           channel: payment.payment_channel_name,
+          cardBank: payment.card_bank,
           cardType: payment.card_type,
           provider: payment.payment_provider,
         })}
       </Row>
+      {payment.mdr_amount > 0 && (
+        <Row label={`MDR (${payment.mdr_percent}%)`}>{formatRupiah(payment.mdr_amount)}</Row>
+      )}
       {payment.payment_reference && <Row label="Kode Bukti Pembayaran">{payment.payment_reference}</Row>}
       {isCash && <Row label="Uang diterima">{formatRupiah(payment.amount_received)}</Row>}
       {isCash && <Row label="Kembalian">{formatRupiah(payment.change_amount)}</Row>}

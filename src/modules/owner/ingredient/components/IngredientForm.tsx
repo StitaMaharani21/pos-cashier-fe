@@ -1,3 +1,6 @@
+import type { ReactNode } from "react"
+import { Link } from "react-router-dom"
+
 import type {
   CreateIngredientPayload,
   Ingredient,
@@ -12,6 +15,7 @@ import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { formatNumber, formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
+import { LabelWithInfo } from "@/shared/ui/info-tip"
 import { Input } from "@/shared/ui/input"
 import { NumberInput } from "@/shared/ui/number-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
@@ -67,7 +71,16 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
           name="unit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Satuan</FormLabel>
+              <LabelWithInfo
+                infoLabel="Satuan"
+                info={
+                  row
+                    ? "Satuan tidak bisa diubah karena stok dan resep dihitung dalam satuan ini. Buat bahan baru bila satuannya berbeda."
+                    : "Satuan untuk menghitung stok. Pilih dari daftar; tidak bisa diubah setelah disimpan."
+                }
+              >
+                <FormLabel>Satuan</FormLabel>
+              </LabelWithInfo>
               {/* A dropdown, not free text: the same unit is always spelled the
                   same way. It is fixed once the ingredient exists — stock and
                   recipes are counted in it, so changing "kg" to "gram" would
@@ -90,11 +103,6 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                {row
-                  ? "Satuan tidak bisa diubah karena stok dan resep dihitung dalam satuan ini. Buat bahan baru bila satuannya berbeda."
-                  : "Satuan untuk menghitung stok. Pilih dari daftar; tidak bisa diubah setelah disimpan."}
-              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -105,7 +113,12 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
           name="minStock"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Stok Minimum</FormLabel>
+              <LabelWithInfo
+                infoLabel="Stok Minimum"
+                info="Saat stok sama atau di bawah angka ini, bahan ditandai “Menipis” di daftar."
+              >
+                <FormLabel>Stok Minimum</FormLabel>
+              </LabelWithInfo>
               <FormControl>
                 <NumberInput decimals={3} maxDigits={9} name={field.name}
                 ref={field.ref}
@@ -120,13 +133,21 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
 
         {row ? (
           <div className="flex flex-col gap-2 rounded-xl border bg-muted/40 p-3.5">
-            <InfoRow label="Stok saat ini" value={`${formatNumber(row.stock ?? 0)} ${row.unit}`} />
+            <InfoRow
+              label="Stok saat ini"
+              value={`${formatNumber(row.stock ?? 0)} ${row.unit}`}
+              info="Stok dan harga beli tidak diubah dari form ini. Gunakan Riwayat Stok → Ubah Stok → Stok Masuk saat barang datang (harga beli ikut tercatat di riwayat harga), atau Koreksi untuk memperbaiki angka stok."
+            />
             <InfoRow label="Harga beli terakhir" value={formatRupiah(row.purchase_price ?? 0)} />
             {row.average_cost != null && <InfoRow label="Harga pokok rata-rata" value={formatRupiah(row.average_cost)} />}
-            <p className="text-xs text-muted-foreground">
-              Stok dan harga beli tidak diubah dari form ini. Gunakan Riwayat Stok → Ubah Stok → Stok Masuk saat barang
-              datang (harga beli ikut tercatat di riwayat harga), atau Koreksi untuk memperbaiki angka stok.
-            </p>
+            <Link
+              to="/app/stock-history"
+              target="_blank"
+              rel="noreferrer"
+              className="w-fit text-xs font-semibold text-primary-strong underline underline-offset-2"
+            >
+              Kelola di Riwayat Stok
+            </Link>
           </div>
         ) : (
           <FormField
@@ -134,9 +155,24 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
             name="purchasePrice"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Harga Beli Awal per {form.watch("unit") || "satuan"} (Rp)
-                </FormLabel>
+                <LabelWithInfo
+                  infoLabel="Harga Beli Awal"
+                  info={
+                    <>
+                      <p>
+                        Harga untuk <span className="font-semibold text-foreground">satu {form.watch("unit") || "satuan"}</span>
+                        , bukan total belanja. Contoh: beli 10 kg seharga Rp105.000 berarti Rp10.500 per kg; kalau
+                        satuannya gram, isi 10,5.
+                      </p>
+                      <p>
+                        Hanya diisi di sini sekali. Stok mulai dari 0: isi stok awal lewat Riwayat Stok → Ubah Stok → Stok
+                        Masuk, dan harga beli berikutnya ikut di situ.
+                      </p>
+                    </>
+                  }
+                >
+                  <FormLabel>Harga Beli Awal per {form.watch("unit") || "satuan"} (Rp)</FormLabel>
+                </LabelWithInfo>
                 <FormControl>
                   <NumberInput decimals={2} maxDigits={12} name={field.name}
                   ref={field.ref}
@@ -144,15 +180,6 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
                   value={field.value ?? ""}
                   onValueChange={field.onChange} />
                 </FormControl>
-                <p className="text-xs text-muted-foreground">
-                  Harga untuk <span className="font-semibold">satu {form.watch("unit") || "satuan"}</span>, bukan total
-                  belanja. Contoh: beli 10 kg seharga Rp105.000 berarti Rp10.500 per kg; kalau satuannya gram, isi
-                  10,5.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Hanya diisi di sini sekali. Stok mulai dari 0: isi stok awal lewat Riwayat Stok → Ubah Stok → Stok Masuk,
-                  dan harga beli berikutnya ikut di situ.
-                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -167,10 +194,16 @@ export function IngredientForm({ row, isSubmitting, onSubmit }: IngredientFormPr
   )
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value, info }: { label: string; value: string; info?: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-sm font-medium text-foreground">{label}</span>
+      {info ? (
+        <LabelWithInfo infoLabel={label} info={info}>
+          <span className="text-sm font-medium text-foreground">{label}</span>
+        </LabelWithInfo>
+      ) : (
+        <span className="text-sm font-medium text-foreground">{label}</span>
+      )}
       <span className="text-sm font-bold tabular-nums text-foreground">{value}</span>
     </div>
   )

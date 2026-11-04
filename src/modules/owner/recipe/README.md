@@ -12,6 +12,8 @@ A menu can have different recipes per serving. A line with `addon_option_id = nu
 
 **Making it quick to understand.** The add row has visible captions (1. Bahan baku, 2. Jumlah per porsi, Satuan) and the unit fills itself with the friendliest unit of the chosen ingredient (gram for kg, ml for liter), so the owner only types the number. While typing, a line spells out the meaning: "Setiap 1 porsi memakai 150 ml = 0,15 liter. Stok sekarang 8 liter, cukup untuk sekitar 53 porsi" (or says the stock is still 0 and where to fill it). Above the blocks, "Yang terpotong dari stok per 1 porsi" lists the final result per serving (Hot: kopi 18 gram; Ice: kopi 18 gram + es batu 50 gram), so the owner does not have to add the blocks up in their head. Each block has its own empty hint, and while a menu has no recipe yet "Salin resep dari menu lain" copies the lines of another `by_ingredient` menu (lines tied to a serving option this menu does not have are skipped and reported). Formatting helpers: `lib/recipe-format.ts`.
 
+The explanatory text (what a recipe is, the per-serving idea, the auto unit) sits behind "i" buttons next to the "Resep / Bahan Baku" title, each block title and "Tambah bahan"; only data (the preview line, the "Yang terpotong" summary, empty-block hints) and actionable messages stay visible.
+
 Load errors are no longer hidden: a failed recipe/ingredient load shows an error with "Coba lagi", and a 402 (store without Inventori) shows a plan message. Pressing Enter in the edit-quantity input saves that line instead of submitting the whole menu form.
 
 ## Unit conversion (FE-only)

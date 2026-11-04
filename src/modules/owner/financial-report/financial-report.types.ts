@@ -79,6 +79,8 @@ export interface ReportTransaction {
   payment_method_type: string
   payment_channel_name: string
   card_type: string
+  // Bank that issued the customer's card (basis of the MDR); "" when not picked.
+  card_bank?: string
   payment_provider: string
   discount_amount: number
   grand_total: number

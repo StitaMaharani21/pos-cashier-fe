@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 
 import type { PaymentMethod, PaymentMethodType } from "@/entities/payment-method/model/payment-method.types"
+import type { CardBank } from "@/entities/card-bank/model/card-bank.types"
 import type { PaymentChannel } from "@/entities/payment-channel/model/payment-channel.types"
 import {
   CardConfigPanel,
@@ -14,7 +15,7 @@ import {
 import {
   channelKey,
   initialDraft,
-  hasBankSurchargeError,
+  hasCardBankRateError,
   isDraftDirty,
   surchargeError,
   type MethodDraft,
@@ -36,6 +37,8 @@ interface MethodDetailPanelProps {
   description: string
   method: PaymentMethod | undefined
   channels: PaymentChannel[]
+  // The customer's card banks (fixed list) with their debit/credit MDR.
+  cardBanks: CardBank[]
   active: boolean
   toggling: boolean
   isSaving: boolean
@@ -61,6 +64,7 @@ export function MethodDetailPanel({
   description,
   method,
   channels,
+  cardBanks,
   active,
   toggling,
   isSaving,
@@ -73,11 +77,11 @@ export function MethodDetailPanel({
   onCancel,
   onDirtyChange,
 }: MethodDetailPanelProps) {
-  const initial = useMemo(() => initialDraft(method, channels), [method, channels])
+  const initial = useMemo(() => initialDraft(method, cardBanks), [method, cardBanks])
   const [draft, setDraft] = useState<MethodDraft>(initial)
   const dirty = isDraftDirty(draft, initial)
   const surchargeProblem = type === "card" ? surchargeError(draft.surcharge) : null
-  const bankProblem = type === "card" && hasBankSurchargeError(draft)
+  const bankProblem = type === "card" && hasCardBankRateError(draft)
   const isChannelType = type === "transfer" || type === "ewallet"
   const hasSettings = type !== "cash" && !isChannelType
 
@@ -127,7 +131,7 @@ export function MethodDetailPanel({
       </div>
 
       <div className="px-6 py-6">
-        {type === "card" && <CardConfigPanel draft={draft} onChange={change} surchargeError={surchargeProblem} channels={channels} />}
+        {type === "card" && <CardConfigPanel draft={draft} onChange={change} surchargeError={surchargeProblem} cardBanks={cardBanks} />}
         {(type === "transfer" || type === "ewallet") && (
           <ChannelConfigPanel
             type={type}

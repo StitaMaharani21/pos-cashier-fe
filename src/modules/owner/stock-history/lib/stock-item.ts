@@ -13,7 +13,8 @@ export interface StockItem {
   unit: string
   // null = never set (menu stock the owner hasn't filled in yet).
   stock: number | null
-  // Bahan baku only: the "Menipis" threshold and the current purchase price.
+  // The "Menipis" threshold (stok minimum): set per bahan baku, and per menu
+  // that is tracked per menu. Bahan baku only: the current purchase price.
   minStock?: number
   purchasePrice?: number
   // Weighted-average cost per unit (HPP basis); owner only.
@@ -40,5 +41,6 @@ export function menuToStockItem(row: Menu): StockItem {
     name: row.name ?? "",
     unit: "pcs",
     stock: row.stock_qty ?? null,
+    minStock: row.low_stock_threshold,
   }
 }

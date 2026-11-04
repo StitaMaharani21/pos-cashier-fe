@@ -18,4 +18,6 @@ For this ingredient's movement history or a store-wide drift check, see `modules
 
 List page: the shared table pattern (`shared/ui/README.md` "Tabel") with server-side search and paging (10 per page). "Aksi": Kelola stok (→ Riwayat Stok), Riwayat harga beli, Edit; the Status column is an Aktif / Nonaktif toggle. Ingredients are never deleted; an inactive one is no longer offered for recipes or new stock, while menus whose recipe already uses it stay active. A stock at or below its minimum shows a "Menipis" badge.
 
+The form keeps only fields and data in sight; helper text (unit rules, minimum stock, how to fill the opening price, where stock changes) sits behind a small "i" next to the label (`shared/ui/info-tip`, see `shared/ui/README.md`).
+
 Sublayers: `api/` (service + pagination), `components/` (form), `constants/` (`units.ts`), `schemas/` (zod), `columns/` (`CrudColumn<Ingredient>[]`), `section/` (`IngredientSection.tsx`).

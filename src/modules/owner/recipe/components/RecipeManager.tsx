@@ -16,6 +16,7 @@ import { listAllIngredients, listMenuRecipes, recipeService } from "@/modules/ow
 import { RecipeSection } from "@/modules/owner/recipe/components/RecipeSection"
 import { recipeLineText } from "@/modules/owner/recipe/lib/recipe-format"
 import { Button } from "@/shared/ui/button"
+import { InfoTip } from "@/shared/ui/info-tip"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 
 interface RecipeManagerProps {
@@ -187,15 +188,15 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1.5">
         <h3 className="text-sm font-semibold text-foreground">Resep / Bahan Baku</h3>
-        <p className="text-xs text-muted-foreground">
-          Bahan yang terpakai setiap 1 porsi menu ini terjual. Contoh Cafe Latte: biji kopi 18 gram dan susu 150 ml.
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Caranya: pilih bahan, isi jumlah, lalu tekan Tambah. Satuan boleh gram atau kg (ml atau liter); otomatis
-          disesuaikan dengan satuan stok bahan.
-        </p>
+        <InfoTip label="Resep / Bahan Baku">
+          <p>Bahan yang terpakai setiap 1 porsi menu ini terjual. Contoh Cafe Latte: biji kopi 18 gram dan susu 150 ml.</p>
+          <p>
+            Caranya: pilih bahan, isi jumlah, lalu tekan Tambah. Satuan boleh gram atau kg (ml atau liter); otomatis
+            disesuaikan dengan satuan stok bahan.
+          </p>
+        </InfoTip>
       </div>
 
       {recipes.length === 0 && sourceMenus.length > 0 && (
@@ -247,8 +248,8 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
           menuId={menuId}
           optionId={option.id}
           title={`Khusus ${option.label}`}
-          description={`Bahan tambahan yang hanya terpakai bila pelanggan memilih ${option.label} (${option.groupName}); ditambahkan di atas bahan "Semua penyajian".`}
-          emptyHint={`Belum ada bahan khusus ${option.label}. Isi hanya bahan tambahannya (mis. es batu); bahan yang sama untuk semua penyajian cukup di "Semua penyajian".`}
+          description={`Bahan tambahan yang hanya terpakai bila pelanggan memilih ${option.label} (${option.groupName}); ditambahkan di atas bahan "Semua penyajian". Isi hanya bahan tambahannya (mis. es batu); bahan yang sama untuk semua penyajian cukup di "Semua penyajian".`}
+          emptyHint={`Belum ada bahan khusus ${option.label}.`}
           rows={rowsByOption.get(option.id) ?? []}
           ingredients={ingredients}
           recipesQueryKey={recipesQueryKey}
@@ -292,9 +293,12 @@ export function RecipeManager({ menuId }: RecipeManagerProps) {
         </Select>
       ) : (
         servingOptions.length === 0 && (
-          <p className="rounded-lg border border-dashed bg-card p-3 text-xs text-muted-foreground">
-            Menu ini punya penyajian berbeda (mis. Hot dan Ice)? Pasang grup tambahan "Penyajian" di bagian Tambahan
-            Menu dan simpan menu; setelah itu bahan khusus tiap penyajian bisa diatur di sini.
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            Penyajian berbeda (mis. Hot dan Ice)?
+            <InfoTip label="Penyajian berbeda">
+              Pasang grup tambahan &quot;Penyajian&quot; di bagian Tambahan Menu dan simpan menu; setelah itu bahan khusus
+              tiap penyajian bisa diatur di sini.
+            </InfoTip>
           </p>
         )
       )}

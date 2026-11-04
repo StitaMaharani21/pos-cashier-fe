@@ -20,6 +20,7 @@ import { useCrudForm } from "@/shared/hooks/useCrudForm"
 import { Button } from "@/shared/ui/button"
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/shared/ui/form"
+import { InfoTip } from "@/shared/ui/info-tip"
 import { NumberInput } from "@/shared/ui/number-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 
@@ -205,9 +206,9 @@ export function RecipeSection({
   return (
     <div className="flex flex-col gap-3 rounded-lg border p-3">
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="flex items-center gap-1.5">
           <h4 className="text-sm font-semibold text-foreground">{title}</h4>
-          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+          {description && <InfoTip label={title}>{description}</InfoTip>}
         </div>
         {rows.length > 0 ? (
           <button
@@ -335,7 +336,12 @@ export function RecipeSection({
         {/* A <div>, not a <form>: this block renders inside the menu <form>, and a nested
             submit would bubble up and submit (then close) the menu drawer. */}
         <div className="flex flex-col gap-2 border-t pt-3">
-          <p className="text-xs font-semibold text-foreground">Tambah bahan</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs font-semibold text-foreground">Tambah bahan</p>
+            <InfoTip label="Tambah bahan">
+              Pilih bahan baku dulu; satuannya terisi otomatis (gram untuk bahan kg, ml untuk bahan liter) dan bisa diganti.
+            </InfoTip>
+          </div>
 
           {/* Bahan on its own row, then jumlah · satuan · Tambah on the next. Every
               field has a visible caption. */}
@@ -436,9 +442,7 @@ export function RecipeSection({
             </div>
           </div>
 
-          {!selectedIngredient ? (
-            <p className="text-xs text-muted-foreground">Pilih bahan baku dulu; satuannya terisi otomatis.</p>
-          ) : preview ? (
+          {!selectedIngredient ? null : preview ? (
             <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
               Setiap 1 porsi memakai <span className="font-semibold text-foreground">{preview.converted ?? `${formatQuantity(enteredQuantity)} ${enteredUnit}`}</span>
               .{" "}

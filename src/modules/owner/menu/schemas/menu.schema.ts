@@ -19,6 +19,12 @@ export const menuSchema = z
     isAvailable: z.boolean(),
     isFeatured: z.boolean(),
     stockDeductionMethod: z.enum(["none", "by_menu", "by_ingredient"]),
+    // Stok minimum (pcs), only for a per-menu tracked menu: stock at or under it
+    // reads "Menipis". Whole number >= 0; empty = the default.
+    minStock: z
+      .string()
+      .optional()
+      .refine((value) => !value || /^\d+$/.test(value), "Isi stok minimum dengan bilangan bulat 0 atau lebih"),
     // Harga pokok per porsi/pcs, only for a menu without a recipe (the recipe
     // costs the rest). Empty = not known / unchanged.
     costPrice: z

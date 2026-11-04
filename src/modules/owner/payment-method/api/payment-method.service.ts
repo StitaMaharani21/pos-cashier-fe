@@ -6,6 +6,7 @@ import type {
   PaymentChannel,
   PaymentChannelPayload,
 } from "@/entities/payment-channel/model/payment-channel.types"
+import type { CardBank, CardBankRate } from "@/entities/card-bank/model/card-bank.types"
 import { ApiError, apiClient } from "@/shared/api/client"
 import { CrudServiceError, type PaginatedResponse, type SingleResponse } from "@/shared/api/crud/types"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
@@ -15,6 +16,7 @@ import { friendlyErrorMessage } from "@/shared/api/error-message"
 // that factory targets. See the feature README.
 const METHODS = "/master/payment-methods"
 const CHANNELS = "/master/payment-channels"
+const CARD_BANKS = "/master/card-banks"
 
 function methodFormData(payload: PaymentMethodPayload): FormData {
   const formData = new FormData()
@@ -111,6 +113,23 @@ export async function updatePaymentChannel(
       `${CHANNELS}/${id}`,
       channelFormData(payload)
     )
+    return response.data.data
+  } catch (error) {
+    throw toServiceError(error)
+  }
+}
+
+// The fixed list of banks that issue the customer's card, each with its debit /
+// credit MDR (null = the card method's MDR Default). Not the store's own banks.
+export async function listCardBanks(): Promise<CardBank[]> {
+  const response = await apiClient.get<SingleResponse<CardBank[]>>(CARD_BANKS)
+  return response.data.data
+}
+
+// Replaces the rates of the banks given (the rest are untouched); returns the whole list.
+export async function saveCardBanks(banks: CardBankRate[]): Promise<CardBank[]> {
+  try {
+    const response = await apiClient.put<SingleResponse<CardBank[]>>(CARD_BANKS, { banks })
     return response.data.data
   } catch (error) {
     throw toServiceError(error)

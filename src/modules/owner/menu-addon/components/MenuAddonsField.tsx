@@ -8,6 +8,7 @@ import type { MenuAddonEntry, useMenuAddons } from "@/modules/owner/menu-addon/l
 import { cn, formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { FormSection } from "@/shared/ui/form-section"
+import { InfoTip } from "@/shared/ui/info-tip"
 import { StatusBadge } from "@/shared/ui/status-badge"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 
@@ -35,7 +36,7 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
     <FormSection
       icon={ListPlusIcon}
       title="Tambahan Menu"
-      description="Pilihan berbayar yang bisa dipilih pelanggan, mis. Gula +Rp5.000"
+      info="Pilihan berbayar yang bisa dipilih pelanggan, mis. Gula +Rp5.000."
     >
       {isLoading && <p className="text-sm text-muted-foreground">Memuat tambahan menu...</p>}
 
@@ -68,6 +69,9 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
                           {entry.group.name}
                         </span>
                         <StatusBadge active={entry.group.status !== "inactive"} />
+                        {entry.group.status === "inactive" && (
+                          <InfoTip label="Grup nonaktif">Grup ini tidak tampil di kasir dan pesan mandiri.</InfoTip>
+                        )}
                         {entry.isNew && (
                           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary-strong">
                             Baru
@@ -80,7 +84,6 @@ export function MenuAddonsField({ addons, onEdit }: MenuAddonsFieldProps) {
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {entry.group.status === "inactive" && "Tidak tampil di kasir dan pesan mandiri. "}
                         {describeSelection(entry.group)}
                       </p>
                     </div>

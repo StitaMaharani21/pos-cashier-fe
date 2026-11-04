@@ -13,6 +13,9 @@ export type Menu = components["schemas"]["dto.MenuResponse"] & {
   // Harga pokok per porsi typed in by the owner (menus without a recipe). Owner
   // only; the cashier never receives it.
   cost_price?: number
+  // Stok minimum of a per-menu tracked menu: stock at or under it = "menipis".
+  // The owner-set value, or the backend default (5). Newer than the generated schema.
+  low_stock_threshold?: number
 }
 export type MenuStock = components["schemas"]["dto.MenuStockResponse"]
 export type MenuDiscount = components["schemas"]["dto.MenuDiscountResponse"]

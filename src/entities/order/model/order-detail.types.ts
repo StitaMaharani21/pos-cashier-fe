@@ -40,6 +40,8 @@ export interface OrderDetailPayment {
   mdr_percent: number
   mdr_amount: number
   card_type?: string
+  // Bank that issued the customer's card (basis of the MDR); "" when not picked.
+  card_bank?: string
   payment_channel_name?: string
   // Gateway provider of the method (e.g. "midtrans" = dynamic QRIS).
   payment_provider?: string

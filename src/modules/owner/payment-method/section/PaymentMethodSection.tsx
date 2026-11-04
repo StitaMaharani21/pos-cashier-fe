@@ -17,21 +17,30 @@ import type {
 import {
   createPaymentChannel,
   createPaymentMethod,
+  listCardBanks,
   listPaymentChannels,
   listPaymentMethods,
+  saveCardBanks,
   updatePaymentChannel,
   updatePaymentMethod,
 } from "@/modules/owner/payment-method/api/payment-method.service"
 import { MethodDetailPanel } from "@/modules/owner/payment-method/components/MethodDetailPanel"
 import { MethodListItem } from "@/modules/owner/payment-method/components/MethodListItem"
 import type { ChannelAccountSubmit } from "@/modules/owner/payment-method/components/ChannelAccountDialog"
-import { channelKey, type MethodDraft } from "@/modules/owner/payment-method/components/method-draft"
+import {
+  changedCardBanks,
+  channelKey,
+  initialDraft,
+  rateValue,
+  type MethodDraft,
+} from "@/modules/owner/payment-method/components/method-draft"
 import { CHANNEL_TYPE_FOR, METHOD_TYPES } from "@/modules/owner/payment-method/constants/payment-providers"
 import { CrudServiceError } from "@/shared/api/crud/types"
 import { Button } from "@/shared/ui/button"
 
 const METHODS_KEY = ["payment-methods"]
 const CHANNELS_KEY = ["payment-channels"]
+const CARD_BANKS_KEY = ["card-banks"]
 
 type MethodConfig = (typeof METHOD_TYPES)[number]
 
@@ -64,8 +73,9 @@ function methodPayload(
 }
 
 // Full PUT body from a saved channel, with `overrides` on top — the backend
-// replaces every field, so the MDR override and the store's account number/name
-// must always be resent.
+// replaces every field, so the store's account number/name (and the legacy MDR
+// override, now unused: card MDR follows the customer's issuing bank) must always
+// be resent.
 function channelPayload(
   channel: PaymentChannel,
   overrides: Partial<PaymentChannelPayload> = {}
@@ -116,13 +126,16 @@ export function PaymentMethodSection() {
 
   const methodsQuery = useQuery({ queryKey: METHODS_KEY, queryFn: listPaymentMethods })
   const channelsQuery = useQuery({ queryKey: CHANNELS_KEY, queryFn: listPaymentChannels })
+  const cardBanksQuery = useQuery({ queryKey: CARD_BANKS_KEY, queryFn: listCardBanks })
   const methods = methodsQuery.data ?? []
   const channels = channelsQuery.data ?? []
+  const cardBanks = cardBanksQuery.data ?? []
 
   const refresh = () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: METHODS_KEY }),
       queryClient.invalidateQueries({ queryKey: CHANNELS_KEY }),
+      queryClient.invalidateQueries({ queryKey: CARD_BANKS_KEY }),
     ])
 
   const toggleMutation = useMutation({
@@ -156,14 +169,19 @@ export function PaymentMethodSection() {
         await (method?.id != null ? updatePaymentMethod(method.id, payload) : createPaymentMethod(payload))
       }
 
-      // Each bank's own MDR override lives on the bank (payment channel).
+      // The MDR of each ISSUING bank (the customer's card bank, not the store's
+      // own) is saved in one call: only the banks whose rates changed.
       if (config.type === "card") {
-        for (const channel of channels) {
-          if (channel.type !== "bank" || channel.id == null) continue
-          const typed = (draft.bankSurcharges[channelKey(channel.name ?? "")] ?? "").trim()
-          const wanted = typed === "" ? null : Number(typed)
-          if ((channel.mdr_percent ?? null) === wanted) continue
-          await updatePaymentChannel(channel.id, channelPayload(channel, { mdr_percent: wanted }))
+        const saved = initialDraft(method, cardBanks).cardBankRates
+        const changed = changedCardBanks(draft.cardBankRates, saved)
+        if (changed.length > 0) {
+          await saveCardBanks(
+            changed.map((bank) => ({
+              bank,
+              debit_mdr_percent: rateValue(draft.cardBankRates[bank]?.debit ?? ""),
+              credit_mdr_percent: rateValue(draft.cardBankRates[bank]?.credit ?? ""),
+            }))
+          )
         }
       }
     },
@@ -172,7 +190,7 @@ export function PaymentMethodSection() {
       await refresh()
       setPanelVersion((version) => version + 1)
     },
-    // Bank MDR overrides are saved one by one — refresh so a partial save shows as is.
+    // The method and the bank rates are separate calls — refresh so a partial save shows as is.
     onError: (error) => {
       toast.error(errorMessage(error))
       refresh()
@@ -232,11 +250,11 @@ export function PaymentMethodSection() {
     setDirty(false)
   }
 
-  if (methodsQuery.isPending || channelsQuery.isPending) {
+  if (methodsQuery.isPending || channelsQuery.isPending || cardBanksQuery.isPending) {
     return <div className="h-96 animate-pulse rounded-2xl border bg-muted/40" />
   }
 
-  if (methodsQuery.isError || channelsQuery.isError) {
+  if (methodsQuery.isError || channelsQuery.isError || cardBanksQuery.isError) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-2xl border bg-card p-10 text-center">
         <p className="text-sm text-muted-foreground">Gagal memuat metode pembayaran.</p>
@@ -303,6 +321,7 @@ export function PaymentMethodSection() {
           description={selected.config.description}
           method={selected.method}
           channels={channels}
+          cardBanks={cardBanks}
           active={selected.active}
           toggling={togglingType === selected.config.type}
           isSaving={saveMutation.isPending}

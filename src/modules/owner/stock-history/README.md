@@ -2,6 +2,8 @@
 
 Riwayat Stok: every item whose stock is tracked, and the stock turnover of each — what came in and what went out.
 
+**"Menipis" / "Habis"**: a bahan baku reads *Menipis* at or under its `min_stock`; a per-menu menu reads *Habis* at 0 and *Menipis* at or under its own Stok Minimum (`low_stock_threshold`, set in the menu form; default 5).
+
 **List** (`section/StockHistorySection.tsx`): two tabs (`?tab=menu`, default Bahan Baku), each a server-paged, searchable table of items — Nama, Stok Saat Ini, and an "Aksi" column with *Lihat riwayat* and *Ubah stok*. **Access:** the page opens on every plan (`routeAccess` = menu module); the Menu tab works for everyone with the `menu` permission, the Bahan Baku tab only exists with Inventori (`inventory_full` + `inventory` permission). Bahan Baku uses `listIngredients`; Menu lists only menus counted per item (`listMenus({ stockDeductionMethod: "by_menu" })` → `GET /master/menus?stock_deduction_method=by_menu`). Menus that deduct through their recipe (`by_ingredient`) have no stock of their own — their turnover is the bahan baku's. Rows are normalised to `StockItem` (`lib/stock-item.ts`).
 
 **Turnover** (`components/StockMovementsSheet.tsx`): a side Sheet per item with Total masuk / Total keluar cards (`total_in` / `total_out` of the movements endpoint — all pages, not affected by the filter), a Semua / Masuk / Keluar filter (`direction=in|out`) and the paginated movement table (`columns/stock-movement.columns.tsx`). Backed by `GET /master/ingredients/{id}/stock-movements` and `GET /master/menus/{id}/stock-movements` (owner-only).

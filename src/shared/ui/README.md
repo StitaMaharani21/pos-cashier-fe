@@ -35,6 +35,25 @@ colors, off-scale paddings or a second font stack.
 - A card that does something is a `<button>` (or stretches one over itself, as
   `kpi-card` does) — never an `onClick` on a `div`.
 
+## Informasi tambahan (InfoTip)
+
+A form must not read like a manual. Keep in sight only what the owner acts on —
+data and status (current stock, the live recipe preview, a summary), and
+messages that need a reaction (validation errors, "simpan menu dulu…"). Move
+explanations, examples and rules behind a small **"i"** that opens on click.
+
+- `info-tip.tsx` — `InfoTip({ label, title?, children })` is the round "i"
+  button; `LabelWithInfo({ info, infoLabel, children })` puts a label and its "i"
+  on one line. Built on `popover.tsx` (Radix Popover), not a hover tooltip: it
+  must work on touch screens and may hold a link. Click outside or Esc closes it
+  (Esc closes the popover before the Sheet it sits in).
+- On a card title use `FormSection`'s `info` prop (`description` is optional now —
+  leave it out when the title says it all).
+- Put the "i" **next to** a `FormLabel`, never inside it: a click inside a label
+  focuses its input. The trigger is `type="button"`, so it never submits the form.
+- `label` names what the "i" explains ("Harga Pokok per Porsi"); it becomes the
+  screen-reader name `Info: …`. Keep the text to a few short sentences.
+
 ## Tabel
 
 Every list in the owner dashboard follows one pattern. The Menu / Kategori Menu tables are the reference. Don't hand-roll table markup — compose these pieces.
