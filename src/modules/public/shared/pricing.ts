@@ -51,8 +51,9 @@ export const EXTRA_PRICING = {
   },
 } as const
 
-// Starter's daily transaction soft limit, per the price list.
-// NOTE: pos-kasir-be's plan.StarterDailyTransactionLimit is currently 80 and
-// has no "3 consecutive days → upgrade notice" logic yet — it only feeds the
-// owner dashboard widget and never blocks checkout. Keep the two in sync.
-export const STARTER_SOFT_DAILY_LIMIT = 50
+// Starter's daily transaction soft limit, per the price list. Must match
+// pos-kasir-be's plan.StarterDailyTransactionLimit (80): the backend counts every
+// transaction past it at the overage price below (Rp300, billed at month end) and
+// shows the owner and the cashier a warning, but never blocks checkout. There is no
+// "3 consecutive days → upgrade notice" logic yet.
+export const STARTER_SOFT_DAILY_LIMIT = 80

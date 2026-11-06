@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react"
 import { MinusIcon, PlusIcon, TriangleAlertIcon, XIcon } from "lucide-react"
 
-import type { GuestAddonGroup, GuestMenu } from "@/modules/public/self-order/domain/self-order.types"
+import {
+  unitPriceForQty,
+  type GuestAddonGroup,
+  type GuestMenu,
+} from "@/modules/public/self-order/domain/self-order.types"
 import { MenuThumb } from "@/modules/public/self-order/presentation/components/MenuThumb"
 import { formatRupiah } from "@/shared/lib/utils"
 
@@ -47,7 +51,7 @@ export function ItemSheet({ menu, initialName, isSubmitting, error, onSubmit, on
     .flatMap((group) => group.options)
     .filter((option) => picked.includes(option.id))
     .reduce((sum, option) => sum + option.price, 0)
-  const lineTotal = (menu.final_price + addonTotal) * qty
+  const lineTotal = (unitPriceForQty(menu, qty) + addonTotal) * qty
   const missingRequired = menu.addon_groups.some(
     (group) => group.is_required && !group.options.some((option) => picked.includes(option.id))
   )

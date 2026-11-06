@@ -22,6 +22,8 @@ export const routeAccess: Record<string, AccessRule> = {
   "discount-auto": { feature: "discount", module: "discount" },
   "financial-report": { feature: "reports", module: "report" },
   "cash-report": { feature: "reports", module: "report" },
+  // Refunds the cashiers asked for; the owner approves or rejects (owner-only API).
+  "refund-approval": { feature: "pos", module: "refund" },
   // Riwayat Stok: the Menu tab (stock per menu) works on every plan, so the page
   // is gated like the menu form; the Bahan Baku tab checks inventory_full itself.
   "stock-history": { feature: "pos", module: "menu" },

@@ -8,6 +8,7 @@ import { useOrderDetail, useOrderRefunds } from "@/modules/owner/financial-repor
 import type { ReportTransaction } from "@/modules/owner/financial-report/financial-report.types"
 import { orderStatusBadge } from "@/modules/owner/financial-report/lib/order-status"
 import { formatPaymentLabel } from "@/modules/owner/financial-report/lib/payment-label"
+import { OrderRefundRequests } from "@/modules/owner/refund-approval/components/OrderRefundRequests"
 import { orderTypeLabel } from "@/shared/lib/order-type-label"
 import { cn, formatRupiah } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
@@ -185,7 +186,7 @@ function PaymentBlock({ detail }: { detail: OrderDetail }) {
   )
 }
 
-function DetailBody({ detail, refunds }: { detail: OrderDetail; refunds: OrderRefund[] }) {
+function DetailBody({ detail, refunds, orderId }: { detail: OrderDetail; refunds: OrderRefund[]; orderId: number }) {
   const itemRefunds = refundsByItem(refunds)
   const refundTotal = refunds.reduce((sum, refund) => sum + refund.total_amount, 0)
   const refundItemsValue = refunds.reduce(
@@ -251,6 +252,8 @@ function DetailBody({ detail, refunds }: { detail: OrderDetail; refunds: OrderRe
       <Section title="Pembayaran">
         <PaymentBlock detail={detail} />
       </Section>
+
+      <OrderRefundRequests orderId={orderId} />
 
       {refunds.length > 0 && (
         <Section title={`Riwayat Refund (${refunds.length})`}>
@@ -354,7 +357,7 @@ export function TransactionDetailSheet({ order, onClose }: TransactionDetailShee
                   <p className="font-semibold text-foreground">Tidak ada item</p>
                 </div>
               ) : (
-                <DetailBody detail={detailQuery.data} refunds={refundsQuery.data ?? []} />
+                <DetailBody detail={detailQuery.data} refunds={refundsQuery.data ?? []} orderId={order.order_id} />
               )}
             </div>
           </>

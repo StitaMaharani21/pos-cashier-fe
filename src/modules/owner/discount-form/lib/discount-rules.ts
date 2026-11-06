@@ -1,6 +1,7 @@
-import { addDays, format, formatISO, parseISO } from "date-fns"
+import { format, formatISO, parseISO } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 
+import { storeToday } from "@/shared/lib/store-time"
 import { formatRupiah } from "@/shared/lib/utils"
 
 export type DiscountType = "percent" | "fixed"
@@ -56,8 +57,10 @@ export function fromApiDate(value?: string | null): string {
   return value ? value.slice(0, 10) : ""
 }
 
+// "YYYY-MM-DD" of today in the STORE's timezone (not the device's), so a device in another
+// zone still picks the store's calendar day.
 export function todayInput(offsetDays = 0): string {
-  return format(addDays(new Date(), offsetDays), "yyyy-MM-dd")
+  return storeToday(offsetDays)
 }
 
 export function formatDateLabel(date: string): string {

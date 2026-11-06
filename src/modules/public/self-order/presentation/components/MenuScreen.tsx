@@ -165,7 +165,9 @@ function MenuCard({
         <p className="name">
           {menu.name}
           {menu.discount && menu.discount.percent_off > 0 && (
-            <span className="so-badge-off">-{menu.discount.percent_off}%</span>
+            <span className="so-badge-off">
+              {(menu.discount.minimum_qty ?? 0) > 1 ? `Beli ${menu.discount.minimum_qty}: ` : ""}-{menu.discount.percent_off}%
+            </span>
           )}
         </p>
         <p className="desc">{menu.description}</p>

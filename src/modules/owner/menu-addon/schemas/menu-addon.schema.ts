@@ -3,6 +3,7 @@ import { z } from "zod"
 export const GROUP_NAME_MAX = 100
 export const OPTION_NAME_MAX = 100
 export const PRICE_MAX_LENGTH = 9
+export const LINKED_QTY_MAX = 99
 
 // Mirrors pos-kasir-be's dto.CreateAddonGroupRequest/AddonOptionRequest. The
 // form speaks in plain choices ("Pilih satu" / "Boleh lebih dari satu") and the
@@ -16,7 +17,20 @@ export const addonOptionSchema = z.object({
   // Digits; "" is treated as 0 (no extra charge).
   price: z.string(),
   isActive: z.boolean(),
+  // Promo "Beli 1 Gratis 1": the option also takes stock from another menu.
+  // Ids as strings (the Select's value); "" = no linked menu / no serving.
+  linkedMenuId: z.string(),
+  linkedServingOptionId: z.string(),
+  // Digits; "" is treated as 1.
+  linkedQty: z.string(),
 })
+  .superRefine((option, ctx) => {
+    if (option.linkedMenuId === "") return
+    const qty = option.linkedQty === "" ? 1 : Number(option.linkedQty)
+    if (!Number.isInteger(qty) || qty < 1 || qty > LINKED_QTY_MAX) {
+      ctx.addIssue({ code: "custom", path: ["linkedQty"], message: `Isi 1–${LINKED_QTY_MAX}` })
+    }
+  })
 
 export const menuAddonSchema = z
   .object({

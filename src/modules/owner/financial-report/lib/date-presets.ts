@@ -1,4 +1,4 @@
-import { format, startOfDay, startOfMonth, subDays } from "date-fns"
+import { addDaysToDate, startOfMonthOf, storeDateOf } from "@/shared/lib/store-time"
 
 // Local copy of sales-report/lib/date-presets.ts's preset idiom, deliberately
 // not imported from there — this module is meant to fully replace
@@ -20,16 +20,18 @@ export interface DateRange {
 }
 
 // Both ends inclusive, store-local calendar days — matches
-// GET /reports/sales/*?from=YYYY-MM-DD&to=YYYY-MM-DD.
+// GET /reports/sales/*?from=YYYY-MM-DD&to=YYYY-MM-DD. "Today" is a day of the STORE's
+// timezone (shared/lib/store-time.ts), not of the device: a WITA/WIT device has a
+// different date from a WIB store for a few hours every day.
 export function presetToDateRange(preset: Exclude<DatePreset, "custom">, now = new Date()): DateRange {
-  const today = startOfDay(now)
+  const today = storeDateOf(now)
   switch (preset) {
     case "today":
-      return { from: format(today, "yyyy-MM-dd"), to: format(today, "yyyy-MM-dd") }
+      return { from: today, to: today }
     case "7d":
-      return { from: format(subDays(today, 6), "yyyy-MM-dd"), to: format(today, "yyyy-MM-dd") }
+      return { from: addDaysToDate(today, -6), to: today }
     case "month":
-      return { from: format(startOfMonth(today), "yyyy-MM-dd"), to: format(today, "yyyy-MM-dd") }
+      return { from: startOfMonthOf(today), to: today }
   }
 }
 

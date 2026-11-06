@@ -20,6 +20,7 @@ import { PaymentMethodSection } from "@/modules/owner/payment-method/section/Pay
 import { ProductDiscountSection } from "@/modules/owner/product-discount/section/ProductDiscountSection"
 import { ProfileSection } from "@/modules/owner/profile/section/ProfileSection"
 import { StockHistorySection } from "@/modules/owner/stock-history/section/StockHistorySection"
+import { RefundApprovalSection } from "@/modules/owner/refund-approval/section/RefundApprovalSection"
 import { StockReconciliationSection } from "@/modules/owner/stock-reconciliation/section/StockReconciliationSection"
 import { TableSection } from "@/modules/owner/table/section/TableSection"
 import { VoucherSection } from "@/modules/owner/voucher/section/VoucherSection"
@@ -85,6 +86,7 @@ export function AppRouter() {
           />
           <Route path="sales-report" element={<Navigate to="/app/financial-report" replace />} />
           <Route path="cash-report" element={guarded("cash-report", <CashReportSection />)} />
+          <Route path="refund-approval" element={guarded("refund-approval", <RefundApprovalSection />)} />
           <Route
             path="stock-history"
             element={guarded("stock-history", <StockHistorySection />)}

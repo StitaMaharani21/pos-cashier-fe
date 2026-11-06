@@ -31,6 +31,21 @@ export interface AddonOptionDraft {
   name: string
   price: number
   status: AddonStatus
+  // Promo "Beli 1 Gratis 1" link (see AddonOption); null = none.
+  linked_menu_id: number | null
+  linked_serving_option_id: number | null
+  linked_qty: number
+}
+
+// The link fields of an option as the backend takes them.
+function linkBody(option: AddonOptionDraft) {
+  return option.linked_menu_id
+    ? {
+        linked_menu_id: option.linked_menu_id,
+        linked_serving_option_id: option.linked_serving_option_id,
+        linked_qty: option.linked_qty > 0 ? option.linked_qty : 1,
+      }
+    : { linked_menu_id: null, linked_serving_option_id: null, linked_qty: 0 }
 }
 
 // What the form submits. The backend splits a group over several endpoints
@@ -99,6 +114,7 @@ async function create(draft: AddonGroupDraft): Promise<AddonGroup> {
       price: option.price,
       sort_order: index,
       status: option.status,
+      ...linkBody(option),
     })),
   }
 
@@ -140,7 +156,13 @@ async function update(id: number | string, draft: AddonGroupDraft): Promise<Addo
       }
     }
     for (const [index, option] of draft.options.entries()) {
-      const optionBody = { name: option.name, price: option.price, sort_order: index, status: option.status }
+      const optionBody = {
+        name: option.name,
+        price: option.price,
+        sort_order: index,
+        status: option.status,
+        ...linkBody(option),
+      }
       if (option.id) {
         await apiClient.put<SingleResponse<AddonOption>>(`${RESOURCE}/${groupId}/options/${option.id}`, optionBody)
       } else {

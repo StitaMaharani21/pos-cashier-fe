@@ -1,6 +1,7 @@
 import { LowStockCard } from "@/modules/owner/dashboard/components/LowStockCard"
 import { OrderCompositionCard } from "@/modules/owner/dashboard/components/OrderCompositionCard"
 import { PaymentMethodDonutCard } from "@/modules/owner/dashboard/components/PaymentMethodDonutCard"
+import { PendingRefundNotice } from "@/modules/owner/dashboard/components/PendingRefundNotice"
 import { PopularMenuTable } from "@/modules/owner/dashboard/components/PopularMenuTable"
 import { SalesTrendCard } from "@/modules/owner/dashboard/components/SalesTrendCard"
 import { TransactionLimitCard } from "@/modules/owner/dashboard/components/TransactionLimitCard"
@@ -9,6 +10,8 @@ import { KpiCardsGrid } from "@/shared/ui/kpi-cards-grid"
 export function DashboardSection() {
   return (
     <div className="flex flex-col gap-5">
+      <PendingRefundNotice />
+
       <TransactionLimitCard />
 
       <KpiCardsGrid />

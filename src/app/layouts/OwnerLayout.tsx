@@ -17,6 +17,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom"
 
 import { OwnerHeader } from "@/app/layouts/OwnerHeader"
 import { routeAccess } from "@/app/router/routeAccess"
+import { usePendingRefundRequestCount } from "@/modules/owner/refund-approval/refund-approval.queries"
 import { useCapabilities } from "@/shared/access/useCapabilities"
 import { UpsellModal } from "@/shared/access/UpsellModal"
 import { upsellStore } from "@/shared/access/upsellStore"
@@ -26,6 +27,7 @@ import { NeelaLogo } from "@/shared/ui/neela-logo"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet"
 
 const DASHBOARD_ITEM = { to: "/app", label: "Beranda", icon: LayoutGridIcon }
+const REFUND_APPROVAL_PATH = "/app/refund-approval"
 
 // Grouping/labels mirror the Figma sidenav (SideNavBar shared component).
 // "Meja" isn't shown in that particular screen, but it's an existing,
@@ -57,6 +59,7 @@ const NAV_GROUPS = [
     items: [
       { to: "/app/financial-report", label: "Laporan Keuangan" },
       { to: "/app/cash-report", label: "Laporan Kas" },
+      { to: "/app/refund-approval", label: "Persetujuan Refund" },
       { to: "/app/stock-history", label: "Riwayat Stok" },
       { to: "/app/stock-reconciliation", label: "Cocokkan Stok" },
     ],
@@ -166,6 +169,8 @@ export function OwnerLayout() {
   const { upgradeHint, isLoading } = useCapabilities()
   const stateOf = useItemState()
   const { pathname } = useLocation()
+  // Badge on "Persetujuan Refund": refunds the cashiers asked for and nobody decided yet.
+  const { data: pendingRefunds = 0 } = usePendingRefundRequestCount(stateOf(REFUND_APPROVAL_PATH) === "open")
 
   // Navigating closes the drawer. Escape, the focus trap and the body scroll
   // lock come from the Sheet (Radix Dialog) the drawer is built on.
@@ -221,7 +226,17 @@ export function OwnerLayout() {
             : cn(ROW_BASE, isActive ? ROW_ACTIVE : ROW_IDLE)
         }
       >
-        {item.label}
+        <span className="flex w-full items-center justify-between gap-2">
+          {item.label}
+          {item.to === REFUND_APPROVAL_PATH && pendingRefunds > 0 && (
+            <span
+              aria-label={`${pendingRefunds} pengajuan refund menunggu`}
+              className="inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[11px] leading-none font-bold text-white"
+            >
+              {pendingRefunds > 99 ? "99+" : pendingRefunds}
+            </span>
+          )}
+        </span>
       </NavLink>
     )
   }

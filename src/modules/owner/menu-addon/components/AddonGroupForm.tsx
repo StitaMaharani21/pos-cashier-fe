@@ -1,14 +1,17 @@
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { ListChecksIcon, ListPlusIcon, PlusIcon, SlidersHorizontalIcon, Trash2Icon, UtensilsIcon } from "lucide-react"
-import { useFieldArray } from "react-hook-form"
+import { useFieldArray, type UseFormReturn } from "react-hook-form"
 
 import type { AddonGroup } from "@/entities/menu-addon/model/menu-addon.types"
 import { AffixInput } from "@/modules/owner/discount-form/components/AffixInput"
 import { DrawerFooter } from "@/modules/owner/discount-form/components/DrawerFooter"
 import {
+  ADDON_GROUPS_KEY,
+  ADDON_LIST_PARAMS,
   ADDON_MENU_PICKER_KEY,
   listAllMenus,
+  menuAddonService,
   type AddonGroupDraft,
 } from "@/modules/owner/menu-addon/api/menu-addon.service"
 import {
@@ -24,7 +27,9 @@ import { Button } from "@/shared/ui/button"
 import { Checkbox } from "@/shared/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
 import { FormSection, RequiredMark } from "@/shared/ui/form-section"
+import { InfoTip } from "@/shared/ui/info-tip"
 import { Input } from "@/shared/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 import { Switch } from "@/shared/ui/switch"
 
 interface AddonGroupFormProps {
@@ -40,7 +45,15 @@ interface AddonGroupFormProps {
   submitLabel?: string
 }
 
-const EMPTY_OPTION = { optionId: undefined, name: "", price: "", isActive: true }
+const EMPTY_OPTION = {
+  optionId: undefined,
+  name: "",
+  price: "",
+  isActive: true,
+  linkedMenuId: "",
+  linkedServingOptionId: "",
+  linkedQty: "",
+}
 
 // The "Tambah Grup Addon" drawer: a named set of choices (e.g. "Tambahan":
 // Gula +Rp5.000), how many a pelanggan may pick, and which menus offer it.
@@ -67,6 +80,9 @@ export function AddonGroupForm({
             name: option.name,
             price: option.price ? String(Math.round(option.price)) : "",
             isActive: option.status === "active",
+            linkedMenuId: option.linked_menu_id ? String(option.linked_menu_id) : "",
+            linkedServingOptionId: option.linked_serving_option_id ? String(option.linked_serving_option_id) : "",
+            linkedQty: option.linked_menu_id && option.linked_qty ? String(option.linked_qty) : "",
           }))
         : [{ ...EMPTY_OPTION }],
       menuIds: row?.menu_ids ?? [],
@@ -87,6 +103,10 @@ export function AddonGroupForm({
         name: option.name.trim(),
         price: Number(option.price) || 0,
         status: option.isActive ? "active" : "inactive",
+        linked_menu_id: option.linkedMenuId ? Number(option.linkedMenuId) : null,
+        linked_serving_option_id:
+          option.linkedMenuId && option.linkedServingOptionId ? Number(option.linkedServingOptionId) : null,
+        linked_qty: option.linkedMenuId ? Number(option.linkedQty) || 1 : 0,
       })),
       menu_ids: values.menuIds,
       original: row ?? undefined,
@@ -246,7 +266,8 @@ export function AddonGroupForm({
           >
             <div className="flex flex-col gap-3">
               {fields.map((item, index) => (
-                <div key={item.id} className="flex items-start gap-2 rounded-xl border bg-card p-3">
+                <div key={item.id} className="flex flex-col gap-3 rounded-xl border bg-card p-3">
+                  <div className="flex items-start gap-2">
                   <FormField
                     control={form.control}
                     name={`options.${index}.name`}
@@ -315,6 +336,8 @@ export function AddonGroupForm({
                       <Trash2Icon className="size-4" />
                     </Button>
                   )}
+                  </div>
+                  <LinkedMenuFields form={form} index={index} />
                 </div>
               ))}
               {form.formState.errors.options?.root?.message && (
@@ -422,6 +445,170 @@ function MenuPicker({ value, onChange }: { value: number[]; onChange: (ids: numb
           )
         })}
       </div>
+    </div>
+  )
+}
+
+const NO_LINK = "none"
+
+// Promo "Beli 1 Gratis 1" on one option: choosing it also takes stock (and the
+// ingredients) of ANOTHER menu out, like a menu that was sold. Closed until
+// wanted so a plain option stays one line.
+function LinkedMenuFields({ form, index }: { form: UseFormReturn<MenuAddonFormValues>; index: number }) {
+  const linkedMenuId = form.watch(`options.${index}.linkedMenuId`)
+  const [open, setOpen] = useState(linkedMenuId !== "")
+
+  const { data: allMenus = [] } = useQuery({
+    queryKey: ADDON_MENU_PICKER_KEY,
+    queryFn: listAllMenus,
+    staleTime: 60_000,
+  })
+  const { data: groups = [] } = useQuery({
+    queryKey: [ADDON_GROUPS_KEY, ADDON_LIST_PARAMS],
+    queryFn: () => menuAddonService.list(ADDON_LIST_PARAMS),
+    staleTime: 30_000,
+  })
+
+  // Inactive menus aren't offered, except the one this option already points to.
+  const menus = useMemo(
+    () => allMenus.filter((menu) => menu.effective_active !== false || String(menu.id ?? 0) === linkedMenuId),
+    [allMenus, linkedMenuId]
+  )
+  // The linked menu's own serving choices: options of the groups attached to it.
+  const servingChoices = useMemo(() => {
+    const menuId = Number(linkedMenuId)
+    if (!menuId) return []
+    return groups
+      .filter((group) => group.status === "active" && (group.menu_ids ?? []).includes(menuId))
+      .flatMap((group) =>
+        group.options
+          .filter((option) => option.status === "active")
+          .map((option) => ({ id: option.id, label: `${group.name}: ${option.name}` }))
+      )
+  }, [groups, linkedMenuId])
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="self-start text-xs font-medium text-primary-strong hover:underline"
+      >
+        + Potong stok menu lain (promo Beli 1 Gratis 1)
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-dashed bg-muted/30 p-3">
+      <div className="flex items-center gap-1.5">
+        <span className="text-sm font-semibold text-foreground">Potong stok menu lain</span>
+        <InfoTip label="Potong stok menu lain" title="Promo Beli 1 Gratis 1">
+          <p>
+            Saat kasir memilih opsi ini, stok dan bahan baku menu yang dipilih di sini ikut terpotong, sama seperti
+            menu yang dijual. Contoh: opsi &quot;Gratis Matcha&quot; di Kopi memotong bahan Kopi dan bahan Matcha.
+          </p>
+          <p>Harga opsi tetap diisi di atas (Rp0 untuk gratis). HPP menu tertaut ikut masuk ke HPP baris pesanan.</p>
+        </InfoTip>
+        {linkedMenuId === "" && (
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+          >
+            Tutup
+          </button>
+        )}
+      </div>
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+        <FormField
+          control={form.control}
+          name={`options.${index}.linkedMenuId`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Menu terkait</FormLabel>
+              <Select
+                value={field.value || NO_LINK}
+                onValueChange={(value) => {
+                  field.onChange(value === NO_LINK ? "" : value)
+                  form.setValue(`options.${index}.linkedServingOptionId`, "")
+                }}
+              >
+                <FormControl>
+                  <SelectTrigger className="h-11 w-full bg-card">
+                    <SelectValue placeholder="Tidak ada" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={NO_LINK}>Tidak ada (opsi biasa)</SelectItem>
+                  {menus.map((menu) => (
+                    <SelectItem key={menu.id} value={String(menu.id)}>
+                      {menu.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`options.${index}.linkedQty`}
+          render={({ field }) => (
+            <FormItem className="sm:w-32">
+              <FormLabel>Jumlah</FormLabel>
+              <FormControl>
+                <AffixInput
+                  name={field.name}
+                  inputRef={field.ref}
+                  onBlur={field.onBlur}
+                  value={field.value}
+                  onChange={field.onChange}
+                  suffix="porsi"
+                  maxLength={2}
+                  placeholder="1"
+                  disabled={linkedMenuId === ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      {linkedMenuId !== "" && servingChoices.length > 0 && (
+        <FormField
+          control={form.control}
+          name={`options.${index}.linkedServingOptionId`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Penyajian menu terkait</FormLabel>
+              <Select
+                value={field.value || NO_LINK}
+                onValueChange={(value) => field.onChange(value === NO_LINK ? "" : value)}
+              >
+                <FormControl>
+                  <SelectTrigger className="h-11 w-full bg-card">
+                    <SelectValue placeholder="Tanpa penyajian khusus" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={NO_LINK}>Tanpa penyajian khusus</SelectItem>
+                  {servingChoices.map((choice) => (
+                    <SelectItem key={choice.id} value={String(choice.id)}>
+                      {choice.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Pilih mis. Ice supaya resep khusus Ice menu itu yang dipakai.
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </div>
   )
 }

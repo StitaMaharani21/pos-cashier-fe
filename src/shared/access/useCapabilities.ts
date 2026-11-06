@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { apiClient } from "@/shared/api/client"
+import { setStoreTimezone } from "@/shared/lib/store-time"
 
 import { CAPABILITIES_QUERY_KEY } from "./queryKeys"
 import type { Action, Capabilities, Feature, FeatureState, Module, UpgradeHint } from "./types"
@@ -18,7 +19,11 @@ export function useCapabilities() {
     queryFn: () =>
       apiClient
         .get<CapabilitiesEnvelope>("/me/capabilities")
-        .then((response) => response.data.data),
+        .then((response) => {
+          // Dates the owner picks are days of the STORE, which may not be the device's zone.
+          setStoreTimezone(response.data.data.timezone)
+          return response.data.data
+        }),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
   })

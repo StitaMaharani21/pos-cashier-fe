@@ -13,6 +13,14 @@ export interface AddonOption {
   price: number
   sort_order: number
   status: AddonStatus
+  // Promo "Beli 1 Gratis 1": picking this option also takes `linked_qty` of the
+  // linked menu out of stock (and its ingredients), like a menu that was sold.
+  // `linked_serving_option_id` = the linked menu's own serving option (e.g. Ice)
+  // so its serving-specific recipe lines apply. All absent for a plain option.
+  linked_menu_id?: number
+  linked_menu_name?: string
+  linked_serving_option_id?: number
+  linked_qty?: number
 }
 
 // A set of choices a customer picks from on a menu, e.g. "Tambahan" with
@@ -37,6 +45,10 @@ export interface AddonOptionInput {
   price: number
   sort_order: number
   status: AddonStatus
+  // null = no linked menu (also clears a link the option had).
+  linked_menu_id: number | null
+  linked_serving_option_id: number | null
+  linked_qty: number
 }
 
 export interface CreateAddonGroupRequest {

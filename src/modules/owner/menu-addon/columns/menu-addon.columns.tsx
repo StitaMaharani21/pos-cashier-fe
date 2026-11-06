@@ -38,6 +38,12 @@ export const menuAddonColumns: CrudColumn<AddonGroup>[] = [
             >
               {option.name}
               {option.price > 0 && <span className="text-muted-foreground"> +{formatRupiah(option.price)}</span>}
+              {option.linked_menu_id != null && (
+                <span className="text-primary-strong" title="Ikut memotong stok menu ini">
+                  {" "}
+                  → {option.linked_menu_name || "menu lain"} ×{option.linked_qty ?? 1}
+                </span>
+              )}
             </span>
           ))}
           {options.length > visible.length && (

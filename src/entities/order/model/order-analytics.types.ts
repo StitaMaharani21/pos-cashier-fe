@@ -24,9 +24,39 @@ export interface ShiftDashboardFields {
   cash_out?: number
   // opening_balance + cash_sales + cash_in - cash_out - cash_refunds
   expected_cash?: number
+  // One row per open shift (cashier). Every figure above is the SUM over these.
+  shifts?: DashboardShiftSummary[]
 }
-export type DailyTransactionLimit =
-  components["schemas"]["dto.DailyTransactionLimitResponse"]
+
+export interface DashboardShiftSummary {
+  shift_id: number
+  user_id: number
+  cashier_name: string
+  opened_at: string
+  total_revenue: number
+  total_orders: number
+  cash_sales: number
+  non_cash_sales: number
+  cash_in: number
+  cash_out: number
+  total_refunds: number
+  opening_balance: number
+  expected_cash: number
+}
+// The daily allowance is a SOFT limit: the cashier is never blocked. On Starter, every
+// transaction past the daily limit costs `overage_price` (billed at month end). The
+// fields below were added after the generated schema. Money fields are owner-only
+// (absent for the cashier).
+export type DailyTransactionLimit = components["schemas"]["dto.DailyTransactionLimitResponse"] & {
+  remaining?: number
+  over_today?: number
+  // Transactions past the daily limit, summed over this month's days.
+  month_over?: number
+  level?: "ok" | "near" | "over"
+  overage_price?: number
+  over_today_amount?: number
+  month_overage_amount?: number
+}
 export type PaymentMethodValueBreakdown =
   components["schemas"]["dto.PaymentMethodValueBreakdownResponse"]
 export type SalesTrendPoint = components["schemas"]["dto.SalesTrendPointResponse"]

@@ -1,6 +1,5 @@
 import { toast } from "sonner"
 
-import type { CashSummary } from "@/entities/shift/model/shift.types"
 import { useRecordCashCount } from "@/modules/owner/dashboard/dashboard.queries"
 import {
   cashCountSchema,
@@ -29,14 +28,23 @@ import { Input } from "@/shared/ui/input"
 import { NumberInput } from "@/shared/ui/number-input"
 import { friendlyErrorMessage } from "@/shared/api/error-message"
 
-interface CashCountDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  cashSummary: CashSummary | undefined
+// The shift whose drawer is counted (one cashier's shift).
+export interface CashCountTarget {
+  shiftId: number
+  cashierName?: string
+  // Cash that should be in the drawer right now.
+  expectedAmount: number
 }
 
-export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDialogProps) {
-  const mutation = useRecordCashCount(cashSummary?.shift_id)
+interface CashCountDialogProps {
+  // null keeps the dialog closed.
+  target: CashCountTarget | null
+  onOpenChange: (open: boolean) => void
+}
+
+export function CashCountDialog({ target, onOpenChange }: CashCountDialogProps) {
+  const open = target !== null
+  const mutation = useRecordCashCount(target?.shiftId)
   const form = useCrudForm({
     schema: cashCountSchema,
     defaultValues: { countedAmount: "", notes: "" },
@@ -62,10 +70,12 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Hitung Uang di Laci</DialogTitle>
+          <DialogTitle>
+            Hitung Uang di Laci{target?.cashierName ? ` — ${target.cashierName}` : ""}
+          </DialogTitle>
           <DialogDescription>
-            {cashSummary
-              ? `Uang yang seharusnya ada di laci sekarang: ${formatRupiah(cashSummary.current_expected_amount ?? cashSummary.expected_amount ?? 0)}`
+            {target
+              ? `Uang yang seharusnya ada di laci sekarang: ${formatRupiah(target.expectedAmount)}`
               : "Kasir belum dibuka, belum ada yang bisa dicatat."}
           </DialogDescription>
         </DialogHeader>
@@ -108,7 +118,7 @@ export function CashCountDialog({ open, onOpenChange, cashSummary }: CashCountDi
             />
 
             <DialogFooter>
-              <Button type="submit" disabled={mutation.isPending || !cashSummary}>
+              <Button type="submit" disabled={mutation.isPending || !target}>
                 {mutation.isPending ? "Menyimpan..." : "Simpan"}
               </Button>
             </DialogFooter>

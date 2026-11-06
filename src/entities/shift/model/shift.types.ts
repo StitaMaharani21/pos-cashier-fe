@@ -16,6 +16,31 @@ export type CashSummary = components["schemas"]["dto.CashSummaryResponse"] & {
   // Opening + cash sales + cash in - cash out - cash refund, computed live.
   // `expected_amount` can be the snapshot taken at the last cash count.
   current_expected_amount?: number
+  // Every cashier works in their own shift, so several can be open at once: the figures
+  // above are the TOTAL of all open shifts and `shifts` has one row per cashier.
+  // `shift_id` is only filled when exactly one shift is open (older clients).
+  active_shift_count?: number
+  shifts?: CashSummaryShift[]
+}
+
+// One open shift (one cashier) in CashSummary["shifts"], oldest first.
+export interface CashSummaryShift {
+  shift_id: number
+  user_id: number
+  cashier_name: string
+  opened_at: string
+  expected_amount: number
+  counted_amount: number
+  difference: number
+  has_mismatch: boolean
+  has_count: boolean
+  last_recorded_at: string | null
+  opening_balance: number
+  cash_sales: number
+  cash_in: number
+  cash_out: number
+  cash_refund: number
+  current_expected_amount: number
 }
 export type RecordCashCountPayload =
   components["schemas"]["dto.RecordCashCountRequest"]

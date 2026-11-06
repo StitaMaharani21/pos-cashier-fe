@@ -20,7 +20,21 @@ export interface GuestMenuDiscount {
   id: number
   name: string
   percent_off: number
+  // Cut per portion once the minimum is reached.
   discount_amount: number
+  // A discount that needs several portions ("min. 2 menu"): final_price stays the full price
+  // for ONE portion and the cut only applies from this quantity on. 0/absent = no minimum.
+  minimum_qty?: number
+}
+
+// Price of one portion when `qty` portions are ordered (the cart is priced by the server with the
+// same rule: a discount with a minimum quantity applies only once it is reached).
+export function unitPriceForQty(menu: { price: number; final_price: number; discount?: GuestMenuDiscount }, qty: number): number {
+  const rule = menu.discount
+  if (rule && (rule.minimum_qty ?? 0) > 1 && qty >= (rule.minimum_qty ?? 0)) {
+    return menu.price - rule.discount_amount
+  }
+  return menu.final_price
 }
 
 export interface GuestMenu {

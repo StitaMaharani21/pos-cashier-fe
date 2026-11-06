@@ -42,6 +42,9 @@ export type UpgradeHint = "ADDON" | "UPGRADE_PRO" | "UPGRADE_ENTERPRISE"
 
 export interface Capabilities {
   plan: "starter" | "pro" | "enterprise"
+  // The store's IANA timezone (APP_TIMEZONE, default "Asia/Jakarta"). "Today" in the
+  // reports and vouchers is a day of THIS zone, not of the device — see shared/lib/store-time.ts.
+  timezone?: string
   addons: string[]
   features: Feature[]
   locked: { feature: Feature; upgrade_hint: UpgradeHint }[]

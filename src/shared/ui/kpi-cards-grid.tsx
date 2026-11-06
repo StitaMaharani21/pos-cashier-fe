@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react"
 import { format } from "date-fns"
 import {
+  ArrowLeftRightIcon,
   BanknoteIcon,
   CalculatorIcon,
   CreditCardIcon,
@@ -8,20 +9,14 @@ import {
   LockIcon,
   PlusIcon,
   ReceiptIcon,
-  ScaleIcon,
   UndoIcon,
   WalletIcon,
 } from "lucide-react"
 
-import {
-  SELISIH_STATUS_BADGE_CLASSNAME,
-  SELISIH_STATUS_LABEL,
-  formatSelisih,
-  selisihStatus,
-} from "@/modules/owner/cash-report/lib/selisih"
 import { CashMovementDialog } from "@/modules/owner/dashboard/components/CashMovementDialog"
-import { CashCountDialog } from "@/modules/owner/dashboard/components/CashCountDialog"
-import { CloseShiftDialog } from "@/modules/owner/dashboard/components/CloseShiftDialog"
+import { CashCountDialog, type CashCountTarget } from "@/modules/owner/dashboard/components/CashCountDialog"
+import { CloseShiftDialog, type ShiftToClose } from "@/modules/owner/dashboard/components/CloseShiftDialog"
+import { PerCashierDrawers } from "@/modules/owner/dashboard/components/PerCashierDrawers"
 import { useCashSummary, useDashboardSummary } from "@/modules/owner/dashboard/dashboard.queries"
 import { formatRupiah } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
@@ -70,10 +65,14 @@ function footerNote(text: string) {
 //   Expected = Kas Awal + Cash Sales + Cash In - Cash Out - Cash Refund;
 //   Selisih = Kas Aktual - Expected. Non-cash sales only raise revenue, never
 //   the drawer.
+//
+// Every cashier works in their own shift, so several can be open at once: the cards are the TOTAL of
+// all open shifts, and with more than one a "Per Kasir" table lists each drawer with its own
+// Catat Kas / Hitung / Tutup actions. With a single open shift the cards carry those actions.
 export function KpiCardsGrid() {
-  const [cashDialogOpen, setCashDialogOpen] = useState(false)
-  const [closeDialogOpen, setCloseDialogOpen] = useState(false)
-  const [movementDialogOpen, setMovementDialogOpen] = useState(false)
+  const [countTarget, setCountTarget] = useState<CashCountTarget | null>(null)
+  const [closeTarget, setCloseTarget] = useState<ShiftToClose | null>(null)
+  const [movementShiftId, setMovementShiftId] = useState<number | null>(null)
   const summary = useDashboardSummary(true)
   const cashSummary = useCashSummary()
 
@@ -99,11 +98,19 @@ export function KpiCardsGrid() {
   const expectedCash = data?.expected_cash ?? activeCash?.current_expected_amount ?? 0
   const hasCount = hasShift && Boolean(activeCash?.has_count)
   const countedCash = activeCash?.counted_amount ?? 0
-  // Live difference against the CURRENT expected cash — the stored snapshot
-  // (`activeCash.difference`) goes stale once more transactions come in.
-  const difference = hasCount ? countedCash - expectedCash : null
-  const status = difference === null ? null : selisihStatus(difference)
   const lastCountedAt = activeCash?.last_recorded_at ? format(new Date(activeCash.last_recorded_at), "HH:mm") : null
+
+  const openShifts = activeCash?.shifts ?? []
+  const isMulti = hasShift && openShifts.length > 1
+  // The one open shift (cards act on it); null when several are open (the table acts per cashier).
+  const soleShift =
+    hasShift && !isMulti && activeCash?.shift_id
+      ? {
+          shiftId: activeCash.shift_id,
+          cashierName: openShifts[0]?.cashier_name,
+          expectedAmount: activeCash.current_expected_amount ?? activeCash.expected_amount ?? 0,
+        }
+      : null
 
   return (
     <>
@@ -170,11 +177,15 @@ export function KpiCardsGrid() {
 
         <CardGroup
           title="Uang di Laci"
-          description="Uang tunai yang ada di laci kasir. Pembayaran non-tunai tidak masuk ke laci."
+          description={
+            isMulti
+              ? `Gabungan ${openShifts.length} kasir yang sedang buka. Pembayaran non-tunai tidak masuk ke laci.`
+              : "Uang tunai yang ada di laci kasir. Pembayaran non-tunai tidak masuk ke laci."
+          }
           columns={hasShift ? "xl:grid-cols-4" : "xl:grid-cols-2"}
           action={
-            hasShift && (
-              <Button type="button" variant="outline" size="sm" onClick={() => setMovementDialogOpen(true)}>
+            soleShift && (
+              <Button type="button" variant="outline" size="sm" onClick={() => setMovementShiftId(soleShift.shiftId)}>
                 <PlusIcon />
                 Catat Kas
               </Button>
@@ -211,75 +222,80 @@ export function KpiCardsGrid() {
             testId="card-kas-aktual"
             icon={WalletIcon}
             label="Uang Hasil Hitung"
-            onClick={() => setCashDialogOpen(true)}
+            onClick={soleShift ? () => setCountTarget(soleShift) : undefined}
             value={!hasShift ? "—" : hasCount ? formatRupiah(countedCash) : "Belum dihitung"}
             footer={
-              hasShift && (
-                <div className="flex items-center justify-between gap-2">
-                  {footerNote(
-                    hasCount && lastCountedAt
-                      ? `Dihitung pukul ${lastCountedAt}`
-                      : "Ketuk untuk menghitung uang di laci"
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={(event) => {
-                      // The card itself opens the cash-count dialog.
-                      event.stopPropagation()
-                      setCloseDialogOpen(true)
-                    }}
-                  >
-                    <LockIcon />
-                    Tutup Kasir
-                  </Button>
-                </div>
+              isMulti ? (
+                footerNote(hasCount ? "Semua laci sudah dihitung" : "Hitung tiap laci di tabel Per Kasir")
+              ) : (
+                hasShift && (
+                  <div className="flex items-center justify-between gap-2">
+                    {footerNote(
+                      hasCount && lastCountedAt
+                        ? `Dihitung pukul ${lastCountedAt}`
+                        : "Ketuk untuk menghitung uang di laci"
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(event) => {
+                        // The card itself opens the cash-count dialog.
+                        event.stopPropagation()
+                        if (soleShift) setCloseTarget({ id: soleShift.shiftId, cashierName: soleShift.cashierName, expectedAmount: soleShift.expectedAmount })
+                      }}
+                    >
+                      <LockIcon />
+                      Tutup Kasir
+                    </Button>
+                  </div>
+                )
               )
             }
           />
+          {/* Same as the cashier app: what was booked with "Catat Kas" on this
+              shift. The count difference (Kurang/Lebih) is shown when the shift
+              is closed and in the cash report. */}
           <KpiCard
-            testId="card-selisih-kas"
-            icon={ScaleIcon}
-            iconTone={status === "shortage" ? "warning" : "neutral"}
-            tone={status === "shortage" ? "warning" : "default"}
-            label="Uang Kurang/Lebih"
-            value={difference === null ? "—" : formatSelisih(difference)}
-            footer={
-              status ? (
-                <span
-                  className={`inline-flex w-fit items-center rounded px-2 py-0.5 text-xs font-semibold ${SELISIH_STATUS_BADGE_CLASSNAME[status]}`}
-                >
-                  {SELISIH_STATUS_LABEL[status]}
-                </span>
-              ) : (
-                footerNote("Hitung uang di laci dulu")
-              )
-            }
+            testId="card-kas-masuk-keluar"
+            icon={ArrowLeftRightIcon}
+            iconTone="neutral"
+            label="Kas Masuk / Keluar"
+            value={`Masuk ${formatRupiah(data?.cash_in ?? 0)}`}
+            footer={footerNote(`Keluar ${formatRupiah(data?.cash_out ?? 0)}`)}
           />
             </>
           )}
         </CardGroup>
+
+        {isMulti && (
+          <PerCashierDrawers
+            shifts={openShifts}
+            sales={data?.shifts}
+            onRecordCash={(shift) => setMovementShiftId(shift.shift_id)}
+            onCount={(shift) =>
+              setCountTarget({
+                shiftId: shift.shift_id,
+                cashierName: shift.cashier_name,
+                expectedAmount: shift.current_expected_amount,
+              })
+            }
+            onClose={(shift) =>
+              setCloseTarget({
+                id: shift.shift_id,
+                cashierName: shift.cashier_name,
+                expectedAmount: shift.current_expected_amount,
+              })
+            }
+          />
+        )}
       </div>
 
-      <CloseShiftDialog
-        shift={
-          closeDialogOpen && activeCash?.shift_id
-            ? {
-                id: activeCash.shift_id,
-                expectedAmount: activeCash.current_expected_amount ?? activeCash.expected_amount ?? 0,
-              }
-            : null
-        }
-        onOpenChange={setCloseDialogOpen}
-      />
+      <CloseShiftDialog shift={closeTarget} onOpenChange={(open) => !open && setCloseTarget(null)} />
 
-      <CashMovementDialog
-        shiftId={movementDialogOpen && activeCash?.shift_id ? activeCash.shift_id : null}
-        onOpenChange={setMovementDialogOpen}
-      />
+      <CashMovementDialog shiftId={movementShiftId} onOpenChange={(open) => !open && setMovementShiftId(null)} />
 
-      <CashCountDialog open={cashDialogOpen} onOpenChange={setCashDialogOpen} cashSummary={activeCash} />
+      <CashCountDialog target={countTarget} onOpenChange={(open) => !open && setCountTarget(null)} />
     </>
   )
 }
